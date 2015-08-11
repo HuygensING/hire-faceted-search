@@ -19,7 +19,7 @@ class ListFacet extends React.Component {
 
 		return (
 			<li className="hire-facet hire-list-facet">
-				<h3>{this.props.data.title}</h3>
+				<h3>{this.props.data.get("title")}</h3>
 				<ul>
 					{listItems}
 				</ul>

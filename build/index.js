@@ -968,6 +968,13 @@ var _dispatcher = _dereq_("../dispatcher");
 var _dispatcher2 = _interopRequireDefault(_dispatcher);
 
 var queriesActions = {
+	setDefaults: function setDefaults(props) {
+		_dispatcher2["default"].handleViewAction({
+			actionType: "QUERIES_SET_DEFAULTS",
+			props: props
+		});
+	},
+
 	add: function add(facetName, value) {
 		_dispatcher2["default"].handleViewAction({
 			actionType: "QUERIES_ADD",
@@ -980,7 +987,7 @@ var queriesActions = {
 exports["default"] = queriesActions;
 module.exports = exports["default"];
 
-},{"../dispatcher":18}],13:[function(_dereq_,module,exports){
+},{"../dispatcher":19}],13:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1006,7 +1013,7 @@ var resultsActions = {
 exports["default"] = resultsActions;
 module.exports = exports["default"];
 
-},{"../stores/api":20}],14:[function(_dereq_,module,exports){
+},{"../stores/api":21}],14:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1038,7 +1045,7 @@ var serverActions = {
 exports["default"] = serverActions;
 module.exports = exports["default"];
 
-},{"../dispatcher":18}],15:[function(_dereq_,module,exports){
+},{"../dispatcher":19}],15:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1172,7 +1179,7 @@ var ListFacet = (function (_React$Component) {
 				_react2["default"].createElement(
 					"h3",
 					null,
-					this.props.data.title
+					this.props.data.get("title")
 				),
 				_react2["default"].createElement(
 					"ul",
@@ -1214,9 +1221,94 @@ var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
 
-var _listFacet = _dereq_("./list-facet");
+var _storesQueries = _dereq_("../stores/queries");
 
-var _listFacet2 = _interopRequireDefault(_listFacet);
+var _storesQueries2 = _interopRequireDefault(_storesQueries);
+
+var Result = (function (_React$Component) {
+	_inherits(Result, _React$Component);
+
+	function Result() {
+		_classCallCheck(this, Result);
+
+		_get(Object.getPrototypeOf(Result.prototype), "constructor", this).apply(this, arguments);
+	}
+
+	_createClass(Result, [{
+		key: "render",
+		value: function render() {
+			var model = this.props.data;
+
+			var metadata = _storesQueries2["default"].getState().get("resultFields").map(function (field) {
+				return _react2["default"].createElement(
+					"li",
+					null,
+					_react2["default"].createElement(
+						"label",
+						null,
+						field
+					),
+					_react2["default"].createElement(
+						"span",
+						null,
+						model.get("metadata").get(field)
+					)
+				);
+			});
+
+			metadata = metadata.length ? _react2["default"].createElement(
+				"ul",
+				{ className: "metadata" },
+				metadata
+			) : null;
+
+			return _react2["default"].createElement(
+				"li",
+				{ onClick: this.props.onSelect.bind(this, model) },
+				_react2["default"].createElement(
+					"label",
+					null,
+					model.get("name")
+				),
+				metadata
+			);
+		}
+	}]);
+
+	return Result;
+})(_react2["default"].Component);
+
+Result.defaultProps = {};
+
+Result.propTypes = {};
+
+exports["default"] = Result;
+module.exports = exports["default"];
+
+},{"../stores/queries":23,"react":"react"}],18:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = _dereq_("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _result = _dereq_("./result");
+
+var _result2 = _interopRequireDefault(_result);
 
 var Results = (function (_React$Component) {
 	_inherits(Results, _React$Component);
@@ -1232,74 +1324,26 @@ var Results = (function (_React$Component) {
 		value: function render() {
 			var _this = this;
 
-			console.log(this.props.facetData.toJS());
 			var results = this.props.facetData.get("results").map(function (data, index) {
-				return _react2["default"].createElement(
-					"li",
-					{ key: index, onClick: _this.props.onSelect.bind(_this, data) },
-					_react2["default"].createElement(
-						"label",
-						null,
-						data.get("name")
-					),
-					_react2["default"].createElement(
-						"ul",
-						{ className: "metadata" },
-						_react2["default"].createElement(
-							"li",
-							null,
-							_react2["default"].createElement(
-								"label",
-								null,
-								"Date"
-							),
-							_react2["default"].createElement(
-								"span",
-								null,
-								data.get("metadata").get("Date")
-							)
-						),
-						_react2["default"].createElement(
-							"li",
-							null,
-							_react2["default"].createElement(
-								"label",
-								null,
-								"Recipient"
-							),
-							_react2["default"].createElement(
-								"span",
-								null,
-								data.get("metadata").get("Recipient")
-							)
-						),
-						_react2["default"].createElement(
-							"li",
-							null,
-							_react2["default"].createElement(
-								"label",
-								null,
-								"Sender"
-							),
-							_react2["default"].createElement(
-								"span",
-								null,
-								data.get("metadata").get("Sender")
-							)
-						)
-					)
-				);
+				return _react2["default"].createElement(_result2["default"], {
+					data: data,
+					key: index,
+					onSelect: _this.props.onSelect });
 			});
 
 			return _react2["default"].createElement(
 				"div",
 				{ className: "hire-faceted-search-results" },
 				_react2["default"].createElement(
-					"h3",
+					"header",
 					null,
-					"Found ",
-					this.props.facetData.get("numFound"),
-					" results"
+					_react2["default"].createElement(
+						"h3",
+						null,
+						"Found ",
+						this.props.facetData.get("numFound"),
+						" results"
+					)
 				),
 				_react2["default"].createElement(
 					"ul",
@@ -1320,7 +1364,7 @@ Results.propTypes = {};
 exports["default"] = Results;
 module.exports = exports["default"];
 
-},{"./list-facet":16,"react":"react"}],18:[function(_dereq_,module,exports){
+},{"./result":17,"react":"react"}],19:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1374,7 +1418,7 @@ var AppDispatcher = (function (_Dispatcher) {
 exports["default"] = new AppDispatcher();
 module.exports = exports["default"];
 
-},{"flux":1}],19:[function(_dereq_,module,exports){
+},{"flux":1}],20:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1411,6 +1455,10 @@ var _storesResults = _dereq_("./stores/results");
 
 var _storesResults2 = _interopRequireDefault(_storesResults);
 
+var _actionsQueries = _dereq_("./actions/queries");
+
+var _actionsQueries2 = _interopRequireDefault(_actionsQueries);
+
 var _storesQueries = _dereq_("./stores/queries");
 
 var _storesQueries2 = _interopRequireDefault(_storesQueries);
@@ -1429,6 +1477,7 @@ var FacetedSearchController = (function (_React$Component) {
 	_createClass(FacetedSearchController, [{
 		key: "componentDidMount",
 		value: function componentDidMount() {
+			_actionsQueries2["default"].setDefaults(this.props);
 			_storesResults2["default"].listen(this.onStoreChange.bind(this));
 			_storesQueries2["default"].listen(this.onQueriesChange.bind(this));
 			_actionsResults2["default"].getAll();
@@ -1477,16 +1526,19 @@ var FacetedSearchController = (function (_React$Component) {
 	return FacetedSearchController;
 })(_react2["default"].Component);
 
-FacetedSearchController.defaultProps = {};
+FacetedSearchController.defaultProps = {
+	sortFields: []
+};
 
 FacetedSearchController.propTypes = {
-	onChange: _react2["default"].PropTypes.func.isRequired
+	onChange: _react2["default"].PropTypes.func.isRequired,
+	sortFields: _react2["default"].PropTypes.array
 };
 
 exports["default"] = FacetedSearchController;
 module.exports = exports["default"];
 
-},{"./actions/results":13,"./components/faceted-search":15,"./components/results":17,"./stores/queries":22,"./stores/results":23,"react":"react"}],20:[function(_dereq_,module,exports){
+},{"./actions/queries":12,"./actions/results":13,"./components/faceted-search":15,"./components/results":18,"./stores/queries":23,"./stores/results":24,"react":"react"}],21:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1564,7 +1616,7 @@ exports["default"] = {
 };
 module.exports = exports["default"];
 
-},{"../actions/server":14,"../stores/queries":22,"xhr":5}],21:[function(_dereq_,module,exports){
+},{"../actions/server":14,"../stores/queries":23,"xhr":5}],22:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1610,7 +1662,7 @@ var BaseStore = (function (_EventEmitter) {
 exports["default"] = BaseStore;
 module.exports = exports["default"];
 
-},{"events":4}],22:[function(_dereq_,module,exports){
+},{"events":4}],23:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1635,6 +1687,10 @@ var _base = _dereq_("./base");
 
 var _base2 = _interopRequireDefault(_base);
 
+var _immutable = _dereq_("immutable");
+
+var _immutable2 = _interopRequireDefault(_immutable);
+
 var CHANGE_EVENT = "change";
 
 var Queries = (function (_BaseStore) {
@@ -1645,23 +1701,12 @@ var Queries = (function (_BaseStore) {
 
 		_get(Object.getPrototypeOf(Queries.prototype), "constructor", this).call(this);
 
-		this.data = {
-			"sortParameters": [{
-				"fieldname": "Sender",
-				"direction": "asc"
-			}, {
-				"fieldname": "Recipient",
-				"direction": "asc"
-			}, {
-				"fieldname": "Date",
-				"direction": "asc"
-			}],
-			"resultFields": ["Sender", "Recipient", "Date"],
-			"textLayers": ["Diplomatic", "Translation"],
+		this.data = _immutable2["default"].fromJS({
+			"textLayers": ["Diplomatic", "Opmerkingen en verwijzingen", "Comments and References", "Transcription", "Transcripción", "Transcriptie", "Vertaling", "Translation", "Traducción", "Comentarios y referencias"],
 			"searchInAnnotations": true,
 			"searchInTranscriptions": true,
 			"facetValues": []
-		};
+		});
 	}
 
 	_createClass(Queries, [{
@@ -1670,20 +1715,40 @@ var Queries = (function (_BaseStore) {
 			return this.data;
 		}
 	}, {
+		key: "setDefaults",
+		value: function setDefaults(props) {
+			var sortParameters = props.sortFields.map(function (fieldName) {
+				return {
+					fieldname: fieldName,
+					direction: "asc"
+				};
+			});
+
+			this.data = this.data.withMutations(function (map) {
+				map.set("sortParameters", sortParameters);
+				map.set("resultFields", props.sortFields);
+			});
+		}
+	}, {
 		key: "add",
 		value: function add(facetName, value) {
-			var found = this.data.facetValues.filter(function (facetValue) {
+			var found = this.data.get("facetValues").find(function (facetValue) {
 				return facetValue.name === facetName;
 			});
 
-			if (found.length) {
-				found[0].values.push(value);
+			var facetValues = undefined;
+
+			if (found != null) {
+				// found.values.push(value)
+				console.log("FOUND", found);
 			} else {
-				this.data.facetValues.push({
+				facetValues = this.data.get("facetValues").push(_immutable2["default"].fromJS({
 					name: facetName,
 					values: [value]
-				});
+				}));
 			}
+
+			this.data = this.data.set("facetValues", facetValues);
 		}
 	}]);
 
@@ -1694,6 +1759,9 @@ var queries = new Queries();
 
 var dispatcherCallback = function dispatcherCallback(payload) {
 	switch (payload.action.actionType) {
+		case "QUERIES_SET_DEFAULTS":
+			queries.setDefaults(payload.action.props);
+			break;
 		case "QUERIES_ADD":
 			queries.add(payload.action.facetName, payload.action.value);
 			break;
@@ -1709,7 +1777,7 @@ queries.dispatcherIndex = _dispatcher2["default"].register(dispatcherCallback);
 exports["default"] = queries;
 module.exports = exports["default"];
 
-},{"../dispatcher":18,"./base":21}],23:[function(_dereq_,module,exports){
+},{"../dispatcher":19,"./base":22,"immutable":"immutable"}],24:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1833,7 +1901,7 @@ resultsStore.dispatcherIndex = _dispatcher2["default"].register(dispatcherCallba
 exports["default"] = resultsStore;
 module.exports = exports["default"];
 
-},{"../dispatcher":18,"./base":21,"./utils/relation-display-names":24,"immutable":"immutable"}],24:[function(_dereq_,module,exports){
+},{"../dispatcher":19,"./base":22,"./utils/relation-display-names":25,"immutable":"immutable"}],25:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1973,5 +2041,5 @@ exports["default"] = {
 };
 module.exports = exports["default"];
 
-},{}]},{},[19])(19)
+},{}]},{},[20])(20)
 });

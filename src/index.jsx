@@ -5,6 +5,7 @@ import Results from "./components/results";
 
 import resultsActions from "./actions/results";
 import resultsStore from "./stores/results";
+import queriesActions from "./actions/queries";
 import queriesStore from "./stores/queries";
 
 class FacetedSearchController extends React.Component {
@@ -15,6 +16,7 @@ class FacetedSearchController extends React.Component {
 	}
 
 	componentDidMount() {
+		queriesActions.setDefaults(this.props);
 		resultsStore.listen(this.onStoreChange.bind(this));
 		queriesStore.listen(this.onQueriesChange.bind(this));
 		resultsActions.getAll();
@@ -62,11 +64,12 @@ class FacetedSearchController extends React.Component {
 }
 
 FacetedSearchController.defaultProps = {
-
+	sortFields: []
 };
 
 FacetedSearchController.propTypes = {
-	onChange: React.PropTypes.func.isRequired
+	onChange: React.PropTypes.func.isRequired,
+	sortFields: React.PropTypes.array
 };
 
 export default FacetedSearchController;
