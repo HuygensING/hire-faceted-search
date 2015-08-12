@@ -9,4 +9,5 @@ node_modules/.bin/watchify src/index.jsx \
   --outfile 'node_modules/.bin/derequire > build/index.js' \
   --standalone HireFacetedSearch \
   --transform [ babelify --plugins object-assign ] \
+  --transform brfs \
   --verbose
