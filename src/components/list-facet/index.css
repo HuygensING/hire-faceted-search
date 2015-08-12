@@ -1,0 +1,46 @@
+
+li.hire-list-facet > ul > li.hire-list-facet-list-item {
+	cursor: pointer;
+	position: relative;
+}
+
+li.hire-list-facet > ul > li.hire-list-facet-list-item > svg,
+li.hire-list-facet > ul > li.hire-list-facet-list-item > label,
+li.hire-list-facet > ul > li.hire-list-facet-list-item > span.count {
+	box-sizing: border-box;
+	display: inline-block;
+	vertical-align: top;
+}
+
+li.hire-list-facet > ul > li.hire-list-facet-list-item svg.unchecked,
+li.hire-list-facet > ul > li.hire-list-facet-list-item svg.checked {
+	height: 12px;
+	fill: #AAA;
+	margin-top: 5px;
+	width: 12px;
+}
+
+li.hire-list-facet > ul > li.hire-list-facet-list-item label {
+	cursor: pointer;
+	padding: 0 4px;
+	width: calc(100% - 44px);
+}
+
+li.hire-list-facet > ul > li.hire-list-facet-list-item > span.count {
+	text-align: right;
+	width: 32px;
+}
+/*			li
+				position relative
+				cursor pointer
+
+				&:hover
+					background-color wwYellow
+
+				label
+					cursor pointer
+					max-width calc(100% - 6px)
+
+				span.count
+					position absolute
+					right 6px*/

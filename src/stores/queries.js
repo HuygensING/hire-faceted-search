@@ -35,15 +35,15 @@ class Queries extends BaseStore {
 	}
 
 	add(facetName, value) {
-		let found = this.data.get("facetValues").find((facetValue) =>
-			facetValue.name === facetName
+		let index = this.data.get("facetValues").findIndex((facetValue) =>
+			facetValue.get("name") === facetName
 		);
 
 		let facetValues;
 
-		if (found != null) {
-			// found.values.push(value)
-			console.log("FOUND", found);
+		if (index > -1) {
+			let newValues = this.data.get("facetValues").get(index).get("values").push(value)
+			facetValues = this.data.get("facetValues").setIn([index, "values"], newValues);
 		} else {
 			facetValues = this.data.get("facetValues").push(Immutable.fromJS({
 				name: facetName,
@@ -52,6 +52,25 @@ class Queries extends BaseStore {
 		}
 
 		this.data = this.data.set("facetValues", facetValues)
+	}
+
+	remove(facetName, value) {
+		let index = this.data.get("facetValues").findIndex((facetValue) =>
+			facetValue.get("name") === facetName
+		);
+		console.log(index);
+		if (index > -1) {
+			let oldValues = this.data.get("facetValues").get(index).get("values");
+
+			let facetValues = (oldValues.size === 1) ?
+				this.data.get("facetValues").delete(index) :
+				this.data.get("facetValues").deleteIn([index, "values", oldValues.indexOf(value)]);
+
+			console.log(facetValues.toJS());
+
+			this.data = this.data.set("facetValues", facetValues);
+		}
+
 	}
 }
 
@@ -64,6 +83,9 @@ let dispatcherCallback = function(payload) {
 			break;
 		case "QUERIES_ADD":
 			queries.add(payload.action.facetName, payload.action.value);
+			break;
+		case "QUERIES_REMOVE":
+			queries.remove(payload.action.facetName, payload.action.value);
 			break;
 		default:
 			return;

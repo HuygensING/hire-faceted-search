@@ -1,0 +1,29 @@
+ul.hire-faceted-search-sort-menu {
+	list-style: none;
+}
+
+ul.hire-faceted-search-sort-menu li {
+	display: inline-block;
+	cursor: pointer;
+}
+
+ul.hire-faceted-search-sort-menu li svg {
+	fill: #AAA;
+}
+
+ul.hire-faceted-search-sort-menu li.active svg {
+	fill: black;
+}
+
+ul.hire-faceted-search-sort-menu li svg.hire-icon {
+	vertical-align: top;
+	width: 14px;
+	height: 14px;
+	margin-left: 2px;
+}
+
+ul.hire-faceted-search-sort-menu li svg.hire-icon.filter {
+	width: 12px;
+	height: 12px;
+	margin-top: 1px;
+}

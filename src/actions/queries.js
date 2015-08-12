@@ -14,6 +14,14 @@ let queriesActions = {
 			facetName: facetName,
 			value: value
 		});
+	},
+
+	remove(facetName, value) {
+		dispatcher.handleViewAction({
+			actionType: "QUERIES_REMOVE",
+			facetName: facetName,
+			value: value
+		});
 	}
 };
 

@@ -12,7 +12,10 @@ class FacetedSearchController extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = resultsStore.getState();
+		this.state = {
+			queries: queriesStore.getState(),
+			results: resultsStore.getState()
+		};
 	}
 
 	componentDidMount() {
@@ -32,7 +35,10 @@ class FacetedSearchController extends React.Component {
 	}
 
 	onStoreChange() {
-		this.setState(resultsStore.getState());
+		this.setState({
+			queries: queriesStore.getState(),
+			results: resultsStore.getState()
+		});
 	}
 
 	handleResultSelect(result) {
@@ -40,15 +46,17 @@ class FacetedSearchController extends React.Component {
 	}
 
 	render() {
-		let data = this.state.queryResults.size ?
-			this.state.queryResults.last() :
-			this.state.initResults;
+		let data = this.state.results.get("queryResults").size ?
+			this.state.results.get("queryResults").last() :
+			this.state.results.get("initResults");
 
-		let facetedSearch = this.state.queryResults.size ?
-			<FacetedSearch facetData={data} /> :
+		let facetedSearch = this.state.results.get("queryResults").size ?
+			<FacetedSearch
+				facetData={data}
+				selectedValues={this.state.queries.get("facetValues")} /> :
 			null;
 
-		let results = (this.state.queryResults.size > 1) ?
+		let results = (this.state.results.get("queryResults").size > 1) ?
 			<Results
 				facetData={data}
 				onSelect={this.handleResultSelect.bind(this)} /> :

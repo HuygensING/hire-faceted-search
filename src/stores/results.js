@@ -4,8 +4,6 @@ import dispatcher from "../dispatcher";
 
 import BaseStore from "./base";
 
-import displayName from "./utils/relation-display-names";
-
 const CHANGE_EVENT = "change";
 
 let toObject = function(prev, current) {
@@ -18,12 +16,12 @@ class ResultsStore extends BaseStore {
 	constructor() {
 		super();
 
-		this.data = {
+		this.data = Immutable.fromJS({
 			initResults: new Immutable.Map({
 				results: []
 			}),
 			queryResults: new Immutable.List()
-		};
+		});
 	}
 
 	getState() {
@@ -31,29 +29,28 @@ class ResultsStore extends BaseStore {
 	}
 
 	receiveAll(data) {
-		this.data.initResults = Immutable.fromJS(data);
-		this.data.queryResults = this.data.queryResults.push(this.data.initResults);
+		this.data = this.data.set("initResults", Immutable.fromJS(data));
+		this.data = this.data.set("queryResults", this.data.get("queryResults").push(this.data.get("initResults")));
 	}
 
 	receive(data) {
-		let facetData = data.facets.reduce(toObject, {});
+		let receivedData = data.facets.reduce(toObject, {});
 
-		let facets = this.data.initResults.get("facets").map((facet) => {
-			let options = facet.get("options")
-				.map((option) => {
-					let count = 0
+		let facets = this.data.get("initResults").get("facets").map((facet) => {
+			let options = facet.get("options").map((option) => {
+				let count = 0
 
-					if (facetData.hasOwnProperty(facet.get("name"))) {
-						let found = facetData[facet.get("name")].options
-							.filter((opt) => option.get("name") === opt.name);
+				if (receivedData.hasOwnProperty(facet.get("name"))) {
+					let found = receivedData[facet.get("name")].options
+						.filter((opt) => option.get("name") === opt.name);
 
-						if (found.length) {
-							count = found[0].count
-						}
+					if (found.length) {
+						count = found[0].count
 					}
+				}
 
-					return option.set("count", count);
-				});
+				return option.set("count", count);
+			});
 
 			return facet.set("options", options);
 		})
@@ -61,7 +58,7 @@ class ResultsStore extends BaseStore {
 
 		data.facets = facets;
 
-		this.data.queryResults = this.data.queryResults.push(Immutable.fromJS(data));
+		this.data = this.data.set("queryResults", this.data.get("queryResults").push(Immutable.fromJS(data)));
 	}
 }
 
