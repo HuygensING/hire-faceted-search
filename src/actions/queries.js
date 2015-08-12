@@ -22,6 +22,13 @@ let queriesActions = {
 			facetName: facetName,
 			value: value
 		});
+	},
+
+	changeSearchTerm(value) {
+		dispatcher.handleViewAction({
+			actionType: "QUERIES_CHANGE_SEARCH_TERM",
+			value: value
+		});
 	}
 };
 

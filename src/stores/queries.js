@@ -58,7 +58,7 @@ class Queries extends BaseStore {
 		let index = this.data.get("facetValues").findIndex((facetValue) =>
 			facetValue.get("name") === facetName
 		);
-		console.log(index);
+
 		if (index > -1) {
 			let oldValues = this.data.get("facetValues").get(index).get("values");
 
@@ -66,11 +66,13 @@ class Queries extends BaseStore {
 				this.data.get("facetValues").delete(index) :
 				this.data.get("facetValues").deleteIn([index, "values", oldValues.indexOf(value)]);
 
-			console.log(facetValues.toJS());
-
 			this.data = this.data.set("facetValues", facetValues);
 		}
 
+	}
+
+	changeSearchTerm(value) {
+		this.data = this.data.set("term", value);
 	}
 }
 
@@ -86,6 +88,9 @@ let dispatcherCallback = function(payload) {
 			break;
 		case "QUERIES_REMOVE":
 			queries.remove(payload.action.facetName, payload.action.value);
+			break;
+		case "QUERIES_CHANGE_SEARCH_TERM":
+			queries.changeSearchTerm(payload.action.value);
 			break;
 		default:
 			return;

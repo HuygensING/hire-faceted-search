@@ -1,5 +1,6 @@
 import React from "react";
 
+// TODO pass as prop
 import queriesStore from "../stores/queries";
 
 class Result extends React.Component {
