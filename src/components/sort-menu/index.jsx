@@ -10,7 +10,7 @@ import SortAlphabeticallyDescendingIcon from "../icons/sort-alphabetically-desce
 let fs = require("fs");
 import insertCss from "insert-css";
 let css = fs.readFileSync(__dirname + "/index.css");
-insertCss(css);
+insertCss(css, {prepend: true});
 
 class SortMenu extends React.Component {
 	constructor(props) {
