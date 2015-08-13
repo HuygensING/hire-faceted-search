@@ -10,7 +10,7 @@ import SearchIcon from "../icons/search";
 let fs = require("fs");
 import insertCss from "insert-css";
 let css = fs.readFileSync(__dirname + "/index.css");
-insertCss(css);
+insertCss(css, {prepend: true});
 
 class TextSearch extends React.Component {
 	constructor(props) {

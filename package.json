@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Hire-Forms/hire-faceted-search.git"
+    "url": "https://github.com/HuygensING/hire-faceted-search.git"
   },
   "author": "gijsjan.brouwer@huygens.knaw.nl (https://github.com/Gijsjan)",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Hire-Forms/hire-faceted-search/issues"
+    "url": "https://github.com/HuygensING/hire-faceted-search/issues"
   },
-  "homepage": "https://github.com/Hire-Forms/hire-faceted-search",
+  "homepage": "https://github.com/HuygensING/hire-faceted-search",
   "peerDependencies": {
     "react": "^0.13.3"
   },
