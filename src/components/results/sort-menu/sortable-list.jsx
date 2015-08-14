@@ -38,9 +38,7 @@ class SortableList extends React.Component {
 
 		let draggingIndex = this.state.values.indexOf(this.state.draggingValue);
 		let reduced = this.state.values.reduce((prev, current, index, arr) => {
-			if
 
-			return arr;
 		}, []);
 
 
