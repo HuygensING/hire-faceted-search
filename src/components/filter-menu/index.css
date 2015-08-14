@@ -1,0 +1,45 @@
+.hire-faceted-search-filter-menu {
+	position: relative;
+}
+
+.hire-faceted-search-filter-menu svg {
+	fill: #EEE;
+	height: 12px;
+	margin-top: 1px;
+	position: absolute;
+	top: 5px;
+	transition: fill 350ms;
+	right: 4px;
+	vertical-align: top;
+	width: 12px;
+}
+
+.hire-faceted-search-filter-menu.active svg {
+	fill: #AAA;
+}
+
+.hire-faceted-search-filter-menu > .hire-input {
+	width: 30%;
+	float: right;
+	transition: width 350ms;
+}
+
+.hire-faceted-search-filter-menu.active > .hire-input {
+	width: 100%;
+
+}
+
+.hire-faceted-search-filter-menu > .hire-input > input {
+	border: 1px solid #EEE;
+	border-right: none;
+	box-sizing: border-box;
+	outline: none;
+	padding-left: 4px;
+	transition: border 350ms;
+	width: 100%;
+}
+
+.hire-faceted-search-filter-menu.active > .hire-input > input {
+	border: 1px solid #AAA;
+	border-right: none;
+}

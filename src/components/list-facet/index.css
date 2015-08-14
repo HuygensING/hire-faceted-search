@@ -1,7 +1,27 @@
+li.hire-list-facet > header > h3,
+li.hire-list-facet > header > .hire-faceted-search-filter-menu {
+	display: inline-block;
+	vertical-align: top;
+	box-sizing: border-box;
+}
+
+li.hire-list-facet > header > h3 {
+	width: 60%;
+}
+li.hire-list-facet > header > .hire-faceted-search-filter-menu {
+	width: 40%;
+}
 
 li.hire-list-facet > ul > li.hire-list-facet-list-item {
 	cursor: pointer;
 	position: relative;
+}
+
+li.hire-list-facet > ul > li.no-options-found {
+	color: #AAA;
+	font-size: 0.8em;
+	font-style: italic;
+	margin: 20px 0;
 }
 
 li.hire-list-facet > ul > li.hire-list-facet-list-item > svg,
@@ -30,6 +50,8 @@ li.hire-list-facet > ul > li.hire-list-facet-list-item > span.count {
 	text-align: right;
 	width: 32px;
 }
+
+
 /*			li
 				position relative
 				cursor pointer

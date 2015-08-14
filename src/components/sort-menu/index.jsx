@@ -1,7 +1,6 @@
 import React from "react";
 import cx from "classnames";
 
-import FilterIcon from "../icons/filter";
 import SortCountAscendingIcon from "../icons/sort-count-ascending";
 import SortCountDescendingIcon from "../icons/sort-count-descending";
 import SortAlphabeticallyAscendingIcon from "../icons/sort-alphabetically-ascending";
@@ -57,9 +56,6 @@ class SortMenu extends React.Component {
 
 		return (
 			<ul className="hire-faceted-search-sort-menu">
-				<li>
-					<FilterIcon />
-				</li>
 				<li
 					className={cx({
 						active: this.state.current === "alpha"
@@ -78,6 +74,31 @@ class SortMenu extends React.Component {
 		);
 	}
 }
+
+SortMenu.sortFunctions = {
+	alphaAsc: (valA, valB) => {
+		if (valA.get("name") > valB.get("name")) return 1;
+		if (valB.get("name") > valA.get("name")) return -1;
+		return 0;
+	},
+	alphaDesc: (valA, valB) => {
+		if (valA.get("name") > valB.get("name")) return -1;
+		if (valB.get("name") > valA.get("name")) return 1;
+		return 0;
+	},
+	countAsc: (valA, valB) => {
+		if (valA.get("count") > valB.get("count")) return 1;
+		if (valB.get("count") > valA.get("count")) return -1;
+		return 0;
+	},
+	countDesc: (valA, valB) => {
+		if (valA.get("count") > valB.get("count")) return -1;
+		if (valB.get("count") > valA.get("count")) return 1;
+		return 0;
+	}
+};
+
+SortMenu.defaultSort = "countDesc";
 
 SortMenu.defaultProps = {
 

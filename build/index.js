@@ -318,6 +318,163 @@ var invariant = function(condition, format, a, b, c, d, e, f) {
 module.exports = invariant;
 
 },{}],4:[function(_dereq_,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.HireFormsInput = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+
+var _react = _dereq_("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _classnames = _dereq_("classnames");
+
+var _classnames2 = _interopRequireDefault(_classnames);
+
+var Input = (function (_React$Component) {
+	function Input(props) {
+		_classCallCheck(this, Input);
+
+		_get(Object.getPrototypeOf(Input.prototype), "constructor", this).call(this, props);
+
+		this.state = {
+			valid: true,
+			invalidMessage: null
+		};
+	}
+
+	_inherits(Input, _React$Component);
+
+	_createClass(Input, [{
+		key: "componentWillReceiveProps",
+		value: function componentWillReceiveProps(nextProps) {
+			if (this.props.value === nextProps.value) {
+				return;
+			}
+
+			if (nextProps.value === "") {
+				if (!this.state.valid) {
+					this.setState({
+						valid: true,
+						invalidMessage: null
+					});
+				}
+
+				return;
+			} else if (this.props.validate) {
+				var validator = this.props.validate(nextProps.value);
+
+				this.setState({
+					valid: validator.isValid,
+					invalidMessage: validator.message
+				});
+
+				if (!validator.isValid && this.props.onInvalid) {
+					this.props.onInvalid(validator.message, nextProps.value);
+				}
+			}
+		}
+	}, {
+		key: "shouldComponentUpdate",
+		value: function shouldComponentUpdate(nextProps, nextState) {
+			return this.props.value !== nextProps.value;
+		}
+	}, {
+		key: "handleBlur",
+		value: function handleBlur(ev) {
+			this.props.onBlur(ev);
+		}
+	}, {
+		key: "handleFocus",
+		value: function handleFocus(ev) {
+			this.props.onFocus(ev);
+		}
+	}, {
+		key: "handleChange",
+		value: function handleChange(ev) {
+			this.props.onChange(ev.currentTarget.value, ev);
+		}
+	}, {
+		key: "handleKeyDown",
+		value: function handleKeyDown(ev) {
+			if (this.props.onKeyDown) {
+				this.props.onKeyDown(ev);
+			}
+		}
+	}, {
+		key: "handleKeyUp",
+		value: function handleKeyUp(ev) {
+			if (this.props.onKeyUp) {
+				this.props.onKeyUp(ev);
+			}
+		}
+	}, {
+		key: "render",
+		value: function render() {
+			var invalidMessage = this.state.invalidMessage ? _react2["default"].createElement(
+				"div",
+				{ className: "hire-forms-invalid-message" },
+				this.state.invalidMessage
+			) : null;
+
+			return _react2["default"].createElement(
+				"div",
+				{
+					className: (0, _classnames2["default"])("hire-input", { invalid: !this.state.valid }) },
+				_react2["default"].createElement("input", {
+					onBlur: this.handleBlur.bind(this),
+					onChange: this.handleChange.bind(this),
+					onFocus: this.handleFocus.bind(this),
+					onKeyDown: this.handleKeyDown.bind(this),
+					onKeyUp: this.handleKeyUp.bind(this),
+					placeholder: this.props.placeholder,
+					style: this.props.style,
+					value: this.props.value }),
+				invalidMessage
+			);
+		}
+	}]);
+
+	return Input;
+})(_react2["default"].Component);
+
+Input.propTypes = {
+	onBlur: _react2["default"].PropTypes.func,
+	onChange: _react2["default"].PropTypes.func.isRequired,
+	onFocus: _react2["default"].PropTypes.func,
+	onInvalid: _react2["default"].PropTypes.func,
+	onKeyDown: _react2["default"].PropTypes.func,
+	onKeyUp: _react2["default"].PropTypes.func,
+	placeholder: _react2["default"].PropTypes.string,
+	style: _react2["default"].PropTypes.object,
+	valid: _react2["default"].PropTypes.bool,
+	validate: _react2["default"].PropTypes.func,
+	value: _react2["default"].PropTypes.oneOfType([_react2["default"].PropTypes.string, _react2["default"].PropTypes.number])
+};
+
+Input.defaultProps = {
+	value: ""
+};
+
+exports["default"] = Input;
+module.exports = exports["default"];
+
+},{"classnames":"classnames","react":"react"}]},{},[1])(1)
+});
+
+},{}],5:[function(_dereq_,module,exports){
 var inserted = {};
 
 module.exports = function (css, options) {
@@ -341,7 +498,7 @@ module.exports = function (css, options) {
     }
 };
 
-},{}],5:[function(_dereq_,module,exports){
+},{}],6:[function(_dereq_,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -644,7 +801,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],6:[function(_dereq_,module,exports){
+},{}],7:[function(_dereq_,module,exports){
 "use strict";
 var window = _dereq_("global/window")
 var once = _dereq_("once")
@@ -833,7 +990,7 @@ function createXHR(options, callback) {
 
 function noop() {}
 
-},{"global/window":7,"once":8,"parse-headers":12}],7:[function(_dereq_,module,exports){
+},{"global/window":8,"once":9,"parse-headers":13}],8:[function(_dereq_,module,exports){
 if (typeof window !== "undefined") {
     module.exports = window;
 } else if (typeof global !== "undefined") {
@@ -844,7 +1001,7 @@ if (typeof window !== "undefined") {
     module.exports = {};
 }
 
-},{}],8:[function(_dereq_,module,exports){
+},{}],9:[function(_dereq_,module,exports){
 module.exports = once
 
 once.proto = once(function () {
@@ -865,7 +1022,7 @@ function once (fn) {
   }
 }
 
-},{}],9:[function(_dereq_,module,exports){
+},{}],10:[function(_dereq_,module,exports){
 var isFunction = _dereq_('is-function')
 
 module.exports = forEach
@@ -913,7 +1070,7 @@ function forEachObject(object, iterator, context) {
     }
 }
 
-},{"is-function":10}],10:[function(_dereq_,module,exports){
+},{"is-function":11}],11:[function(_dereq_,module,exports){
 module.exports = isFunction
 
 var toString = Object.prototype.toString
@@ -930,7 +1087,7 @@ function isFunction (fn) {
       fn === window.prompt))
 };
 
-},{}],11:[function(_dereq_,module,exports){
+},{}],12:[function(_dereq_,module,exports){
 
 exports = module.exports = trim;
 
@@ -946,7 +1103,7 @@ exports.right = function(str){
   return str.replace(/\s*$/, '');
 };
 
-},{}],12:[function(_dereq_,module,exports){
+},{}],13:[function(_dereq_,module,exports){
 var trim = _dereq_('trim')
   , forEach = _dereq_('for-each')
   , isArray = function(arg) {
@@ -978,7 +1135,7 @@ module.exports = function (headers) {
 
   return result
 }
-},{"for-each":9,"trim":11}],13:[function(_dereq_,module,exports){
+},{"for-each":10,"trim":12}],14:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1026,7 +1183,7 @@ var queriesActions = {
 exports["default"] = queriesActions;
 module.exports = exports["default"];
 
-},{"../dispatcher":31}],14:[function(_dereq_,module,exports){
+},{"../dispatcher":32}],15:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1052,7 +1209,7 @@ var resultsActions = {
 exports["default"] = resultsActions;
 module.exports = exports["default"];
 
-},{"../stores/api":33}],15:[function(_dereq_,module,exports){
+},{"../stores/api":34}],16:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1084,7 +1241,7 @@ var serverActions = {
 exports["default"] = serverActions;
 module.exports = exports["default"];
 
-},{"../dispatcher":31}],16:[function(_dereq_,module,exports){
+},{"../dispatcher":32}],17:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1163,13 +1320,123 @@ FacetedSearch.defaultProps = {
 };
 
 FacetedSearch.propTypes = {
+	config: _react2["default"].PropTypes.object.isRequired,
 	selectedValues: _react2["default"].PropTypes.instanceOf(_immutable2["default"].List)
 };
 
 exports["default"] = FacetedSearch;
 module.exports = exports["default"];
 
-},{"./list-facet":25,"./text-search":30,"immutable":"immutable","react":"react"}],17:[function(_dereq_,module,exports){
+},{"./list-facet":26,"./text-search":31,"immutable":"immutable","react":"react"}],18:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = _dereq_("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _classnames = _dereq_("classnames");
+
+var _classnames2 = _interopRequireDefault(_classnames);
+
+var _hireFormsInput = _dereq_("hire-forms-input");
+
+var _hireFormsInput2 = _interopRequireDefault(_hireFormsInput);
+
+var _iconsSearch = _dereq_("../icons/search");
+
+var _iconsSearch2 = _interopRequireDefault(_iconsSearch);
+
+var _insertCss = _dereq_("insert-css");
+
+var _insertCss2 = _interopRequireDefault(_insertCss);
+
+
+
+var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2gtZmlsdGVyLW1lbnUgewoJcG9zaXRpb246IHJlbGF0aXZlOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1maWx0ZXItbWVudSBzdmcgewoJZmlsbDogI0VFRTsKCWhlaWdodDogMTJweDsKCW1hcmdpbi10b3A6IDFweDsKCXBvc2l0aW9uOiBhYnNvbHV0ZTsKCXRvcDogNXB4OwoJdHJhbnNpdGlvbjogZmlsbCAzNTBtczsKCXJpZ2h0OiA0cHg7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwoJd2lkdGg6IDEycHg7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLWZpbHRlci1tZW51LmFjdGl2ZSBzdmcgewoJZmlsbDogI0FBQTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtZmlsdGVyLW1lbnUgPiAuaGlyZS1pbnB1dCB7Cgl3aWR0aDogMzAlOwoJZmxvYXQ6IHJpZ2h0OwoJdHJhbnNpdGlvbjogd2lkdGggMzUwbXM7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLWZpbHRlci1tZW51LmFjdGl2ZSA+IC5oaXJlLWlucHV0IHsKCXdpZHRoOiAxMDAlOwoKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtZmlsdGVyLW1lbnUgPiAuaGlyZS1pbnB1dCA+IGlucHV0IHsKCWJvcmRlcjogMXB4IHNvbGlkICNFRUU7Cglib3JkZXItcmlnaHQ6IG5vbmU7Cglib3gtc2l6aW5nOiBib3JkZXItYm94OwoJb3V0bGluZTogbm9uZTsKCXBhZGRpbmctbGVmdDogNHB4OwoJdHJhbnNpdGlvbjogYm9yZGVyIDM1MG1zOwoJd2lkdGg6IDEwMCU7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLWZpbHRlci1tZW51LmFjdGl2ZSA+IC5oaXJlLWlucHV0ID4gaW5wdXQgewoJYm9yZGVyOiAxcHggc29saWQgI0FBQTsKCWJvcmRlci1yaWdodDogbm9uZTsKfQ==","base64");
+(0, _insertCss2["default"])(css, { prepend: true });
+
+var FilterMenu = (function (_React$Component) {
+	_inherits(FilterMenu, _React$Component);
+
+	function FilterMenu(props) {
+		_classCallCheck(this, FilterMenu);
+
+		_get(Object.getPrototypeOf(FilterMenu.prototype), "constructor", this).call(this, props);
+
+		this.state = {
+			active: false,
+			value: ""
+		};
+	}
+
+	_createClass(FilterMenu, [{
+		key: "handleInputChange",
+		value: function handleInputChange(value, ev) {
+			this.setState({
+				value: value
+			});
+
+			this.props.onChange(value);
+		}
+	}, {
+		key: "handleInputBlur",
+		value: function handleInputBlur() {
+			this.setState({
+				active: false,
+				value: ""
+			});
+		}
+	}, {
+		key: "handleInputFocus",
+		value: function handleInputFocus() {
+			console.log("FOCUS");
+			this.setState({
+				active: true
+			});
+		}
+	}, {
+		key: "render",
+		value: function render() {
+			return _react2["default"].createElement(
+				"div",
+				{ className: (0, _classnames2["default"])("hire-faceted-search-filter-menu", { active: this.state.active }) },
+				_react2["default"].createElement(_hireFormsInput2["default"], {
+					onBlur: this.handleInputBlur.bind(this),
+					onChange: this.handleInputChange.bind(this),
+					onFocus: this.handleInputFocus.bind(this),
+					value: this.state.value }),
+				_react2["default"].createElement(_iconsSearch2["default"], null)
+			);
+		}
+	}]);
+
+	return FilterMenu;
+})(_react2["default"].Component);
+
+FilterMenu.defaultProps = {};
+
+FilterMenu.propTypes = {
+	onChange: _react2["default"].PropTypes.func.isRequired
+};
+
+exports["default"] = FilterMenu;
+module.exports = exports["default"];
+
+},{"../icons/search":20,"classnames":"classnames","hire-forms-input":4,"insert-css":5,"react":"react"}],19:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1230,67 +1497,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],18:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = _dereq_("react");
-
-var _react2 = _interopRequireDefault(_react);
-
-var FilterIcon = (function (_React$Component) {
-	_inherits(FilterIcon, _React$Component);
-
-	function FilterIcon() {
-		_classCallCheck(this, FilterIcon);
-
-		_get(Object.getPrototypeOf(FilterIcon.prototype), "constructor", this).apply(this, arguments);
-	}
-
-	_createClass(FilterIcon, [{
-		key: "render",
-		value: function render() {
-			var title = this.props.title != null ? _react2["default"].createElement(
-				"title",
-				null,
-				this.props.title
-			) : null;
-
-			return _react2["default"].createElement(
-				"svg",
-				{ className: "hire-icon filter", viewBox: "0 0 971.986 971.986" },
-				title,
-				_react2["default"].createElement("path", { d: "M370.216,459.3c10.2,11.1,15.8,25.6,15.8,40.6v442c0,26.601,32.1,40.101,51.1,21.4l123.3-141.3 c16.5-19.8,25.6-29.601,25.6-49.2V500c0-15,5.7-29.5,15.8-40.601L955.615,75.5c26.5-28.8,6.101-75.5-33.1-75.5h-873 c-39.2,0-59.7,46.6-33.1,75.5L370.216,459.3z" })
-			);
-		}
-	}]);
-
-	return FilterIcon;
-})(_react2["default"].Component);
-
-FilterIcon.defaultProps = {};
-
-FilterIcon.propTypes = {
-	title: _react2["default"].PropTypes.string
-};
-
-exports["default"] = FilterIcon;
-module.exports = exports["default"];
-
-},{"react":"react"}],19:[function(_dereq_,module,exports){
+},{"react":"react"}],20:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1350,7 +1557,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],20:[function(_dereq_,module,exports){
+},{"react":"react"}],21:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1421,7 +1628,7 @@ SortAlphabeticallyAscending.propTypes = {
 exports["default"] = SortAlphabeticallyAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],21:[function(_dereq_,module,exports){
+},{"react":"react"}],22:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1492,7 +1699,7 @@ SortAlphabeticallyDescending.propTypes = {
 exports["default"] = SortAlphabeticallyDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],22:[function(_dereq_,module,exports){
+},{"react":"react"}],23:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1561,7 +1768,7 @@ SortCountAscending.propTypes = {
 exports["default"] = SortCountAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],23:[function(_dereq_,module,exports){
+},{"react":"react"}],24:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1630,7 +1837,7 @@ SortCountDescending.propTypes = {
 exports["default"] = SortCountDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],24:[function(_dereq_,module,exports){
+},{"react":"react"}],25:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1689,7 +1896,9 @@ UncheckedIcon.propTypes = {
 exports["default"] = UncheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],25:[function(_dereq_,module,exports){
+},{"react":"react"}],26:[function(_dereq_,module,exports){
+// TODO cap at 50 results if results > 200
+
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1718,6 +1927,10 @@ var _sortMenu = _dereq_("../sort-menu");
 
 var _sortMenu2 = _interopRequireDefault(_sortMenu);
 
+var _filterMenu = _dereq_("../filter-menu");
+
+var _filterMenu2 = _interopRequireDefault(_filterMenu);
+
 var _listItem = _dereq_("./list-item");
 
 var _listItem2 = _interopRequireDefault(_listItem);
@@ -1728,31 +1941,8 @@ var _insertCss2 = _interopRequireDefault(_insertCss);
 
 
 
-var css = Buffer("CmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkuaGlyZS1saXN0LWZhY2V0LWxpc3QtaXRlbSB7CgljdXJzb3I6IHBvaW50ZXI7Cglwb3NpdGlvbjogcmVsYXRpdmU7Cn0KCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkuaGlyZS1saXN0LWZhY2V0LWxpc3QtaXRlbSA+IHN2ZywKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtID4gbGFiZWwsCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkuaGlyZS1saXN0LWZhY2V0LWxpc3QtaXRlbSA+IHNwYW4uY291bnQgewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCXZlcnRpY2FsLWFsaWduOiB0b3A7Cn0KCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkuaGlyZS1saXN0LWZhY2V0LWxpc3QtaXRlbSBzdmcudW5jaGVja2VkLApsaS5oaXJlLWxpc3QtZmFjZXQgPiB1bCA+IGxpLmhpcmUtbGlzdC1mYWNldC1saXN0LWl0ZW0gc3ZnLmNoZWNrZWQgewoJaGVpZ2h0OiAxMnB4OwoJZmlsbDogI0FBQTsKCW1hcmdpbi10b3A6IDVweDsKCXdpZHRoOiAxMnB4Owp9CgpsaS5oaXJlLWxpc3QtZmFjZXQgPiB1bCA+IGxpLmhpcmUtbGlzdC1mYWNldC1saXN0LWl0ZW0gbGFiZWwgewoJY3Vyc29yOiBwb2ludGVyOwoJcGFkZGluZzogMCA0cHg7Cgl3aWR0aDogY2FsYygxMDAlIC0gNDRweCk7Cn0KCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkuaGlyZS1saXN0LWZhY2V0LWxpc3QtaXRlbSA+IHNwYW4uY291bnQgewoJdGV4dC1hbGlnbjogcmlnaHQ7Cgl3aWR0aDogMzJweDsKfQovKgkJCWxpCgkJCQlwb3NpdGlvbiByZWxhdGl2ZQoJCQkJY3Vyc29yIHBvaW50ZXIKCgkJCQkmOmhvdmVyCgkJCQkJYmFja2dyb3VuZC1jb2xvciB3d1llbGxvdwoKCQkJCWxhYmVsCgkJCQkJY3Vyc29yIHBvaW50ZXIKCQkJCQltYXgtd2lkdGggY2FsYygxMDAlIC0gNnB4KQoKCQkJCXNwYW4uY291bnQKCQkJCQlwb3NpdGlvbiBhYnNvbHV0ZQoJCQkJCXJpZ2h0IDZweCov","base64");
+var css = Buffer("bGkuaGlyZS1saXN0LWZhY2V0ID4gaGVhZGVyID4gaDMsCmxpLmhpcmUtbGlzdC1mYWNldCA+IGhlYWRlciA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLWZpbHRlci1tZW51IHsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCXZlcnRpY2FsLWFsaWduOiB0b3A7Cglib3gtc2l6aW5nOiBib3JkZXItYm94Owp9CgpsaS5oaXJlLWxpc3QtZmFjZXQgPiBoZWFkZXIgPiBoMyB7Cgl3aWR0aDogNjAlOwp9CmxpLmhpcmUtbGlzdC1mYWNldCA+IGhlYWRlciA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLWZpbHRlci1tZW51IHsKCXdpZHRoOiA0MCU7Cn0KCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkuaGlyZS1saXN0LWZhY2V0LWxpc3QtaXRlbSB7CgljdXJzb3I6IHBvaW50ZXI7Cglwb3NpdGlvbjogcmVsYXRpdmU7Cn0KCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkubm8tb3B0aW9ucy1mb3VuZCB7Cgljb2xvcjogI0FBQTsKCWZvbnQtc2l6ZTogMC44ZW07Cglmb250LXN0eWxlOiBpdGFsaWM7CgltYXJnaW46IDIwcHggMDsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtID4gc3ZnLApsaS5oaXJlLWxpc3QtZmFjZXQgPiB1bCA+IGxpLmhpcmUtbGlzdC1mYWNldC1saXN0LWl0ZW0gPiBsYWJlbCwKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtID4gc3Bhbi5jb3VudCB7Cglib3gtc2l6aW5nOiBib3JkZXItYm94OwoJZGlzcGxheTogaW5saW5lLWJsb2NrOwoJdmVydGljYWwtYWxpZ246IHRvcDsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtIHN2Zy51bmNoZWNrZWQsCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkuaGlyZS1saXN0LWZhY2V0LWxpc3QtaXRlbSBzdmcuY2hlY2tlZCB7CgloZWlnaHQ6IDEycHg7CglmaWxsOiAjQUFBOwoJbWFyZ2luLXRvcDogNXB4OwoJd2lkdGg6IDEycHg7Cn0KCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkuaGlyZS1saXN0LWZhY2V0LWxpc3QtaXRlbSBsYWJlbCB7CgljdXJzb3I6IHBvaW50ZXI7CglwYWRkaW5nOiAwIDRweDsKCXdpZHRoOiBjYWxjKDEwMCUgLSA0NHB4KTsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtID4gc3Bhbi5jb3VudCB7Cgl0ZXh0LWFsaWduOiByaWdodDsKCXdpZHRoOiAzMnB4Owp9CgoKLyoJCQlsaQoJCQkJcG9zaXRpb24gcmVsYXRpdmUKCQkJCWN1cnNvciBwb2ludGVyCgoJCQkJJjpob3ZlcgoJCQkJCWJhY2tncm91bmQtY29sb3Igd3dZZWxsb3cKCgkJCQlsYWJlbAoJCQkJCWN1cnNvciBwb2ludGVyCgkJCQkJbWF4LXdpZHRoIGNhbGMoMTAwJSAtIDZweCkKCgkJCQlzcGFuLmNvdW50CgkJCQkJcG9zaXRpb24gYWJzb2x1dGUKCQkJCQlyaWdodCA2cHgqLw==","base64");
 (0, _insertCss2["default"])(css, { prepend: true });
-
-var sortFunctions = {
-	alphaAsc: function alphaAsc(valA, valB) {
-		if (valA.get("name") > valB.get("name")) return 1;
-		if (valB.get("name") > valA.get("name")) return -1;
-		return 0;
-	},
-	alphaDesc: function alphaDesc(valA, valB) {
-		if (valA.get("name") > valB.get("name")) return -1;
-		if (valB.get("name") > valA.get("name")) return 1;
-		return 0;
-	},
-	countAsc: function countAsc(valA, valB) {
-		if (valA.get("count") > valB.get("count")) return 1;
-		if (valB.get("count") > valA.get("count")) return -1;
-		return 0;
-	},
-	countDesc: function countDesc(valA, valB) {
-		if (valA.get("count") > valB.get("count")) return -1;
-		if (valB.get("count") > valA.get("count")) return 1;
-		return 0;
-	}
-};
 
 var ListFacet = (function (_React$Component) {
 	_inherits(ListFacet, _React$Component);
@@ -1763,7 +1953,8 @@ var ListFacet = (function (_React$Component) {
 		_get(Object.getPrototypeOf(ListFacet.prototype), "constructor", this).call(this, props);
 
 		this.state = {
-			currentSort: sortFunctions.countDesc
+			currentSort: _sortMenu2["default"].sortFunctions[_sortMenu2["default"].defaultSort],
+			filterQuery: ""
 		};
 	}
 
@@ -1771,7 +1962,14 @@ var ListFacet = (function (_React$Component) {
 		key: "handleSortMenuChange",
 		value: function handleSortMenuChange(funcName) {
 			this.setState({
-				currentSort: sortFunctions[funcName]
+				currentSort: _sortMenu2["default"].sortFunctions[funcName]
+			});
+		}
+	}, {
+		key: "handleFilterMenuChange",
+		value: function handleFilterMenuChange(filterQuery) {
+			this.setState({
+				filterQuery: filterQuery
 			});
 		}
 	}, {
@@ -1779,9 +1977,31 @@ var ListFacet = (function (_React$Component) {
 		value: function render() {
 			var _this = this;
 
+			var filterMenu = undefined,
+			    sortMenu = undefined;
 			var options = this.props.data.get("options");
-			var sortedOptions = options.sort(this.state.currentSort);
-			var listItems = sortedOptions.map(function (option, index) {
+
+			options = options.sort(this.state.currentSort);
+
+			if (this.props.sortMenu) {
+				sortMenu = _react2["default"].createElement(_sortMenu2["default"], { onChange: this.handleSortMenuChange.bind(this) });
+			}
+
+			if (this.props.filterMenu) {
+				filterMenu = _react2["default"].createElement(_filterMenu2["default"], { onChange: this.handleFilterMenuChange.bind(this) });
+
+				if (this.state.filterQuery.length) {
+					(function () {
+						var query = _this.state.filterQuery.toLowerCase();
+
+						options = options.filter(function (option) {
+							return option.get("name").toLowerCase().indexOf(query) > -1;
+						});
+					})();
+				}
+			}
+
+			var listItems = options.map(function (option, index) {
 				return _react2["default"].createElement(_listItem2["default"], {
 					count: option.get("count"),
 					checked: _this.props.selectedValues.contains(option.get("name")),
@@ -1789,6 +2009,14 @@ var ListFacet = (function (_React$Component) {
 					key: index,
 					name: option.get("name") });
 			});
+
+			if (!listItems.size) {
+				listItems = _react2["default"].createElement(
+					"li",
+					{ className: "no-options-found" },
+					"No options found."
+				);
+			}
 
 			return _react2["default"].createElement(
 				"li",
@@ -1801,7 +2029,8 @@ var ListFacet = (function (_React$Component) {
 						null,
 						this.props.data.get("title")
 					),
-					_react2["default"].createElement(_sortMenu2["default"], { onChange: this.handleSortMenuChange.bind(this) })
+					filterMenu,
+					sortMenu
 				),
 				_react2["default"].createElement(
 					"ul",
@@ -1816,18 +2045,22 @@ var ListFacet = (function (_React$Component) {
 })(_react2["default"].Component);
 
 ListFacet.defaultProps = {
-	selectedValues: new _immutable2["default"].List()
+	filterMenu: true,
+	selectedValues: new _immutable2["default"].List(),
+	sortMenu: false
 };
 
 ListFacet.propTypes = {
 	data: _react2["default"].PropTypes.instanceOf(_immutable2["default"].Map),
-	selectedValues: _react2["default"].PropTypes.instanceOf(_immutable2["default"].List)
+	filterMenu: _react2["default"].PropTypes.bool,
+	selectedValues: _react2["default"].PropTypes.instanceOf(_immutable2["default"].List),
+	sortMenu: _react2["default"].PropTypes.bool
 };
 
 exports["default"] = ListFacet;
 module.exports = exports["default"];
 
-},{"../sort-menu":29,"./list-item":26,"immutable":"immutable","insert-css":4,"react":"react"}],26:[function(_dereq_,module,exports){
+},{"../filter-menu":18,"../sort-menu":30,"./list-item":27,"immutable":"immutable","insert-css":5,"react":"react"}],27:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1938,7 +2171,7 @@ ListFacetListItem.propTypes = {
 exports["default"] = ListFacetListItem;
 module.exports = exports["default"];
 
-},{"../../actions/queries":13,"../icons/checked":17,"../icons/unchecked":24,"react":"react"}],27:[function(_dereq_,module,exports){
+},{"../../actions/queries":14,"../icons/checked":19,"../icons/unchecked":25,"react":"react"}],28:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2025,7 +2258,7 @@ Result.propTypes = {};
 exports["default"] = Result;
 module.exports = exports["default"];
 
-},{"../stores/queries":35,"react":"react"}],28:[function(_dereq_,module,exports){
+},{"../stores/queries":36,"react":"react"}],29:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2104,7 +2337,7 @@ Results.propTypes = {};
 exports["default"] = Results;
 module.exports = exports["default"];
 
-},{"./result":27,"react":"react"}],29:[function(_dereq_,module,exports){
+},{"./result":28,"react":"react"}],30:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2131,10 +2364,6 @@ var _classnames = _dereq_("classnames");
 
 var _classnames2 = _interopRequireDefault(_classnames);
 
-var _iconsFilter = _dereq_("../icons/filter");
-
-var _iconsFilter2 = _interopRequireDefault(_iconsFilter);
-
 var _iconsSortCountAscending = _dereq_("../icons/sort-count-ascending");
 
 var _iconsSortCountAscending2 = _interopRequireDefault(_iconsSortCountAscending);
@@ -2157,7 +2386,7 @@ var _insertCss2 = _interopRequireDefault(_insertCss);
 
 
 
-var css = Buffer("dWwuaGlyZS1mYWNldGVkLXNlYXJjaC1zb3J0LW1lbnUgewoJbGlzdC1zdHlsZTogbm9uZTsKfQoKdWwuaGlyZS1mYWNldGVkLXNlYXJjaC1zb3J0LW1lbnUgbGkgewoJZGlzcGxheTogaW5saW5lLWJsb2NrOwoJY3Vyc29yOiBwb2ludGVyOwp9Cgp1bC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXNvcnQtbWVudSBsaSBzdmcgewoJZmlsbDogI0FBQTsKfQoKdWwuaGlyZS1mYWNldGVkLXNlYXJjaC1zb3J0LW1lbnUgbGkuYWN0aXZlIHN2ZyB7CglmaWxsOiBibGFjazsKfQoKdWwuaGlyZS1mYWNldGVkLXNlYXJjaC1zb3J0LW1lbnUgbGkgc3ZnLmhpcmUtaWNvbiB7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwoJd2lkdGg6IDE0cHg7CgloZWlnaHQ6IDE0cHg7CgltYXJnaW4tbGVmdDogMnB4Owp9Cgp1bC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXNvcnQtbWVudSBsaSBzdmcuaGlyZS1pY29uLmZpbHRlciB7Cgl3aWR0aDogMTJweDsKCWhlaWdodDogMTJweDsKCW1hcmdpbi10b3A6IDFweDsKfQo=","base64");
+var css = Buffer("dWwuaGlyZS1mYWNldGVkLXNlYXJjaC1zb3J0LW1lbnUgewoJbGlzdC1zdHlsZTogbm9uZTsKfQoKdWwuaGlyZS1mYWNldGVkLXNlYXJjaC1zb3J0LW1lbnUgbGkgewoJZGlzcGxheTogaW5saW5lLWJsb2NrOwoJY3Vyc29yOiBwb2ludGVyOwp9Cgp1bC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXNvcnQtbWVudSBsaSBzdmcgewoJZmlsbDogI0FBQTsKfQoKdWwuaGlyZS1mYWNldGVkLXNlYXJjaC1zb3J0LW1lbnUgbGkuYWN0aXZlIHN2ZyB7CglmaWxsOiBibGFjazsKfQoKdWwuaGlyZS1mYWNldGVkLXNlYXJjaC1zb3J0LW1lbnUgbGkgc3ZnLmhpcmUtaWNvbiB7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwoJd2lkdGg6IDE0cHg7CgloZWlnaHQ6IDE0cHg7CgltYXJnaW4tbGVmdDogMnB4Owp9Cgp1bC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXNvcnQtbWVudSBsaSBzdmcuaGlyZS1pY29uLmZpbHRlciB7Cgl3aWR0aDogMTJweDsKCWhlaWdodDogMTJweDsKCW1hcmdpbi10b3A6IDFweDsKfQ==","base64");
 (0, _insertCss2["default"])(css, { prepend: true });
 
 var SortMenu = (function (_React$Component) {
@@ -2207,11 +2436,6 @@ var SortMenu = (function (_React$Component) {
 				{ className: "hire-faceted-search-sort-menu" },
 				_react2["default"].createElement(
 					"li",
-					null,
-					_react2["default"].createElement(_iconsFilter2["default"], null)
-				),
-				_react2["default"].createElement(
-					"li",
 					{
 						className: (0, _classnames2["default"])({
 							active: this.state.current === "alpha"
@@ -2235,6 +2459,31 @@ var SortMenu = (function (_React$Component) {
 	return SortMenu;
 })(_react2["default"].Component);
 
+SortMenu.sortFunctions = {
+	alphaAsc: function alphaAsc(valA, valB) {
+		if (valA.get("name") > valB.get("name")) return 1;
+		if (valB.get("name") > valA.get("name")) return -1;
+		return 0;
+	},
+	alphaDesc: function alphaDesc(valA, valB) {
+		if (valA.get("name") > valB.get("name")) return -1;
+		if (valB.get("name") > valA.get("name")) return 1;
+		return 0;
+	},
+	countAsc: function countAsc(valA, valB) {
+		if (valA.get("count") > valB.get("count")) return 1;
+		if (valB.get("count") > valA.get("count")) return -1;
+		return 0;
+	},
+	countDesc: function countDesc(valA, valB) {
+		if (valA.get("count") > valB.get("count")) return -1;
+		if (valB.get("count") > valA.get("count")) return 1;
+		return 0;
+	}
+};
+
+SortMenu.defaultSort = "countDesc";
+
 SortMenu.defaultProps = {};
 
 SortMenu.propTypes = {
@@ -2244,7 +2493,7 @@ SortMenu.propTypes = {
 exports["default"] = SortMenu;
 module.exports = exports["default"];
 
-},{"../icons/filter":18,"../icons/sort-alphabetically-ascending":20,"../icons/sort-alphabetically-descending":21,"../icons/sort-count-ascending":22,"../icons/sort-count-descending":23,"classnames":"classnames","insert-css":4,"react":"react"}],30:[function(_dereq_,module,exports){
+},{"../icons/sort-alphabetically-ascending":21,"../icons/sort-alphabetically-descending":22,"../icons/sort-count-ascending":23,"../icons/sort-count-descending":24,"classnames":"classnames","insert-css":5,"react":"react"}],31:[function(_dereq_,module,exports){
 // TODO add searching class to .search-icon when async query is busy
 
 "use strict";
@@ -2356,7 +2605,7 @@ TextSearch.propTypes = {};
 exports["default"] = TextSearch;
 module.exports = exports["default"];
 
-},{"../../actions/queries":13,"../icons/search":19,"classnames":"classnames","insert-css":4,"react":"react"}],31:[function(_dereq_,module,exports){
+},{"../../actions/queries":14,"../icons/search":20,"classnames":"classnames","insert-css":5,"react":"react"}],32:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2410,7 +2659,7 @@ var AppDispatcher = (function (_Dispatcher) {
 exports["default"] = new AppDispatcher();
 module.exports = exports["default"];
 
-},{"flux":1}],32:[function(_dereq_,module,exports){
+},{"flux":1}],33:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2538,7 +2787,7 @@ FacetedSearchController.propTypes = {
 exports["default"] = FacetedSearchController;
 module.exports = exports["default"];
 
-},{"./actions/queries":13,"./actions/results":14,"./components/faceted-search":16,"./components/results":28,"./stores/queries":35,"./stores/results":36,"react":"react"}],33:[function(_dereq_,module,exports){
+},{"./actions/queries":14,"./actions/results":15,"./components/faceted-search":17,"./components/results":29,"./stores/queries":36,"./stores/results":37,"react":"react"}],34:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2616,7 +2865,7 @@ exports["default"] = {
 };
 module.exports = exports["default"];
 
-},{"../actions/server":15,"../stores/queries":35,"xhr":6}],34:[function(_dereq_,module,exports){
+},{"../actions/server":16,"../stores/queries":36,"xhr":7}],35:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2662,7 +2911,7 @@ var BaseStore = (function (_EventEmitter) {
 exports["default"] = BaseStore;
 module.exports = exports["default"];
 
-},{"events":5}],35:[function(_dereq_,module,exports){
+},{"events":6}],36:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2803,7 +3052,7 @@ queries.dispatcherIndex = _dispatcher2["default"].register(dispatcherCallback);
 exports["default"] = queries;
 module.exports = exports["default"];
 
-},{"../dispatcher":31,"./base":34,"immutable":"immutable"}],36:[function(_dereq_,module,exports){
+},{"../dispatcher":32,"./base":35,"immutable":"immutable"}],37:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2923,5 +3172,5 @@ resultsStore.dispatcherIndex = _dispatcher2["default"].register(dispatcherCallba
 exports["default"] = resultsStore;
 module.exports = exports["default"];
 
-},{"../dispatcher":31,"./base":34,"immutable":"immutable"}]},{},[32])(32)
+},{"../dispatcher":32,"./base":35,"immutable":"immutable"}]},{},[33])(33)
 });
