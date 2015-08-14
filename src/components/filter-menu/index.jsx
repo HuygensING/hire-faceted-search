@@ -35,7 +35,6 @@ class FilterMenu extends React.Component {
 	}
 
 	handleInputFocus() {
-		console.log("FOCUS");
 		this.setState({
 			active: true
 		});

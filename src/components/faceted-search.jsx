@@ -35,7 +35,6 @@ FacetedSearch.defaultProps = {
 };
 
 FacetedSearch.propTypes = {
-	config: React.PropTypes.object.isRequired,
 	selectedValues: React.PropTypes.instanceOf(Immutable.List)
 };
 

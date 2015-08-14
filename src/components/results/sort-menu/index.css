@@ -1,0 +1,7 @@
+.dragging {
+	opacity: 0;
+}
+
+.fakeLi {
+	position: absolute;
+}

@@ -1,0 +1,11 @@
+.hire-sortable-list div,
+.hire-sortable-list ul li {
+	user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-webkit-user-select: none;
+}
+
+.hire-sortable-list ul li {
+	cursor: move;
+}

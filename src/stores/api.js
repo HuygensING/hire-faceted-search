@@ -2,13 +2,12 @@ import xhr from "xhr";
 
 import serverActions from "../actions/server";
 import queriesStore from "../stores/queries";
-
-let baseUrl = "http://boschdoc.huygens.knaw.nl/draft";
+import configStore from "../stores/config";
 
 export default {
 	getAllResults() {
 		let options = {
-			url: `${baseUrl}/api/search`
+			url: `${configStore.getState().get("baseURL")}api/search`
 		};
 
 		let done = function(err, resp, body) {
@@ -27,7 +26,7 @@ export default {
 				"Content-Type": "application/json",
 			},
 			method: "POST",
-			url: `${baseUrl}/api/search`
+			url: `${configStore.getState().get("baseURL")}api/search`
 		};
 
 		let postDone = function(err, resp, body) {

@@ -1148,6 +1148,31 @@ var _dispatcher = _dereq_("../dispatcher");
 
 var _dispatcher2 = _interopRequireDefault(_dispatcher);
 
+var configActions = {
+	set: function set(data) {
+		_dispatcher2["default"].handleViewAction({
+			actionType: "CONFIG_SET",
+			data: data
+		});
+	}
+};
+
+exports["default"] = configActions;
+module.exports = exports["default"];
+
+},{"../dispatcher":35}],15:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+var _dispatcher = _dereq_("../dispatcher");
+
+var _dispatcher2 = _interopRequireDefault(_dispatcher);
+
 var queriesActions = {
 	setDefaults: function setDefaults(props) {
 		_dispatcher2["default"].handleViewAction({
@@ -1183,7 +1208,7 @@ var queriesActions = {
 exports["default"] = queriesActions;
 module.exports = exports["default"];
 
-},{"../dispatcher":32}],15:[function(_dereq_,module,exports){
+},{"../dispatcher":35}],16:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1209,7 +1234,7 @@ var resultsActions = {
 exports["default"] = resultsActions;
 module.exports = exports["default"];
 
-},{"../stores/api":34}],16:[function(_dereq_,module,exports){
+},{"../stores/api":37}],17:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1241,7 +1266,7 @@ var serverActions = {
 exports["default"] = serverActions;
 module.exports = exports["default"];
 
-},{"../dispatcher":32}],17:[function(_dereq_,module,exports){
+},{"../dispatcher":35}],18:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1320,14 +1345,13 @@ FacetedSearch.defaultProps = {
 };
 
 FacetedSearch.propTypes = {
-	config: _react2["default"].PropTypes.object.isRequired,
 	selectedValues: _react2["default"].PropTypes.instanceOf(_immutable2["default"].List)
 };
 
 exports["default"] = FacetedSearch;
 module.exports = exports["default"];
 
-},{"./list-facet":26,"./text-search":31,"immutable":"immutable","react":"react"}],18:[function(_dereq_,module,exports){
+},{"./list-facet":27,"./text-search":34,"immutable":"immutable","react":"react"}],19:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1403,7 +1427,6 @@ var FilterMenu = (function (_React$Component) {
 	}, {
 		key: "handleInputFocus",
 		value: function handleInputFocus() {
-			console.log("FOCUS");
 			this.setState({
 				active: true
 			});
@@ -1436,7 +1459,7 @@ FilterMenu.propTypes = {
 exports["default"] = FilterMenu;
 module.exports = exports["default"];
 
-},{"../icons/search":20,"classnames":"classnames","hire-forms-input":4,"insert-css":5,"react":"react"}],19:[function(_dereq_,module,exports){
+},{"../icons/search":21,"classnames":"classnames","hire-forms-input":4,"insert-css":5,"react":"react"}],20:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1497,7 +1520,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],20:[function(_dereq_,module,exports){
+},{"react":"react"}],21:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1557,7 +1580,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],21:[function(_dereq_,module,exports){
+},{"react":"react"}],22:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1628,7 +1651,7 @@ SortAlphabeticallyAscending.propTypes = {
 exports["default"] = SortAlphabeticallyAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],22:[function(_dereq_,module,exports){
+},{"react":"react"}],23:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1699,7 +1722,7 @@ SortAlphabeticallyDescending.propTypes = {
 exports["default"] = SortAlphabeticallyDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],23:[function(_dereq_,module,exports){
+},{"react":"react"}],24:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1768,7 +1791,7 @@ SortCountAscending.propTypes = {
 exports["default"] = SortCountAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],24:[function(_dereq_,module,exports){
+},{"react":"react"}],25:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1837,7 +1860,7 @@ SortCountDescending.propTypes = {
 exports["default"] = SortCountDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],25:[function(_dereq_,module,exports){
+},{"react":"react"}],26:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1896,7 +1919,7 @@ UncheckedIcon.propTypes = {
 exports["default"] = UncheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],26:[function(_dereq_,module,exports){
+},{"react":"react"}],27:[function(_dereq_,module,exports){
 // TODO cap at 50 results if results > 200
 
 "use strict";
@@ -2060,7 +2083,7 @@ ListFacet.propTypes = {
 exports["default"] = ListFacet;
 module.exports = exports["default"];
 
-},{"../filter-menu":18,"../sort-menu":30,"./list-item":27,"immutable":"immutable","insert-css":5,"react":"react"}],27:[function(_dereq_,module,exports){
+},{"../filter-menu":19,"../sort-menu":33,"./list-item":28,"immutable":"immutable","insert-css":5,"react":"react"}],28:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2171,7 +2194,95 @@ ListFacetListItem.propTypes = {
 exports["default"] = ListFacetListItem;
 module.exports = exports["default"];
 
-},{"../../actions/queries":14,"../icons/checked":19,"../icons/unchecked":25,"react":"react"}],28:[function(_dereq_,module,exports){
+},{"../../actions/queries":15,"../icons/checked":20,"../icons/unchecked":26,"react":"react"}],29:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = _dereq_("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _result = _dereq_("./result");
+
+var _result2 = _interopRequireDefault(_result);
+
+var _sortMenu = _dereq_("./sort-menu");
+
+var _sortMenu2 = _interopRequireDefault(_sortMenu);
+
+var Results = (function (_React$Component) {
+	_inherits(Results, _React$Component);
+
+	function Results() {
+		_classCallCheck(this, Results);
+
+		_get(Object.getPrototypeOf(Results.prototype), "constructor", this).apply(this, arguments);
+	}
+
+	_createClass(Results, [{
+		key: "render",
+		value: function render() {
+			var _this = this;
+
+			var results = this.props.facetData.get("results").map(function (data, index) {
+				return _react2["default"].createElement(_result2["default"], {
+					data: data,
+					key: index,
+					onSelect: _this.props.onSelect });
+			});
+
+			return _react2["default"].createElement(
+				"div",
+				{ className: "hire-faceted-search-results" },
+				_react2["default"].createElement(
+					"header",
+					null,
+					_react2["default"].createElement(
+						"h3",
+						null,
+						"Found ",
+						this.props.facetData.get("numFound"),
+						" results"
+					),
+					_react2["default"].createElement(_sortMenu2["default"], { sortLevels: this.props.sortLevels })
+				),
+				_react2["default"].createElement(
+					"ul",
+					null,
+					results
+				)
+			);
+		}
+	}]);
+
+	return Results;
+})(_react2["default"].Component);
+
+Results.defaultProps = {
+	sortLevels: []
+};
+
+Results.propTypes = {
+	sortLevels: _react2["default"].PropTypes.array
+};
+
+exports["default"] = Results;
+module.exports = exports["default"];
+
+},{"./result":30,"./sort-menu":31,"react":"react"}],30:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2194,7 +2305,7 @@ var _react2 = _interopRequireDefault(_react);
 
 // TODO pass as prop
 
-var _storesQueries = _dereq_("../stores/queries");
+var _storesQueries = _dereq_("../../stores/queries");
 
 var _storesQueries2 = _interopRequireDefault(_storesQueries);
 
@@ -2212,10 +2323,10 @@ var Result = (function (_React$Component) {
 		value: function render() {
 			var model = this.props.data;
 
-			var metadata = _storesQueries2["default"].getState().get("resultFields").map(function (field) {
+			var metadata = _storesQueries2["default"].getState().get("resultFields").map(function (field, index) {
 				return _react2["default"].createElement(
 					"li",
-					null,
+					{ key: index },
 					_react2["default"].createElement(
 						"label",
 						null,
@@ -2258,7 +2369,7 @@ Result.propTypes = {};
 exports["default"] = Result;
 module.exports = exports["default"];
 
-},{"../stores/queries":36,"react":"react"}],29:[function(_dereq_,module,exports){
+},{"../../stores/queries":40,"react":"react"}],31:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2279,65 +2390,349 @@ var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
 
-var _result = _dereq_("./result");
+var _classnames = _dereq_("classnames");
 
-var _result2 = _interopRequireDefault(_result);
+var _classnames2 = _interopRequireDefault(_classnames);
 
-var Results = (function (_React$Component) {
-	_inherits(Results, _React$Component);
+var _insertCss = _dereq_("insert-css");
 
-	function Results() {
-		_classCallCheck(this, Results);
+var _insertCss2 = _interopRequireDefault(_insertCss);
 
-		_get(Object.getPrototypeOf(Results.prototype), "constructor", this).apply(this, arguments);
+
+
+var css = Buffer("LmRyYWdnaW5nIHsKCW9wYWNpdHk6IDA7Cn0KCi5mYWtlTGkgewoJcG9zaXRpb246IGFic29sdXRlOwp9","base64");
+(0, _insertCss2["default"])(css, { prepend: true });
+
+var ResultsSortMenu = (function (_React$Component) {
+	_inherits(ResultsSortMenu, _React$Component);
+
+	function ResultsSortMenu(props) {
+		_classCallCheck(this, ResultsSortMenu);
+
+		_get(Object.getPrototypeOf(ResultsSortMenu.prototype), "constructor", this).call(this, props);
+
+		this.state = {
+			draggingIndex: null,
+			draggingTop: null,
+			levels: this.props.sortLevels
+		};
 	}
 
-	_createClass(Results, [{
-		key: "render",
-		value: function render() {
+	_createClass(ResultsSortMenu, [{
+		key: "handleDragStart",
+		value: function handleDragStart(ev) {
+			this.setState({
+				draggingIndex: this.state.levels.indexOf(ev.target.innerHTML),
+				draggingTop: ev.clientY
+			});
+		}
+	}, {
+		key: "handleDrag",
+		value: function handleDrag(ev) {
 			var _this = this;
 
-			var results = this.props.facetData.get("results").map(function (data, index) {
-				return _react2["default"].createElement(_result2["default"], {
-					data: data,
-					key: index,
-					onSelect: _this.props.onSelect });
+			var node = _react2["default"].findDOMNode(this);
+			var ulRect = node.querySelector("ul").getBoundingClientRect();
+			var liRects = Array.prototype.slice.call(node.querySelectorAll("li")).map(function (li) {
+				return li.getBoundingClientRect();
 			});
+
+			var liHeight = liRects[0].height;
+
+			var data = liRects.map(function (liRect, index) {
+				return {
+					height: liRect.height,
+					index: index,
+					top: _this.state.draggingIndex === index ? ev.clientY : liRect.top,
+					html: _this.state.levels[index]
+				};
+			});
+
+			var reduced = data.reduce(function (prev, current, index) {
+				if (index === 0) {
+					prev.push(current);
+				} else {
+					var last = prev[index - 1];
+
+					if (last.top + last.height > current.top) {
+						prev[index - 1] = current;
+						prev[index] = last;
+					} else {
+						prev.push(current);
+					}
+				}
+
+				return prev;
+			}, []);
+
+			if (ev.clientY > ulRect.top && ev.clientY < ulRect.bottom - liHeight) {
+				this.setState({
+					draggingTop: ev.clientY,
+					levels: reduced.map(function (r) {
+						return r.html;
+					})
+				});
+			}
+		}
+	}, {
+		key: "handleDragEnd",
+		value: function handleDragEnd(ev) {
+			this.setState({
+				draggingIndex: null,
+				draggingTop: null
+			});
+		}
+	}, {
+		key: "render",
+		value: function render() {
+			var _this2 = this;
+
+			var buttonString = this.state.levels.length ? "Sort by: " + this.state.levels[0] : "Sort";
+
+			var sortLevels = this.state.levels.map(function (level, index) {
+				return _react2["default"].createElement(
+					"li",
+					{
+						className: (0, _classnames2["default"])({ dragging: _this2.state.draggingIndex === index }),
+						draggable: "true",
+						key: index,
+						onDrag: _this2.handleDrag.bind(_this2),
+						onDragEnd: _this2.handleDragEnd.bind(_this2),
+						onDragStart: _this2.handleDragStart.bind(_this2) },
+					level
+				);
+			});
+
+			var fakeLi = this.state.draggingIndex != null ? _react2["default"].createElement(
+				"div",
+				{
+					className: "fakeLi",
+					ref: "fakeLi",
+					style: { top: this.state.draggingTop } },
+				this.state.levels[this.state.draggingIndex]
+			) : null;
 
 			return _react2["default"].createElement(
 				"div",
-				{ className: "hire-faceted-search-results" },
+				{ className: "hire-faceted-search-results-sort-menu" },
 				_react2["default"].createElement(
-					"header",
+					"button",
 					null,
-					_react2["default"].createElement(
-						"h3",
-						null,
-						"Found ",
-						this.props.facetData.get("numFound"),
-						" results"
-					)
+					buttonString
 				),
+				fakeLi,
 				_react2["default"].createElement(
 					"ul",
 					null,
-					results
+					sortLevels
 				)
 			);
 		}
 	}]);
 
-	return Results;
+	return ResultsSortMenu;
 })(_react2["default"].Component);
 
-Results.defaultProps = {};
+ResultsSortMenu.defaultProps = {
+	sortLevels: []
+};
 
-Results.propTypes = {};
-
-exports["default"] = Results;
+ResultsSortMenu.propTypes = {
+	sortLevels: _react2["default"].PropTypes.array
+};
+exports["default"] = ResultsSortMenu;
 module.exports = exports["default"];
 
-},{"./result":28,"react":"react"}],30:[function(_dereq_,module,exports){
+},{"classnames":"classnames","insert-css":5,"react":"react"}],32:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = _dereq_("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _classnames = _dereq_("classnames");
+
+var _classnames2 = _interopRequireDefault(_classnames);
+
+var _insertCss = _dereq_("insert-css");
+
+var _insertCss2 = _interopRequireDefault(_insertCss);
+
+
+
+var css = Buffer("LmhpcmUtc29ydGFibGUtbGlzdCBkaXYsCi5oaXJlLXNvcnRhYmxlLWxpc3QgdWwgbGkgewoJdXNlci1zZWxlY3Q6IG5vbmU7CgktbW96LXVzZXItc2VsZWN0OiBub25lOwoJLW1zLXVzZXItc2VsZWN0OiBub25lOwoJLXdlYmtpdC11c2VyLXNlbGVjdDogbm9uZTsKfQoKLmhpcmUtc29ydGFibGUtbGlzdCB1bCBsaSB7CgljdXJzb3I6IG1vdmU7Cn0=","base64");
+(0, _insertCss2["default"])(css, { prepend: true });
+
+var SortableList = (function (_React$Component) {
+	_inherits(SortableList, _React$Component);
+
+	function SortableList(props) {
+		_classCallCheck(this, SortableList);
+
+		_get(Object.getPrototypeOf(SortableList.prototype), "constructor", this).call(this, props);
+
+		this.state = {
+			draggingValue: null,
+			draggingTop: null,
+			values: this.props.values
+		};
+	}
+
+	_createClass(SortableList, [{
+		key: "handleDragStart",
+		value: function handleDragStart(ev) {
+			var offset = ev.clientY - ev.target.getBoundingClientRect().top;
+
+			this.setState({
+				draggingValue: ev.target.innerHTML,
+				draggingTop: ev.clientY - offset
+			});
+		}
+	}, {
+		key: "handleDrag",
+		value: function handleDrag(ev) {
+			if (this.state.draggingValue == null) {
+				return;
+			}
+
+			var node = _react2["default"].findDOMNode(this);
+			var ulRect = node.querySelector("ul").getBoundingClientRect();
+			var liHeight = ulRect.height / this.state.values.length;
+
+			var draggingIndex = this.state.values.indexOf(this.state.draggingValue);
+			var reduced = this.state.values.reduce(function (prev, current, index, arr) {
+				if (index < draggingIndex) {
+					if (index * liHeight + liHeight > ev.clientY) {
+						arr[index + 1] = current;
+					} else {
+						arr[index] = current;
+					}
+				}
+
+				if (index > draggingIndex) {
+					if (index * liHeight > ev.clientY + liHeight) {
+						arr[index - 1] = current;
+					} else {
+						arr[index] = current;
+					}
+				}
+
+				return arr;
+			}, []);
+
+			// let data = liRects.map((liRect, index) => {
+			// 	return {
+			// 		height: liRect.height,
+			// 		index: index,
+			// 		top: (this.state.draggingValue === index) ? ev.clientY : liRect.top,
+			// 		html: this.state.values[index]
+			// 	}
+
+			// });
+
+			// let reduced = data.reduce((prev, current, index) => {
+			// 	if (index === 0) {
+			// 		prev.push(current);
+			// 	} else {
+			// 		let last = prev[index - 1];
+
+			// 		if (last.top + last.height > current.top) {
+			// 			prev[index - 1] = current;
+			// 			prev[index] = last;
+			// 		} else {
+			// 			prev.push(current);
+			// 		}
+			// 	}
+
+			// 	return prev;
+			// }, []);
+
+			if (ev.clientY > ulRect.top && ev.clientY < ulRect.bottom - liHeight) {
+				console.log(reduced);
+				this.setState({
+					draggingTop: ev.clientY,
+					values: reduced
+				});
+			}
+		}
+	}, {
+		key: "handleDragEnd",
+		value: function handleDragEnd(ev) {
+			this.setState({
+				draggingValue: null,
+				draggingTop: null
+			});
+		}
+	}, {
+		key: "render",
+		value: function render() {
+			var _this = this;
+
+			var buttonString = this.state.values.length ? "Sort by: " + this.state.values[0] : "Sort";
+
+			var listitems = this.state.values.map(function (level, index) {
+				return _react2["default"].createElement(
+					"li",
+					{
+						className: (0, _classnames2["default"])({ dragging: _this.state.draggingValue === level }),
+						key: index,
+						onMouseMove: _this.handleDrag.bind(_this),
+						onMouseUp: _this.handleDragEnd.bind(_this),
+						onMouseDown: _this.handleDragStart.bind(_this) },
+					level
+				);
+			});
+
+			var fakeLi = this.state.draggingValue != null ? _react2["default"].createElement(
+				"div",
+				{
+					className: "fakeLi",
+					ref: "fakeLi",
+					style: { top: this.state.draggingTop } },
+				this.state.draggingValue
+			) : null;
+
+			return _react2["default"].createElement(
+				"div",
+				{ className: "hire-sortable-list" },
+				fakeLi,
+				_react2["default"].createElement(
+					"ul",
+					null,
+					listitems
+				)
+			);
+		}
+	}]);
+
+	return SortableList;
+})(_react2["default"].Component);
+
+SortableList.defaultProps = {
+	values: []
+};
+
+SortableList.propTypes = {
+	values: _react2["default"].PropTypes.array
+};
+exports["default"] = SortableList;
+module.exports = exports["default"];
+
+},{"classnames":"classnames","insert-css":5,"react":"react"}],33:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2493,7 +2888,7 @@ SortMenu.propTypes = {
 exports["default"] = SortMenu;
 module.exports = exports["default"];
 
-},{"../icons/sort-alphabetically-ascending":21,"../icons/sort-alphabetically-descending":22,"../icons/sort-count-ascending":23,"../icons/sort-count-descending":24,"classnames":"classnames","insert-css":5,"react":"react"}],31:[function(_dereq_,module,exports){
+},{"../icons/sort-alphabetically-ascending":22,"../icons/sort-alphabetically-descending":23,"../icons/sort-count-ascending":24,"../icons/sort-count-descending":25,"classnames":"classnames","insert-css":5,"react":"react"}],34:[function(_dereq_,module,exports){
 // TODO add searching class to .search-icon when async query is busy
 
 "use strict";
@@ -2605,7 +3000,7 @@ TextSearch.propTypes = {};
 exports["default"] = TextSearch;
 module.exports = exports["default"];
 
-},{"../../actions/queries":14,"../icons/search":20,"classnames":"classnames","insert-css":5,"react":"react"}],32:[function(_dereq_,module,exports){
+},{"../../actions/queries":15,"../icons/search":21,"classnames":"classnames","insert-css":5,"react":"react"}],35:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2659,7 +3054,7 @@ var AppDispatcher = (function (_Dispatcher) {
 exports["default"] = new AppDispatcher();
 module.exports = exports["default"];
 
-},{"flux":1}],33:[function(_dereq_,module,exports){
+},{"flux":1}],36:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2688,6 +3083,10 @@ var _componentsResults = _dereq_("./components/results");
 
 var _componentsResults2 = _interopRequireDefault(_componentsResults);
 
+var _actionsConfig = _dereq_("./actions/config");
+
+var _actionsConfig2 = _interopRequireDefault(_actionsConfig);
+
 var _actionsResults = _dereq_("./actions/results");
 
 var _actionsResults2 = _interopRequireDefault(_actionsResults);
@@ -2704,6 +3103,10 @@ var _storesQueries = _dereq_("./stores/queries");
 
 var _storesQueries2 = _interopRequireDefault(_storesQueries);
 
+var _componentsResultsSortMenuSortableList = _dereq_("./components/results/sort-menu/sortable-list");
+
+var _componentsResultsSortMenuSortableList2 = _interopRequireDefault(_componentsResultsSortMenuSortableList);
+
 var FacetedSearchController = (function (_React$Component) {
 	_inherits(FacetedSearchController, _React$Component);
 
@@ -2711,6 +3114,9 @@ var FacetedSearchController = (function (_React$Component) {
 		_classCallCheck(this, FacetedSearchController);
 
 		_get(Object.getPrototypeOf(FacetedSearchController.prototype), "constructor", this).call(this, props);
+
+		_actionsConfig2["default"].set(this.props.config);
+		_actionsQueries2["default"].setDefaults(this.props);
 
 		this.state = {
 			queries: _storesQueries2["default"].getState(),
@@ -2721,7 +3127,6 @@ var FacetedSearchController = (function (_React$Component) {
 	_createClass(FacetedSearchController, [{
 		key: "componentDidMount",
 		value: function componentDidMount() {
-			_actionsQueries2["default"].setDefaults(this.props);
 			_storesResults2["default"].listen(this.onStoreChange.bind(this));
 			_storesQueries2["default"].listen(this.onQueriesChange.bind(this));
 			_actionsResults2["default"].getAll();
@@ -2761,11 +3166,18 @@ var FacetedSearchController = (function (_React$Component) {
 
 			var results = this.state.results.get("queryResults").size > 1 ? _react2["default"].createElement(_componentsResults2["default"], {
 				facetData: data,
-				onSelect: this.handleResultSelect.bind(this) }) : null;
+				onSelect: this.handleResultSelect.bind(this),
+				sortLevels: this.props.config.levels }) : null;
+
+			// TMP
+			facetedSearch = null;
+			results = null;
+			// /TMP
 
 			return _react2["default"].createElement(
 				"div",
 				{ className: "hire-faceted-search" },
+				_react2["default"].createElement(_componentsResultsSortMenuSortableList2["default"], { values: ["aap", "boom", "cloaca"] }),
 				facetedSearch,
 				results
 			);
@@ -2780,6 +3192,7 @@ FacetedSearchController.defaultProps = {
 };
 
 FacetedSearchController.propTypes = {
+	config: _react2["default"].PropTypes.object.isRequired,
 	onChange: _react2["default"].PropTypes.func.isRequired,
 	sortFields: _react2["default"].PropTypes.array
 };
@@ -2787,7 +3200,7 @@ FacetedSearchController.propTypes = {
 exports["default"] = FacetedSearchController;
 module.exports = exports["default"];
 
-},{"./actions/queries":14,"./actions/results":15,"./components/faceted-search":17,"./components/results":29,"./stores/queries":36,"./stores/results":37,"react":"react"}],34:[function(_dereq_,module,exports){
+},{"./actions/config":14,"./actions/queries":15,"./actions/results":16,"./components/faceted-search":18,"./components/results":29,"./components/results/sort-menu/sortable-list":32,"./stores/queries":40,"./stores/results":41,"react":"react"}],37:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2808,12 +3221,14 @@ var _storesQueries = _dereq_("../stores/queries");
 
 var _storesQueries2 = _interopRequireDefault(_storesQueries);
 
-var baseUrl = "http://boschdoc.huygens.knaw.nl/draft";
+var _storesConfig = _dereq_("../stores/config");
+
+var _storesConfig2 = _interopRequireDefault(_storesConfig);
 
 exports["default"] = {
 	getAllResults: function getAllResults() {
 		var options = {
-			url: baseUrl + "/api/search"
+			url: _storesConfig2["default"].getState().get("baseURL") + "api/search"
 		};
 
 		var done = function done(err, resp, body) {
@@ -2834,7 +3249,7 @@ exports["default"] = {
 				"Content-Type": "application/json"
 			},
 			method: "POST",
-			url: baseUrl + "/api/search"
+			url: _storesConfig2["default"].getState().get("baseURL") + "api/search"
 		};
 
 		var postDone = function postDone(err, resp, body) {
@@ -2865,7 +3280,7 @@ exports["default"] = {
 };
 module.exports = exports["default"];
 
-},{"../actions/server":16,"../stores/queries":36,"xhr":7}],35:[function(_dereq_,module,exports){
+},{"../actions/server":17,"../stores/config":39,"../stores/queries":40,"xhr":7}],38:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2911,7 +3326,83 @@ var BaseStore = (function (_EventEmitter) {
 exports["default"] = BaseStore;
 module.exports = exports["default"];
 
-},{"events":6}],36:[function(_dereq_,module,exports){
+},{"events":6}],39:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _immutable = _dereq_("immutable");
+
+var _immutable2 = _interopRequireDefault(_immutable);
+
+var _dispatcher = _dereq_("../dispatcher");
+
+var _dispatcher2 = _interopRequireDefault(_dispatcher);
+
+var _base = _dereq_("./base");
+
+var _base2 = _interopRequireDefault(_base);
+
+var CHANGE_EVENT = "change";
+
+var ConfigStore = (function (_BaseStore) {
+	_inherits(ConfigStore, _BaseStore);
+
+	function ConfigStore() {
+		_classCallCheck(this, ConfigStore);
+
+		_get(Object.getPrototypeOf(ConfigStore.prototype), "constructor", this).call(this);
+
+		this.data = new _immutable2["default"].Map();
+	}
+
+	_createClass(ConfigStore, [{
+		key: "getState",
+		value: function getState() {
+			return this.data;
+		}
+	}, {
+		key: "set",
+		value: function set(data) {
+			this.data = _immutable2["default"].fromJS(data);
+		}
+	}]);
+
+	return ConfigStore;
+})(_base2["default"]);
+
+var configStore = new ConfigStore();
+
+var dispatcherCallback = function dispatcherCallback(payload) {
+	switch (payload.action.actionType) {
+		case "CONFIG_SET":
+			configStore.set(payload.action.data);
+			break;
+		default:
+			return;
+	}
+
+	configStore.emit(CHANGE_EVENT);
+};
+
+configStore.dispatcherIndex = _dispatcher2["default"].register(dispatcherCallback);
+
+exports["default"] = configStore;
+module.exports = exports["default"];
+
+},{"../dispatcher":35,"./base":38,"immutable":"immutable"}],40:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3052,7 +3543,7 @@ queries.dispatcherIndex = _dispatcher2["default"].register(dispatcherCallback);
 exports["default"] = queries;
 module.exports = exports["default"];
 
-},{"../dispatcher":32,"./base":35,"immutable":"immutable"}],37:[function(_dereq_,module,exports){
+},{"../dispatcher":35,"./base":38,"immutable":"immutable"}],41:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3172,5 +3663,5 @@ resultsStore.dispatcherIndex = _dispatcher2["default"].register(dispatcherCallba
 exports["default"] = resultsStore;
 module.exports = exports["default"];
 
-},{"../dispatcher":32,"./base":35,"immutable":"immutable"}]},{},[33])(33)
+},{"../dispatcher":35,"./base":38,"immutable":"immutable"}]},{},[36])(36)
 });

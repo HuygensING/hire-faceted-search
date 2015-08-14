@@ -1,14 +1,14 @@
 import React from "react";
 
 // TODO pass as prop
-import queriesStore from "../stores/queries";
+import queriesStore from "../../stores/queries";
 
 class Result extends React.Component {
 	render() {
 		let model = this.props.data;
 
-		let metadata = queriesStore.getState().get("resultFields").map((field) =>
-			<li>
+		let metadata = queriesStore.getState().get("resultFields").map((field, index) =>
+			<li key={index}>
 				<label>{field}</label>
 				<span>{model.get("metadata").get(field)}</span>
 			</li>
