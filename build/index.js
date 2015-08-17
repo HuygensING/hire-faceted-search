@@ -3005,6 +3005,10 @@ var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
 
+var _immutable = _dereq_("immutable");
+
+var _immutable2 = _interopRequireDefault(_immutable);
+
 var _componentsFacetedSearch = _dereq_("./components/faceted-search");
 
 var _componentsFacetedSearch2 = _interopRequireDefault(_componentsFacetedSearch);
@@ -3080,6 +3084,18 @@ var FacetedSearchController = (function (_React$Component) {
 			_storesResults2["default"].listen(this.onResultsChange.bind(this));
 			_storesQueries2["default"].listen(this.onQueriesChange.bind(this));
 			_actionsResults2["default"].getAll();
+		}
+	}, {
+		key: "componentWillReceiveProps",
+		value: function componentWillReceiveProps(nextProps) {
+			var oldI18n = _immutable2["default"].fromJS(this.state.i18n);
+			var newI18n = _immutable2["default"].fromJS(nextProps.i18n);
+
+			if (!newI18n.equals(oldI18n)) {
+				this.setState({
+					i18n: _extends(_i18n2["default"], nextProps.i18n)
+				});
+			}
 		}
 	}, {
 		key: "componentWillUnmount",
@@ -3160,7 +3176,7 @@ FacetedSearchController.propTypes = {
 exports["default"] = FacetedSearchController;
 module.exports = exports["default"];
 
-},{"./actions/config":14,"./actions/queries":15,"./actions/results":16,"./components/faceted-search":18,"./components/results":29,"./components/results/sort-menu":32,"./i18n":36,"./stores/config":40,"./stores/queries":41,"./stores/results":42,"insert-css":5,"react":"react"}],38:[function(_dereq_,module,exports){
+},{"./actions/config":14,"./actions/queries":15,"./actions/results":16,"./components/faceted-search":18,"./components/results":29,"./components/results/sort-menu":32,"./i18n":36,"./stores/config":40,"./stores/queries":41,"./stores/results":42,"immutable":"immutable","insert-css":5,"react":"react"}],38:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

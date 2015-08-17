@@ -1,4 +1,5 @@
 import React from "react";
+import Immutable from "immutable";
 
 import FacetedSearch from "./components/faceted-search";
 import Results from "./components/results";
@@ -39,6 +40,17 @@ class FacetedSearchController extends React.Component {
 		resultsStore.listen(this.onResultsChange.bind(this));
 		queriesStore.listen(this.onQueriesChange.bind(this));
 		resultsActions.getAll();
+	}
+
+	componentWillReceiveProps(nextProps) {
+		let oldI18n = Immutable.fromJS(this.state.i18n);
+		let newI18n = Immutable.fromJS(nextProps.i18n);
+
+		if (!newI18n.equals(oldI18n)) {
+			this.setState({
+				i18n: Object.assign(i18n, nextProps.i18n)
+			});
+		}
 	}
 
 	componentWillUnmount() {
