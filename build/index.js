@@ -3069,6 +3069,10 @@ var FacetedSearchController = (function (_React$Component) {
 		_actionsConfig2["default"].init(this.props.config);
 		_actionsQueries2["default"].setDefaults(this.props.config);
 
+		this.onConfigChange = this.onConfigChange.bind(this);
+		this.onResultsChange = this.onResultsChange.bind(this);
+		this.onQueriesChange = this.onQueriesChange.bind(this);
+
 		this.state = {
 			config: _storesConfig2["default"].getState(),
 			i18n: _extends(_i18n2["default"], this.props.i18n),
@@ -3080,9 +3084,9 @@ var FacetedSearchController = (function (_React$Component) {
 	_createClass(FacetedSearchController, [{
 		key: "componentDidMount",
 		value: function componentDidMount() {
-			_storesConfig2["default"].listen(this.onConfigChange.bind(this));
-			_storesResults2["default"].listen(this.onResultsChange.bind(this));
-			_storesQueries2["default"].listen(this.onQueriesChange.bind(this));
+			_storesConfig2["default"].listen(this.onConfigChange);
+			_storesResults2["default"].listen(this.onResultsChange);
+			_storesQueries2["default"].listen(this.onQueriesChange);
 			_actionsResults2["default"].getAll();
 		}
 	}, {
@@ -3100,9 +3104,9 @@ var FacetedSearchController = (function (_React$Component) {
 	}, {
 		key: "componentWillUnmount",
 		value: function componentWillUnmount() {
-			_storesConfig2["default"].stopListening(this.onConfigChange.bind(this));
-			_storesResults2["default"].stopListening(this.onResultsChange.bind(this));
-			_storesQueries2["default"].stopListening(this.onQueriesChange.bind(this));
+			_storesConfig2["default"].stopListening(this.onConfigChange);
+			_storesResults2["default"].stopListening(this.onResultsChange);
+			_storesQueries2["default"].stopListening(this.onQueriesChange);
 		}
 	}, {
 		key: "onQueriesChange",

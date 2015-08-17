@@ -27,6 +27,10 @@ class FacetedSearchController extends React.Component {
 		configActions.init(this.props.config);
 		queriesActions.setDefaults(this.props.config);
 
+		this.onConfigChange = this.onConfigChange.bind(this)
+		this.onResultsChange = this.onResultsChange.bind(this)
+		this.onQueriesChange = this.onQueriesChange.bind(this)
+
 		this.state = {
 			config: configStore.getState(),
 			i18n: Object.assign(i18n, this.props.i18n),
@@ -36,9 +40,9 @@ class FacetedSearchController extends React.Component {
 	}
 
 	componentDidMount() {
-		configStore.listen(this.onConfigChange.bind(this));
-		resultsStore.listen(this.onResultsChange.bind(this));
-		queriesStore.listen(this.onQueriesChange.bind(this));
+		configStore.listen(this.onConfigChange);
+		resultsStore.listen(this.onResultsChange);
+		queriesStore.listen(this.onQueriesChange);
 		resultsActions.getAll();
 	}
 
@@ -54,9 +58,9 @@ class FacetedSearchController extends React.Component {
 	}
 
 	componentWillUnmount() {
-		configStore.stopListening(this.onConfigChange.bind(this));
-		resultsStore.stopListening(this.onResultsChange.bind(this));
-		queriesStore.stopListening(this.onQueriesChange.bind(this));
+		configStore.stopListening(this.onConfigChange);
+		resultsStore.stopListening(this.onResultsChange);
+		queriesStore.stopListening(this.onQueriesChange);
 	}
 
 	onQueriesChange() {
