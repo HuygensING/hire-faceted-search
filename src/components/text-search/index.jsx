@@ -17,8 +17,15 @@ class TextSearch extends React.Component {
 		super(props);
 
 		this.state = {
-			value: ""
+			value: "",
+			searching: false
 		}
+	}
+
+	componentWillReceiveProps() {
+		this.setState({
+			searching: false
+		});
 	}
 
 	handleInputChange(ev) {
@@ -34,26 +41,31 @@ class TextSearch extends React.Component {
 	}
 
 	handleSubmit() {
+		this.setState({
+			searching: true
+		});
+
 		queriesActions.changeSearchTerm(this.state.value);
 	}
 
 	render() {
 		return (
-			<div className="hire-faceted-search-text-search">
+			<li className="hire-faceted-search-text-search">
 				<input
 					onKeyDown={this.handleInputKeyDown.bind(this)}
 					onChange={this.handleInputChange.bind(this)}
 					value={this.state.value} />
 				<div className={cx(
 					"search-icon", {
-						active: this.state.value !== ""
+						active: this.state.value !== "",
+						searching: this.state.searching
 					})}
 						onClick={this.handleSubmit.bind(this)}>
 						<div className="center-vertical">
 							<SearchIcon />
 						</div>
 				</div>
-			</div>
+			</li>
 		);
 	}
 }

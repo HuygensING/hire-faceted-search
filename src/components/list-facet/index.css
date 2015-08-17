@@ -1,3 +1,9 @@
+li.hire-list-facet {
+	background-color: white;
+	margin-top: 20px;
+	padding: 20px 0 0 20px;
+}
+
 li.hire-list-facet > header > h3,
 li.hire-list-facet > header > .hire-faceted-search-filter-menu {
 	display: inline-block;
@@ -6,10 +12,18 @@ li.hire-list-facet > header > .hire-faceted-search-filter-menu {
 }
 
 li.hire-list-facet > header > h3 {
+	margin: 0 0 12px 0;
+	padding: 0;
 	width: 60%;
 }
 li.hire-list-facet > header > .hire-faceted-search-filter-menu {
 	width: 40%;
+}
+
+li.hire-list-facet > ul {
+	max-height: 300px;
+	padding-bottom: 20px;
+	overflow-y: scroll;
 }
 
 li.hire-list-facet > ul > li.hire-list-facet-list-item {

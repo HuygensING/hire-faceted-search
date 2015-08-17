@@ -4,7 +4,7 @@ import Immutable from "immutable"
 import TextSearch from "./text-search";
 import ListFacet from "./list-facet";
 
-class FacetedSearch extends React.Component {
+class Facets extends React.Component {
 	render() {
 		let facets = this.props.facetData.get("facets").map((data, index) => {
 			let selectedValues = this.props.selectedValues
@@ -22,20 +22,20 @@ class FacetedSearch extends React.Component {
 			})
 
 		return (
-			<ul>
-				<TextSearch />
+			<ul className="hire-faceted-search-facets">
+				<TextSearch value={this.props.textValue} />
 				{facets}
 			</ul>
 		);
 	}
 }
 
-FacetedSearch.defaultProps = {
+Facets.defaultProps = {
 	selectedValues: new Immutable.List()
 };
 
-FacetedSearch.propTypes = {
+Facets.propTypes = {
 	selectedValues: React.PropTypes.instanceOf(Immutable.List)
 };
 
-export default FacetedSearch;
+export default Facets;

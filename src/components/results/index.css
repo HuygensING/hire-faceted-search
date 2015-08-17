@@ -1,10 +1,36 @@
 .hire-faceted-search-results > header > h3,
 .hire-faceted-search-results > header > .hire-faceted-search-results-sort-menu {
+	box-sizing: border-box;
 	display: inline-block;
 	vertical-align: top;
-	box-sizing: border-box;
+}
+
+.hire-faceted-search-results > header > h3 {
+	margin-top: 0;
 }
 
 .hire-faceted-search-results > header > .hire-faceted-search-results-sort-menu {
 	margin-left: 20px;
+}
+
+.hire-faceted-search-results > ul > li {
+	cursor: pointer;
+	margin-bottom: 20px;
+}
+
+.hire-faceted-search-results > ul > li > label {
+	cursor: pointer;
+	font-size: 1.1em;
+}
+
+.hire-faceted-search-results > ul > li > ul.metadata {
+	color: #888;
+	font-size: 0.7em;
+}
+
+.hire-faceted-search-results > ul > li > ul.metadata > li > label {
+	box-sizing: border-box;
+	display: inline-block;
+	vertical-align: top;
+	width: 150px;
 }

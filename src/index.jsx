@@ -11,12 +11,17 @@ import queriesStore from "./stores/queries";
 
 import SortableList from "./components/results/sort-menu";
 
+let fs = require("fs");
+import insertCss from "insert-css";
+let css = fs.readFileSync(__dirname + "/index.css");
+insertCss(css, {prepend: true});
+
 class FacetedSearchController extends React.Component {
 	constructor(props) {
 		super(props);
 
 		configActions.set(this.props.config);
-		queriesActions.setDefaults(this.props);
+		queriesActions.setDefaults(this.props.config);
 
 		this.state = {
 			queries: queriesStore.getState(),
@@ -58,6 +63,7 @@ class FacetedSearchController extends React.Component {
 		let facetedSearch = this.state.results.get("queryResults").size ?
 			<FacetedSearch
 				facetData={data}
+				textValue={this.state.queries.get("term")}
 				selectedValues={this.state.queries.get("facetValues")} /> :
 			null;
 
@@ -78,13 +84,11 @@ class FacetedSearchController extends React.Component {
 }
 
 FacetedSearchController.defaultProps = {
-	sortFields: []
 };
 
 FacetedSearchController.propTypes = {
 	config: React.PropTypes.object.isRequired,
-	onChange: React.PropTypes.func.isRequired,
-	sortFields: React.PropTypes.array
+	onChange: React.PropTypes.func.isRequired
 };
 
 export default FacetedSearchController;

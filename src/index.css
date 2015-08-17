@@ -1,0 +1,45 @@
+.hire-faceted-search {
+	width: 100%;
+	padding: 5%;
+}
+
+.hire-faceted-search > .hire-faceted-search-facets,
+.hire-faceted-search > .hire-faceted-search-results {
+	display: inline-block;
+	vertical-align: top;
+	box-sizing: border-box;
+}
+
+.hire-faceted-search > .hire-faceted-search-facets {
+	width: 40%;
+}
+
+.hire-faceted-search > .hire-faceted-search-results {
+	padding-left: 5%;
+	width: 55%;
+}
+
+/*.hire-facet
+	padding-right 0
+	padding-bottom 0
+	box-sizing border-box
+	margin-bottom 20px
+
+	h3
+		margin 0 0 12px 0
+		padding 0
+
+	& > ul
+		max-height 300px
+		overflow-y scroll*/
+
+/*.hire-faceted-search-text-search
+	padding-bottom 20px
+	padding-right 20px
+	height 72px
+
+	input
+		border none
+		outline none
+		font-size 1em
+		padding-left 4px*/

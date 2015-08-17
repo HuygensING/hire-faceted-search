@@ -1306,16 +1306,16 @@ var _listFacet = _dereq_("./list-facet");
 
 var _listFacet2 = _interopRequireDefault(_listFacet);
 
-var FacetedSearch = (function (_React$Component) {
-	_inherits(FacetedSearch, _React$Component);
+var Facets = (function (_React$Component) {
+	_inherits(Facets, _React$Component);
 
-	function FacetedSearch() {
-		_classCallCheck(this, FacetedSearch);
+	function Facets() {
+		_classCallCheck(this, Facets);
 
-		_get(Object.getPrototypeOf(FacetedSearch.prototype), "constructor", this).apply(this, arguments);
+		_get(Object.getPrototypeOf(Facets.prototype), "constructor", this).apply(this, arguments);
 	}
 
-	_createClass(FacetedSearch, [{
+	_createClass(Facets, [{
 		key: "render",
 		value: function render() {
 			var _this = this;
@@ -1337,25 +1337,25 @@ var FacetedSearch = (function (_React$Component) {
 
 			return _react2["default"].createElement(
 				"ul",
-				null,
-				_react2["default"].createElement(_textSearch2["default"], null),
+				{ className: "hire-faceted-search-facets" },
+				_react2["default"].createElement(_textSearch2["default"], { value: this.props.textValue }),
 				facets
 			);
 		}
 	}]);
 
-	return FacetedSearch;
+	return Facets;
 })(_react2["default"].Component);
 
-FacetedSearch.defaultProps = {
+Facets.defaultProps = {
 	selectedValues: new _immutable2["default"].List()
 };
 
-FacetedSearch.propTypes = {
+Facets.propTypes = {
 	selectedValues: _react2["default"].PropTypes.instanceOf(_immutable2["default"].List)
 };
 
-exports["default"] = FacetedSearch;
+exports["default"] = Facets;
 module.exports = exports["default"];
 
 },{"./list-facet":27,"./text-search":33,"immutable":"immutable","react":"react"}],19:[function(_dereq_,module,exports){
@@ -1971,7 +1971,7 @@ var _insertCss2 = _interopRequireDefault(_insertCss);
 
 
 
-var css = Buffer("bGkuaGlyZS1saXN0LWZhY2V0ID4gaGVhZGVyID4gaDMsCmxpLmhpcmUtbGlzdC1mYWNldCA+IGhlYWRlciA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLWZpbHRlci1tZW51IHsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCXZlcnRpY2FsLWFsaWduOiB0b3A7Cglib3gtc2l6aW5nOiBib3JkZXItYm94Owp9CgpsaS5oaXJlLWxpc3QtZmFjZXQgPiBoZWFkZXIgPiBoMyB7Cgl3aWR0aDogNjAlOwp9CmxpLmhpcmUtbGlzdC1mYWNldCA+IGhlYWRlciA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLWZpbHRlci1tZW51IHsKCXdpZHRoOiA0MCU7Cn0KCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkuaGlyZS1saXN0LWZhY2V0LWxpc3QtaXRlbSB7CgljdXJzb3I6IHBvaW50ZXI7Cglwb3NpdGlvbjogcmVsYXRpdmU7Cn0KCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkubm8tb3B0aW9ucy1mb3VuZCB7Cgljb2xvcjogI0FBQTsKCWZvbnQtc2l6ZTogMC44ZW07Cglmb250LXN0eWxlOiBpdGFsaWM7CgltYXJnaW46IDIwcHggMDsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtID4gc3ZnLApsaS5oaXJlLWxpc3QtZmFjZXQgPiB1bCA+IGxpLmhpcmUtbGlzdC1mYWNldC1saXN0LWl0ZW0gPiBsYWJlbCwKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtID4gc3Bhbi5jb3VudCB7Cglib3gtc2l6aW5nOiBib3JkZXItYm94OwoJZGlzcGxheTogaW5saW5lLWJsb2NrOwoJdmVydGljYWwtYWxpZ246IHRvcDsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtIHN2Zy51bmNoZWNrZWQsCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkuaGlyZS1saXN0LWZhY2V0LWxpc3QtaXRlbSBzdmcuY2hlY2tlZCB7CgloZWlnaHQ6IDEycHg7CglmaWxsOiAjQUFBOwoJbWFyZ2luLXRvcDogNXB4OwoJd2lkdGg6IDEycHg7Cn0KCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkuaGlyZS1saXN0LWZhY2V0LWxpc3QtaXRlbSBsYWJlbCB7CgljdXJzb3I6IHBvaW50ZXI7CglwYWRkaW5nOiAwIDRweDsKCXdpZHRoOiBjYWxjKDEwMCUgLSA0NHB4KTsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtID4gc3Bhbi5jb3VudCB7Cgl0ZXh0LWFsaWduOiByaWdodDsKCXdpZHRoOiAzMnB4Owp9CgoKLyoJCQlsaQoJCQkJcG9zaXRpb24gcmVsYXRpdmUKCQkJCWN1cnNvciBwb2ludGVyCgoJCQkJJjpob3ZlcgoJCQkJCWJhY2tncm91bmQtY29sb3Igd3dZZWxsb3cKCgkJCQlsYWJlbAoJCQkJCWN1cnNvciBwb2ludGVyCgkJCQkJbWF4LXdpZHRoIGNhbGMoMTAwJSAtIDZweCkKCgkJCQlzcGFuLmNvdW50CgkJCQkJcG9zaXRpb24gYWJzb2x1dGUKCQkJCQlyaWdodCA2cHgqLw==","base64");
+var css = Buffer("bGkuaGlyZS1saXN0LWZhY2V0IHsKCWJhY2tncm91bmQtY29sb3I6IHdoaXRlOwoJbWFyZ2luLXRvcDogMjBweDsKCXBhZGRpbmc6IDIwcHggMCAwIDIwcHg7Cn0KCmxpLmhpcmUtbGlzdC1mYWNldCA+IGhlYWRlciA+IGgzLApsaS5oaXJlLWxpc3QtZmFjZXQgPiBoZWFkZXIgPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1maWx0ZXItbWVudSB7CglkaXNwbGF5OiBpbmxpbmUtYmxvY2s7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwoJYm94LXNpemluZzogYm9yZGVyLWJveDsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gaGVhZGVyID4gaDMgewoJbWFyZ2luOiAwIDAgMTJweCAwOwoJcGFkZGluZzogMDsKCXdpZHRoOiA2MCU7Cn0KbGkuaGlyZS1saXN0LWZhY2V0ID4gaGVhZGVyID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtZmlsdGVyLW1lbnUgewoJd2lkdGg6IDQwJTsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgewoJbWF4LWhlaWdodDogMzAwcHg7CglwYWRkaW5nLWJvdHRvbTogMjBweDsKCW92ZXJmbG93LXk6IHNjcm9sbDsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtIHsKCWN1cnNvcjogcG9pbnRlcjsKCXBvc2l0aW9uOiByZWxhdGl2ZTsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5uby1vcHRpb25zLWZvdW5kIHsKCWNvbG9yOiAjQUFBOwoJZm9udC1zaXplOiAwLjhlbTsKCWZvbnQtc3R5bGU6IGl0YWxpYzsKCW1hcmdpbjogMjBweCAwOwp9CgpsaS5oaXJlLWxpc3QtZmFjZXQgPiB1bCA+IGxpLmhpcmUtbGlzdC1mYWNldC1saXN0LWl0ZW0gPiBzdmcsCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkuaGlyZS1saXN0LWZhY2V0LWxpc3QtaXRlbSA+IGxhYmVsLApsaS5oaXJlLWxpc3QtZmFjZXQgPiB1bCA+IGxpLmhpcmUtbGlzdC1mYWNldC1saXN0LWl0ZW0gPiBzcGFuLmNvdW50IHsKCWJveC1zaXppbmc6IGJvcmRlci1ib3g7CglkaXNwbGF5OiBpbmxpbmUtYmxvY2s7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwp9CgpsaS5oaXJlLWxpc3QtZmFjZXQgPiB1bCA+IGxpLmhpcmUtbGlzdC1mYWNldC1saXN0LWl0ZW0gc3ZnLnVuY2hlY2tlZCwKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtIHN2Zy5jaGVja2VkIHsKCWhlaWdodDogMTJweDsKCWZpbGw6ICNBQUE7CgltYXJnaW4tdG9wOiA1cHg7Cgl3aWR0aDogMTJweDsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtIGxhYmVsIHsKCWN1cnNvcjogcG9pbnRlcjsKCXBhZGRpbmc6IDAgNHB4OwoJd2lkdGg6IGNhbGMoMTAwJSAtIDQ0cHgpOwp9CgpsaS5oaXJlLWxpc3QtZmFjZXQgPiB1bCA+IGxpLmhpcmUtbGlzdC1mYWNldC1saXN0LWl0ZW0gPiBzcGFuLmNvdW50IHsKCXRleHQtYWxpZ246IHJpZ2h0OwoJd2lkdGg6IDMycHg7Cn0KCgovKgkJCWxpCgkJCQlwb3NpdGlvbiByZWxhdGl2ZQoJCQkJY3Vyc29yIHBvaW50ZXIKCgkJCQkmOmhvdmVyCgkJCQkJYmFja2dyb3VuZC1jb2xvciB3d1llbGxvdwoKCQkJCWxhYmVsCgkJCQkJY3Vyc29yIHBvaW50ZXIKCQkJCQltYXgtd2lkdGggY2FsYygxMDAlIC0gNnB4KQoKCQkJCXNwYW4uY291bnQKCQkJCQlwb3NpdGlvbiBhYnNvbHV0ZQoJCQkJCXJpZ2h0IDZweCov","base64");
 (0, _insertCss2["default"])(css, { prepend: true });
 
 var ListFacet = (function (_React$Component) {
@@ -2236,7 +2236,7 @@ var _insertCss2 = _interopRequireDefault(_insertCss);
 
 
 
-var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciA+IGgzLAouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gaGVhZGVyID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1zb3J0LW1lbnUgewoJZGlzcGxheTogaW5saW5lLWJsb2NrOwoJdmVydGljYWwtYWxpZ246IHRvcDsKCWJveC1zaXppbmc6IGJvcmRlci1ib3g7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiBoZWFkZXIgPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzLXNvcnQtbWVudSB7CgltYXJnaW4tbGVmdDogMjBweDsKfQ==","base64");
+var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciA+IGgzLAouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gaGVhZGVyID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1zb3J0LW1lbnUgewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCXZlcnRpY2FsLWFsaWduOiB0b3A7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiBoZWFkZXIgPiBoMyB7CgltYXJnaW4tdG9wOiAwOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gaGVhZGVyID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1zb3J0LW1lbnUgewoJbWFyZ2luLWxlZnQ6IDIwcHg7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiB1bCA+IGxpIHsKCWN1cnNvcjogcG9pbnRlcjsKCW1hcmdpbi1ib3R0b206IDIwcHg7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiB1bCA+IGxpID4gbGFiZWwgewoJY3Vyc29yOiBwb2ludGVyOwoJZm9udC1zaXplOiAxLjFlbTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IHVsID4gbGkgPiB1bC5tZXRhZGF0YSB7Cgljb2xvcjogIzg4ODsKCWZvbnQtc2l6ZTogMC43ZW07Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiB1bCA+IGxpID4gdWwubWV0YWRhdGEgPiBsaSA+IGxhYmVsIHsKCWJveC1zaXppbmc6IGJvcmRlci1ib3g7CglkaXNwbGF5OiBpbmxpbmUtYmxvY2s7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwoJd2lkdGg6IDE1MHB4Owp9","base64");
 (0, _insertCss2["default"])(css, { prepend: true });
 
 var Results = (function (_React$Component) {
@@ -2700,7 +2700,7 @@ var _insertCss2 = _interopRequireDefault(_insertCss);
 
 
 
-var css = Buffer("QC1tb3ota2V5ZnJhbWVzIHNwaW4gewoJMCUgewoJCS1tb3otdHJhbnNmb3JtOiByb3RhdGUoMGRlZyk7Cgl9CgkxMDAlIHsKCQktbW96LXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7Cgl9Cn0KQC13ZWJraXQta2V5ZnJhbWVzIHNwaW4gewoJMCUgewoJCS13ZWJraXQtdHJhbnNmb3JtOiByb3RhdGUoMGRlZyk7Cgl9CgkxMDAlIHsKCQktd2Via2l0LXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7Cgl9Cn0KQGtleWZyYW1lcyBzcGluIHsKCTAlIHsKCQl0cmFuc2Zvcm0gcm90YXRlKDBkZWcpOwoJfQoJMTAwJSB7CgkJdHJhbnNmb3JtIHJvdGF0ZSgzNjBkZWcpOwoJfQp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC10ZXh0LXNlYXJjaCB7CgloZWlnaHQ6IDEwMCU7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXRleHQtc2VhcmNoIGlucHV0LAouaGlyZS1mYWNldGVkLXNlYXJjaC10ZXh0LXNlYXJjaCAuc2VhcmNoLWljb24gewoJZGlzcGxheTogaW5saW5lLWJsb2NrOwoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCXZlcnRpY2FsLWFsaWduOiB0b3A7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXRleHQtc2VhcmNoIGlucHV0IHsKCXdpZHRoOiA5MiU7CgloZWlnaHQ6IDEwMCU7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXRleHQtc2VhcmNoIC5zZWFyY2gtaWNvbiB7CglmaWxsOiAjREREOwoJaGVpZ2h0OiAxMDAlOwoJd2lkdGg6IDglOwoJdHJhbnNpdGlvbjogZmlsbCA0MDBtczsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggLnNlYXJjaC1pY29uLmFjdGl2ZSB7CgljdXJzb3I6IHBvaW50ZXI7CglmaWxsOiAjODg4Owp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC10ZXh0LXNlYXJjaCAuc2VhcmNoLWljb24uc2VhcmNoaW5nIHN2ZyB7CgktbW96LWFuaW1hdGlvbjogc3BpbiAxLjJzIGVhc2UgaW5maW5pdGU7Cgktd2Via2l0LWFuaW1hdGlvbjogc3BpbiAxLjJzIGVhc2UgaW5maW5pdGU7CglhbmltYXRpb246IHNwaW4gMS4ycyBlYXNlIGluZmluaXRlOwp9CgovKiBVc2VycyB3aXRoIElFIDwgMTEgd2lsbCBzZWUgdGhlIHNlYXJjaCBpY29uIGFsaWduZWQgb24gdG9wLiAqLwouaGlyZS1mYWNldGVkLXNlYXJjaC10ZXh0LXNlYXJjaCAuc2VhcmNoLWljb24gLmNlbnRlci12ZXJ0aWNhbCB7CgloZWlnaHQ6IDEwMCU7CglkaXNwbGF5OiBmbGV4OwoJYWxpZ24taXRlbXM6IGNlbnRlcjsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggLnNlYXJjaC1pY29uIC5jZW50ZXItdmVydGljYWwgc3ZnIHsKCXdpZHRoOiAxMDAlOwoJaGVpZ2h0OiAxMDAlOwp9","base64");
+var css = Buffer("QC1tb3ota2V5ZnJhbWVzIHNwaW4gewoJMCUgewoJCS1tb3otdHJhbnNmb3JtOiByb3RhdGUoMGRlZyk7Cgl9CgkxMDAlIHsKCQktbW96LXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7Cgl9Cn0KQC13ZWJraXQta2V5ZnJhbWVzIHNwaW4gewoJMCUgewoJCS13ZWJraXQtdHJhbnNmb3JtOiByb3RhdGUoMGRlZyk7Cgl9CgkxMDAlIHsKCQktd2Via2l0LXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7Cgl9Cn0KQGtleWZyYW1lcyBzcGluIHsKCTAlIHsKCQl0cmFuc2Zvcm06IHJvdGF0ZSgwZGVnKTsKCX0KCTEwMCUgewoJCXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7Cgl9Cn0KCmxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggewoJaGVpZ2h0OiA0MHB4OwoJYmFja2dyb3VuZC1jb2xvcjogd2hpdGU7Cn0KCmxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggaW5wdXQsCmxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggLnNlYXJjaC1pY29uIHsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCWJveC1zaXppbmc6IGJvcmRlci1ib3g7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwp9CgpsaS5oaXJlLWZhY2V0ZWQtc2VhcmNoLXRleHQtc2VhcmNoIGlucHV0IHsKCWJvcmRlcjogbm9uZTsKCWZvbnQtc2l6ZTogMWVtOwoJb3V0bGluZTogbm9uZTsKCXBhZGRpbmctbGVmdDogMjBweDsKCXdpZHRoOiA5MCU7CgloZWlnaHQ6IDEwMCU7Cn0KCmxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggLnNlYXJjaC1pY29uIHsKCWZpbGw6ICNEREQ7CgloZWlnaHQ6IDEwMCU7Cgl3aWR0aDogMTAlOwoJdHJhbnNpdGlvbjogZmlsbCA0MDBtczsKfQoKbGkuaGlyZS1mYWNldGVkLXNlYXJjaC10ZXh0LXNlYXJjaCAuc2VhcmNoLWljb24uYWN0aXZlIHsKCWN1cnNvcjogcG9pbnRlcjsKCWZpbGw6ICM4ODg7Cn0KCmxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggLnNlYXJjaC1pY29uLnNlYXJjaGluZyBzdmcgewoJLW1vei1hbmltYXRpb246IHNwaW4gMS4ycyBlYXNlIGluZmluaXRlOwoJLXdlYmtpdC1hbmltYXRpb246IHNwaW4gMS4ycyBlYXNlIGluZmluaXRlOwoJYW5pbWF0aW9uOiBzcGluIDEuMnMgZWFzZSBpbmZpbml0ZTsKfQoKLyogVXNlcnMgd2l0aCBJRSA8IDExIHdpbGwgc2VlIHRoZSBzZWFyY2ggaWNvbiBhbGlnbmVkIG9uIHRvcC4gKi8KbGkuaGlyZS1mYWNldGVkLXNlYXJjaC10ZXh0LXNlYXJjaCAuc2VhcmNoLWljb24gLmNlbnRlci12ZXJ0aWNhbCB7CgloZWlnaHQ6IDEwMCU7CglkaXNwbGF5OiBmbGV4OwoJYWxpZ24taXRlbXM6IGNlbnRlcjsKfQoKbGkuaGlyZS1mYWNldGVkLXNlYXJjaC10ZXh0LXNlYXJjaCAuc2VhcmNoLWljb24gLmNlbnRlci12ZXJ0aWNhbCBzdmcgewoJd2lkdGg6IDcwJTsKCWhlaWdodDogNzAlOwp9","base64");
 (0, _insertCss2["default"])(css, { prepend: true });
 
 var TextSearch = (function (_React$Component) {
@@ -2712,11 +2712,19 @@ var TextSearch = (function (_React$Component) {
 		_get(Object.getPrototypeOf(TextSearch.prototype), "constructor", this).call(this, props);
 
 		this.state = {
-			value: ""
+			value: "",
+			searching: false
 		};
 	}
 
 	_createClass(TextSearch, [{
+		key: "componentWillReceiveProps",
+		value: function componentWillReceiveProps() {
+			this.setState({
+				searching: false
+			});
+		}
+	}, {
 		key: "handleInputChange",
 		value: function handleInputChange(ev) {
 			this.setState({
@@ -2733,13 +2741,17 @@ var TextSearch = (function (_React$Component) {
 	}, {
 		key: "handleSubmit",
 		value: function handleSubmit() {
+			this.setState({
+				searching: true
+			});
+
 			_actionsQueries2["default"].changeSearchTerm(this.state.value);
 		}
 	}, {
 		key: "render",
 		value: function render() {
 			return _react2["default"].createElement(
-				"div",
+				"li",
 				{ className: "hire-faceted-search-text-search" },
 				_react2["default"].createElement("input", {
 					onKeyDown: this.handleInputKeyDown.bind(this),
@@ -2748,7 +2760,8 @@ var TextSearch = (function (_React$Component) {
 				_react2["default"].createElement(
 					"div",
 					{ className: (0, _classnames2["default"])("search-icon", {
-							active: this.state.value !== ""
+							active: this.state.value !== "",
+							searching: this.state.searching
 						}),
 						onClick: this.handleSubmit.bind(this) },
 					_react2["default"].createElement(
@@ -2878,6 +2891,15 @@ var _componentsResultsSortMenu = _dereq_("./components/results/sort-menu");
 
 var _componentsResultsSortMenu2 = _interopRequireDefault(_componentsResultsSortMenu);
 
+var _insertCss = _dereq_("insert-css");
+
+var _insertCss2 = _interopRequireDefault(_insertCss);
+
+
+
+var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2ggewoJd2lkdGg6IDEwMCU7CglwYWRkaW5nOiA1JTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1mYWNldHMsCi5oaXJlLWZhY2V0ZWQtc2VhcmNoID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyB7CglkaXNwbGF5OiBpbmxpbmUtYmxvY2s7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwoJYm94LXNpemluZzogYm9yZGVyLWJveDsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1mYWNldHMgewoJd2lkdGg6IDQwJTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzIHsKCXBhZGRpbmctbGVmdDogNSU7Cgl3aWR0aDogNTUlOwp9CgovKi5oaXJlLWZhY2V0CglwYWRkaW5nLXJpZ2h0IDAKCXBhZGRpbmctYm90dG9tIDAKCWJveC1zaXppbmcgYm9yZGVyLWJveAoJbWFyZ2luLWJvdHRvbSAyMHB4CgoJaDMKCQltYXJnaW4gMCAwIDEycHggMAoJCXBhZGRpbmcgMAoKCSYgPiB1bAoJCW1heC1oZWlnaHQgMzAwcHgKCQlvdmVyZmxvdy15IHNjcm9sbCovCgovKi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXRleHQtc2VhcmNoCglwYWRkaW5nLWJvdHRvbSAyMHB4CglwYWRkaW5nLXJpZ2h0IDIwcHgKCWhlaWdodCA3MnB4CgoJaW5wdXQKCQlib3JkZXIgbm9uZQoJCW91dGxpbmUgbm9uZQoJCWZvbnQtc2l6ZSAxZW0KCQlwYWRkaW5nLWxlZnQgNHB4Ki8=","base64");
+(0, _insertCss2["default"])(css, { prepend: true });
+
 var FacetedSearchController = (function (_React$Component) {
 	_inherits(FacetedSearchController, _React$Component);
 
@@ -2887,7 +2909,7 @@ var FacetedSearchController = (function (_React$Component) {
 		_get(Object.getPrototypeOf(FacetedSearchController.prototype), "constructor", this).call(this, props);
 
 		_actionsConfig2["default"].set(this.props.config);
-		_actionsQueries2["default"].setDefaults(this.props);
+		_actionsQueries2["default"].setDefaults(this.props.config);
 
 		this.state = {
 			queries: _storesQueries2["default"].getState(),
@@ -2933,6 +2955,7 @@ var FacetedSearchController = (function (_React$Component) {
 
 			var facetedSearch = this.state.results.get("queryResults").size ? _react2["default"].createElement(_componentsFacetedSearch2["default"], {
 				facetData: data,
+				textValue: this.state.queries.get("term"),
 				selectedValues: this.state.queries.get("facetValues") }) : null;
 
 			var results = this.state.results.get("queryResults").size > 1 ? _react2["default"].createElement(_componentsResults2["default"], {
@@ -2952,20 +2975,17 @@ var FacetedSearchController = (function (_React$Component) {
 	return FacetedSearchController;
 })(_react2["default"].Component);
 
-FacetedSearchController.defaultProps = {
-	sortFields: []
-};
+FacetedSearchController.defaultProps = {};
 
 FacetedSearchController.propTypes = {
 	config: _react2["default"].PropTypes.object.isRequired,
-	onChange: _react2["default"].PropTypes.func.isRequired,
-	sortFields: _react2["default"].PropTypes.array
+	onChange: _react2["default"].PropTypes.func.isRequired
 };
 
 exports["default"] = FacetedSearchController;
 module.exports = exports["default"];
 
-},{"./actions/config":14,"./actions/queries":15,"./actions/results":16,"./components/faceted-search":18,"./components/results":29,"./components/results/sort-menu":31,"./stores/queries":39,"./stores/results":40,"react":"react"}],36:[function(_dereq_,module,exports){
+},{"./actions/config":14,"./actions/queries":15,"./actions/results":16,"./components/faceted-search":18,"./components/results":29,"./components/results/sort-menu":31,"./stores/queries":39,"./stores/results":40,"insert-css":5,"react":"react"}],36:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3221,9 +3241,9 @@ var Queries = (function (_BaseStore) {
 		}
 	}, {
 		key: "setDefaults",
-		value: function setDefaults(props) {
-			var sortFields = _immutable2["default"].fromJS(props.sortFields);
-			var sortParameters = sortFields.map(function (fieldName) {
+		value: function setDefaults(config) {
+			var sortLevels = _immutable2["default"].fromJS(config.levels);
+			var sortParameters = sortLevels.map(function (fieldName) {
 				return new _immutable2["default"].Map({
 					fieldname: fieldName,
 					direction: "asc"
@@ -3232,7 +3252,7 @@ var Queries = (function (_BaseStore) {
 
 			this.data = this.data.withMutations(function (map) {
 				map.set("sortParameters", sortParameters);
-				map.set("resultFields", sortFields);
+				map.set("resultFields", sortLevels);
 			});
 		}
 	}, {

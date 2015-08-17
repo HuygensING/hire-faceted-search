@@ -20,9 +20,9 @@ class Queries extends BaseStore {
 		return this.data;
 	}
 
-	setDefaults(props) {
-		let sortFields = Immutable.fromJS(props.sortFields);
-		let sortParameters = sortFields.map((fieldName) =>
+	setDefaults(config) {
+		let sortLevels = Immutable.fromJS(config.levels);
+		let sortParameters = sortLevels.map((fieldName) =>
 			new Immutable.Map({
 				fieldname: fieldName,
 				direction: "asc"
@@ -30,7 +30,7 @@ class Queries extends BaseStore {
 
 		this.data = this.data.withMutations((map) => {
 			map.set("sortParameters", sortParameters);
-			map.set("resultFields", sortFields);
+			map.set("resultFields", sortLevels);
 		});
 	}
 
