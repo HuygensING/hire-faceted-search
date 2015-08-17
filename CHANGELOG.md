@@ -1,3 +1,6 @@
+### v1.4.2	(2015/8/17 14:32)
+* Fix binding of event handlers
+
 ### v1.4.1	(2015/8/17 14:13)
 * Add receive props for i18n
 
