@@ -1,0 +1,10 @@
+.hire-faceted-search-results > header > h3,
+.hire-faceted-search-results > header > .hire-faceted-search-results-sort-menu {
+	display: inline-block;
+	vertical-align: top;
+	box-sizing: border-box;
+}
+
+.hire-faceted-search-results > header > .hire-faceted-search-results-sort-menu {
+	margin-left: 20px;
+}

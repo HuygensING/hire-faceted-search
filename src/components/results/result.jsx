@@ -1,20 +1,17 @@
 import React from "react";
 
-// TODO pass as prop
-import queriesStore from "../../stores/queries";
-
 class Result extends React.Component {
 	render() {
 		let model = this.props.data;
 
-		let metadata = queriesStore.getState().get("resultFields").map((field, index) =>
+		let metadata = model.get("metadata").entrySeq().map((keyValuePair, index) =>
 			<li key={index}>
-				<label>{field}</label>
-				<span>{model.get("metadata").get(field)}</span>
+				<label>{keyValuePair[0]}</label>
+				<span>{keyValuePair[1]}</span>
 			</li>
 		)
 
-		metadata = (metadata.length) ?
+		metadata = (metadata.size) ?
 			<ul className="metadata">{metadata}</ul> :
 			null;
 

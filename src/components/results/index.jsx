@@ -3,6 +3,11 @@ import React from "react";
 import Result from "./result";
 import ResultsSortMenu from "./sort-menu";
 
+let fs = require("fs");
+import insertCss from "insert-css";
+let css = fs.readFileSync(__dirname + "/index.css");
+insertCss(css, {prepend: true});
+
 class Results extends React.Component {
 	render() {
 		let results = this.props.facetData.get("results")
@@ -17,7 +22,7 @@ class Results extends React.Component {
 			<div className="hire-faceted-search-results">
 				<header>
 					<h3>Found {this.props.facetData.get("numFound")} results</h3>
-					<ResultsSortMenu sortLevels={this.props.sortLevels} />
+					<ResultsSortMenu values={this.props.sortParameters} />
 				</header>
 				<ul>
 					{results}
@@ -26,13 +31,5 @@ class Results extends React.Component {
 		);
 	}
 }
-
-Results.defaultProps = {
-	sortLevels: []
-};
-
-Results.propTypes = {
-	sortLevels: React.PropTypes.array
-};
 
 export default Results;

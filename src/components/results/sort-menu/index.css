@@ -1,7 +1,20 @@
-.dragging {
-	opacity: 0;
+.hire-faceted-search-results-sort-menu {
+	font-size: 0.8em;
+	position: relative;
 }
 
-.fakeLi {
+.hire-faceted-search-results-sort-menu > button {
+	background-color: white;
+}
+
+.hire-faceted-search-results-sort-menu > ul {
+	background-color: white;
+	cursor: pointer;
+	display: none;
 	position: absolute;
+	width: 150%;
+}
+
+.hire-faceted-search-results-sort-menu > ul.visible {
+	display: block;
 }

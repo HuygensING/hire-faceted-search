@@ -1160,7 +1160,7 @@ var configActions = {
 exports["default"] = configActions;
 module.exports = exports["default"];
 
-},{"../dispatcher":35}],15:[function(_dereq_,module,exports){
+},{"../dispatcher":34}],15:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1178,6 +1178,13 @@ var queriesActions = {
 		_dispatcher2["default"].handleViewAction({
 			actionType: "QUERIES_SET_DEFAULTS",
 			props: props
+		});
+	},
+
+	setSortParameter: function setSortParameter(field) {
+		_dispatcher2["default"].handleViewAction({
+			actionType: "QUERIES_SET_SORT_PARAMETER",
+			field: field
 		});
 	},
 
@@ -1208,7 +1215,7 @@ var queriesActions = {
 exports["default"] = queriesActions;
 module.exports = exports["default"];
 
-},{"../dispatcher":35}],16:[function(_dereq_,module,exports){
+},{"../dispatcher":34}],16:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1234,7 +1241,7 @@ var resultsActions = {
 exports["default"] = resultsActions;
 module.exports = exports["default"];
 
-},{"../stores/api":37}],17:[function(_dereq_,module,exports){
+},{"../stores/api":36}],17:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1266,7 +1273,7 @@ var serverActions = {
 exports["default"] = serverActions;
 module.exports = exports["default"];
 
-},{"../dispatcher":35}],18:[function(_dereq_,module,exports){
+},{"../dispatcher":34}],18:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1351,7 +1358,7 @@ FacetedSearch.propTypes = {
 exports["default"] = FacetedSearch;
 module.exports = exports["default"];
 
-},{"./list-facet":27,"./text-search":34,"immutable":"immutable","react":"react"}],19:[function(_dereq_,module,exports){
+},{"./list-facet":27,"./text-search":33,"immutable":"immutable","react":"react"}],19:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2083,7 +2090,7 @@ ListFacet.propTypes = {
 exports["default"] = ListFacet;
 module.exports = exports["default"];
 
-},{"../filter-menu":19,"../sort-menu":33,"./list-item":28,"immutable":"immutable","insert-css":5,"react":"react"}],28:[function(_dereq_,module,exports){
+},{"../filter-menu":19,"../sort-menu":32,"./list-item":28,"immutable":"immutable","insert-css":5,"react":"react"}],28:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2223,6 +2230,15 @@ var _sortMenu = _dereq_("./sort-menu");
 
 var _sortMenu2 = _interopRequireDefault(_sortMenu);
 
+var _insertCss = _dereq_("insert-css");
+
+var _insertCss2 = _interopRequireDefault(_insertCss);
+
+
+
+var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciA+IGgzLAouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gaGVhZGVyID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1zb3J0LW1lbnUgewoJZGlzcGxheTogaW5saW5lLWJsb2NrOwoJdmVydGljYWwtYWxpZ246IHRvcDsKCWJveC1zaXppbmc6IGJvcmRlci1ib3g7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiBoZWFkZXIgPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzLXNvcnQtbWVudSB7CgltYXJnaW4tbGVmdDogMjBweDsKfQ==","base64");
+(0, _insertCss2["default"])(css, { prepend: true });
+
 var Results = (function (_React$Component) {
 	_inherits(Results, _React$Component);
 
@@ -2257,7 +2273,7 @@ var Results = (function (_React$Component) {
 						this.props.facetData.get("numFound"),
 						" results"
 					),
-					_react2["default"].createElement(_sortMenu2["default"], { sortLevels: this.props.sortLevels })
+					_react2["default"].createElement(_sortMenu2["default"], { values: this.props.sortParameters })
 				),
 				_react2["default"].createElement(
 					"ul",
@@ -2271,18 +2287,10 @@ var Results = (function (_React$Component) {
 	return Results;
 })(_react2["default"].Component);
 
-Results.defaultProps = {
-	sortLevels: []
-};
-
-Results.propTypes = {
-	sortLevels: _react2["default"].PropTypes.array
-};
-
 exports["default"] = Results;
 module.exports = exports["default"];
 
-},{"./result":30,"./sort-menu":31,"react":"react"}],30:[function(_dereq_,module,exports){
+},{"./result":30,"./sort-menu":31,"insert-css":5,"react":"react"}],30:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2303,12 +2311,6 @@ var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
 
-// TODO pass as prop
-
-var _storesQueries = _dereq_("../../stores/queries");
-
-var _storesQueries2 = _interopRequireDefault(_storesQueries);
-
 var Result = (function (_React$Component) {
 	_inherits(Result, _React$Component);
 
@@ -2323,24 +2325,24 @@ var Result = (function (_React$Component) {
 		value: function render() {
 			var model = this.props.data;
 
-			var metadata = _storesQueries2["default"].getState().get("resultFields").map(function (field, index) {
+			var metadata = model.get("metadata").entrySeq().map(function (keyValuePair, index) {
 				return _react2["default"].createElement(
 					"li",
 					{ key: index },
 					_react2["default"].createElement(
 						"label",
 						null,
-						field
+						keyValuePair[0]
 					),
 					_react2["default"].createElement(
 						"span",
 						null,
-						model.get("metadata").get(field)
+						keyValuePair[1]
 					)
 				);
 			});
 
-			metadata = metadata.length ? _react2["default"].createElement(
+			metadata = metadata.size ? _react2["default"].createElement(
 				"ul",
 				{ className: "metadata" },
 				metadata
@@ -2369,7 +2371,7 @@ Result.propTypes = {};
 exports["default"] = Result;
 module.exports = exports["default"];
 
-},{"../../stores/queries":40,"react":"react"}],31:[function(_dereq_,module,exports){
+},{"react":"react"}],31:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2390,9 +2392,15 @@ var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
 
+var _immutable = _dereq_("immutable");
+
 var _classnames = _dereq_("classnames");
 
 var _classnames2 = _interopRequireDefault(_classnames);
+
+var _actionsQueries = _dereq_("../../../actions/queries");
+
+var _actionsQueries2 = _interopRequireDefault(_actionsQueries);
 
 var _insertCss = _dereq_("insert-css");
 
@@ -2400,7 +2408,7 @@ var _insertCss2 = _interopRequireDefault(_insertCss);
 
 
 
-var css = Buffer("LmRyYWdnaW5nIHsKCW9wYWNpdHk6IDA7Cn0KCi5mYWtlTGkgewoJcG9zaXRpb246IGFic29sdXRlOwp9","base64");
+var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1zb3J0LW1lbnUgewoJZm9udC1zaXplOiAwLjhlbTsKCXBvc2l0aW9uOiByZWxhdGl2ZTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1zb3J0LW1lbnUgPiBidXR0b24gewoJYmFja2dyb3VuZC1jb2xvcjogd2hpdGU7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMtc29ydC1tZW51ID4gdWwgewoJYmFja2dyb3VuZC1jb2xvcjogd2hpdGU7CgljdXJzb3I6IHBvaW50ZXI7CglkaXNwbGF5OiBub25lOwoJcG9zaXRpb246IGFic29sdXRlOwoJd2lkdGg6IDE1MCU7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMtc29ydC1tZW51ID4gdWwudmlzaWJsZSB7CglkaXNwbGF5OiBibG9jazsKfQ==","base64");
 (0, _insertCss2["default"])(css, { prepend: true });
 
 var ResultsSortMenu = (function (_React$Component) {
@@ -2412,119 +2420,70 @@ var ResultsSortMenu = (function (_React$Component) {
 		_get(Object.getPrototypeOf(ResultsSortMenu.prototype), "constructor", this).call(this, props);
 
 		this.state = {
-			draggingIndex: null,
-			draggingTop: null,
-			levels: this.props.sortLevels
+			optionsVisible: false,
+			level: this.props.values.first()
 		};
 	}
 
 	_createClass(ResultsSortMenu, [{
-		key: "handleDragStart",
-		value: function handleDragStart(ev) {
+		key: "componentWillReceiveProps",
+		value: function componentWillReceiveProps(nextProps) {
 			this.setState({
-				draggingIndex: this.state.levels.indexOf(ev.target.innerHTML),
-				draggingTop: ev.clientY
+				optionsVisible: false,
+				level: nextProps.values.first()
 			});
 		}
 	}, {
-		key: "handleDrag",
-		value: function handleDrag(ev) {
-			var _this = this;
-
-			var node = _react2["default"].findDOMNode(this);
-			var ulRect = node.querySelector("ul").getBoundingClientRect();
-			var liRects = Array.prototype.slice.call(node.querySelectorAll("li")).map(function (li) {
-				return li.getBoundingClientRect();
+		key: "handleButtonClick",
+		value: function handleButtonClick() {
+			this.setState({
+				optionsVisible: !this.state.optionsVisible
 			});
-
-			var liHeight = liRects[0].height;
-
-			var data = liRects.map(function (liRect, index) {
-				return {
-					height: liRect.height,
-					index: index,
-					top: _this.state.draggingIndex === index ? ev.clientY : liRect.top,
-					html: _this.state.levels[index]
-				};
-			});
-
-			var reduced = data.reduce(function (prev, current, index) {
-				if (index === 0) {
-					prev.push(current);
-				} else {
-					var last = prev[index - 1];
-
-					if (last.top + last.height > current.top) {
-						prev[index - 1] = current;
-						prev[index] = last;
-					} else {
-						prev.push(current);
-					}
-				}
-
-				return prev;
-			}, []);
-
-			if (ev.clientY > ulRect.top && ev.clientY < ulRect.bottom - liHeight) {
-				this.setState({
-					draggingTop: ev.clientY,
-					levels: reduced.map(function (r) {
-						return r.html;
-					})
-				});
-			}
 		}
 	}, {
-		key: "handleDragEnd",
-		value: function handleDragEnd(ev) {
+		key: "handleOptionClick",
+		value: function handleOptionClick(level, ev) {
+			_actionsQueries2["default"].setSortParameter(ev.target.innerHTML);
+
 			this.setState({
-				draggingIndex: null,
-				draggingTop: null
+				optionsVisible: false,
+				level: level
 			});
 		}
 	}, {
 		key: "render",
 		value: function render() {
-			var _this2 = this;
+			var _this = this;
 
-			var buttonString = this.state.levels.length ? "Sort by: " + this.state.levels[0] : "Sort";
+			if (this.props.values.isEmpty()) {
+				return null;
+			}
 
-			var sortLevels = this.state.levels.map(function (level, index) {
+			var values = this.props.values.map(function (level, index) {
 				return _react2["default"].createElement(
 					"li",
 					{
-						className: (0, _classnames2["default"])({ dragging: _this2.state.draggingIndex === index }),
-						draggable: "true",
 						key: index,
-						onDrag: _this2.handleDrag.bind(_this2),
-						onDragEnd: _this2.handleDragEnd.bind(_this2),
-						onDragStart: _this2.handleDragStart.bind(_this2) },
-					level
+						onClick: _this.handleOptionClick.bind(_this, level) },
+					level.get("fieldname")
 				);
 			});
-
-			var fakeLi = this.state.draggingIndex != null ? _react2["default"].createElement(
-				"div",
-				{
-					className: "fakeLi",
-					ref: "fakeLi",
-					style: { top: this.state.draggingTop } },
-				this.state.levels[this.state.draggingIndex]
-			) : null;
 
 			return _react2["default"].createElement(
 				"div",
 				{ className: "hire-faceted-search-results-sort-menu" },
 				_react2["default"].createElement(
 					"button",
-					null,
-					buttonString
+					{
+						onClick: this.handleButtonClick.bind(this) },
+					"Sort by: ",
+					this.state.level.get("fieldname")
 				),
-				fakeLi,
 				_react2["default"].createElement(
 					"ul",
-					null,
-					sortLevels
+					{
+						className: (0, _classnames2["default"])({ visible: this.state.optionsVisible }) },
+					values
 				)
 			);
 		}
@@ -2534,187 +2493,17 @@ var ResultsSortMenu = (function (_React$Component) {
 })(_react2["default"].Component);
 
 ResultsSortMenu.defaultProps = {
-	sortLevels: []
+	values: new _immutable.List()
 };
 
 ResultsSortMenu.propTypes = {
-	sortLevels: _react2["default"].PropTypes.array
+	values: _react2["default"].PropTypes.instanceOf(_immutable.List)
 };
+
 exports["default"] = ResultsSortMenu;
 module.exports = exports["default"];
 
-},{"classnames":"classnames","insert-css":5,"react":"react"}],32:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = _dereq_("react");
-
-var _react2 = _interopRequireDefault(_react);
-
-var _classnames = _dereq_("classnames");
-
-var _classnames2 = _interopRequireDefault(_classnames);
-
-var _insertCss = _dereq_("insert-css");
-
-var _insertCss2 = _interopRequireDefault(_insertCss);
-
-
-
-var css = Buffer("LmhpcmUtc29ydGFibGUtbGlzdCBkaXYsCi5oaXJlLXNvcnRhYmxlLWxpc3QgdWwgbGkgewoJdXNlci1zZWxlY3Q6IG5vbmU7CgktbW96LXVzZXItc2VsZWN0OiBub25lOwoJLW1zLXVzZXItc2VsZWN0OiBub25lOwoJLXdlYmtpdC11c2VyLXNlbGVjdDogbm9uZTsKfQoKLmhpcmUtc29ydGFibGUtbGlzdCB1bCBsaSB7CgljdXJzb3I6IG1vdmU7Cn0=","base64");
-(0, _insertCss2["default"])(css, { prepend: true });
-
-var SortableList = (function (_React$Component) {
-	_inherits(SortableList, _React$Component);
-
-	function SortableList(props) {
-		_classCallCheck(this, SortableList);
-
-		_get(Object.getPrototypeOf(SortableList.prototype), "constructor", this).call(this, props);
-
-		this.state = {
-			draggingValue: null,
-			draggingTop: null,
-			values: this.props.values
-		};
-	}
-
-	_createClass(SortableList, [{
-		key: "handleDragStart",
-		value: function handleDragStart(ev) {
-			var offset = ev.clientY - ev.target.getBoundingClientRect().top;
-
-			this.setState({
-				draggingValue: ev.target.innerHTML,
-				draggingTop: ev.clientY - offset
-			});
-		}
-	}, {
-		key: "handleDrag",
-		value: function handleDrag(ev) {
-			if (this.state.draggingValue == null) {
-				return;
-			}
-
-			var node = _react2["default"].findDOMNode(this);
-			var ulRect = node.querySelector("ul").getBoundingClientRect();
-			var liHeight = ulRect.height / this.state.values.length;
-
-			var draggingIndex = this.state.values.indexOf(this.state.draggingValue);
-			var reduced = this.state.values.reduce(function (prev, current, index, arr) {}, []);
-
-			// let data = liRects.map((liRect, index) => {
-			// 	return {
-			// 		height: liRect.height,
-			// 		index: index,
-			// 		top: (this.state.draggingValue === index) ? ev.clientY : liRect.top,
-			// 		html: this.state.values[index]
-			// 	}
-
-			// });
-
-			// let reduced = data.reduce((prev, current, index) => {
-			// 	if (index === 0) {
-			// 		prev.push(current);
-			// 	} else {
-			// 		let last = prev[index - 1];
-
-			// 		if (last.top + last.height > current.top) {
-			// 			prev[index - 1] = current;
-			// 			prev[index] = last;
-			// 		} else {
-			// 			prev.push(current);
-			// 		}
-			// 	}
-
-			// 	return prev;
-			// }, []);
-
-			if (ev.clientY > ulRect.top && ev.clientY < ulRect.bottom - liHeight) {
-				console.log(reduced);
-				this.setState({
-					draggingTop: ev.clientY,
-					values: reduced
-				});
-			}
-		}
-	}, {
-		key: "handleDragEnd",
-		value: function handleDragEnd(ev) {
-			this.setState({
-				draggingValue: null,
-				draggingTop: null
-			});
-		}
-	}, {
-		key: "render",
-		value: function render() {
-			var _this = this;
-
-			var buttonString = this.state.values.length ? "Sort by: " + this.state.values[0] : "Sort";
-
-			var listitems = this.state.values.map(function (level, index) {
-				return _react2["default"].createElement(
-					"li",
-					{
-						className: (0, _classnames2["default"])({ dragging: _this.state.draggingValue === level }),
-						key: index,
-						onMouseMove: _this.handleDrag.bind(_this),
-						onMouseUp: _this.handleDragEnd.bind(_this),
-						onMouseDown: _this.handleDragStart.bind(_this) },
-					level
-				);
-			});
-
-			var fakeLi = this.state.draggingValue != null ? _react2["default"].createElement(
-				"div",
-				{
-					className: "fakeLi",
-					ref: "fakeLi",
-					style: { top: this.state.draggingTop } },
-				this.state.draggingValue
-			) : null;
-
-			return _react2["default"].createElement(
-				"div",
-				{ className: "hire-sortable-list" },
-				fakeLi,
-				_react2["default"].createElement(
-					"ul",
-					null,
-					listitems
-				)
-			);
-		}
-	}]);
-
-	return SortableList;
-})(_react2["default"].Component);
-
-SortableList.defaultProps = {
-	values: []
-};
-
-SortableList.propTypes = {
-	values: _react2["default"].PropTypes.array
-};
-exports["default"] = SortableList;
-module.exports = exports["default"];
-
-},{"classnames":"classnames","insert-css":5,"react":"react"}],33:[function(_dereq_,module,exports){
+},{"../../../actions/queries":15,"classnames":"classnames","immutable":"immutable","insert-css":5,"react":"react"}],32:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2870,7 +2659,7 @@ SortMenu.propTypes = {
 exports["default"] = SortMenu;
 module.exports = exports["default"];
 
-},{"../icons/sort-alphabetically-ascending":22,"../icons/sort-alphabetically-descending":23,"../icons/sort-count-ascending":24,"../icons/sort-count-descending":25,"classnames":"classnames","insert-css":5,"react":"react"}],34:[function(_dereq_,module,exports){
+},{"../icons/sort-alphabetically-ascending":22,"../icons/sort-alphabetically-descending":23,"../icons/sort-count-ascending":24,"../icons/sort-count-descending":25,"classnames":"classnames","insert-css":5,"react":"react"}],33:[function(_dereq_,module,exports){
 // TODO add searching class to .search-icon when async query is busy
 
 "use strict";
@@ -2982,7 +2771,7 @@ TextSearch.propTypes = {};
 exports["default"] = TextSearch;
 module.exports = exports["default"];
 
-},{"../../actions/queries":15,"../icons/search":21,"classnames":"classnames","insert-css":5,"react":"react"}],35:[function(_dereq_,module,exports){
+},{"../../actions/queries":15,"../icons/search":21,"classnames":"classnames","insert-css":5,"react":"react"}],34:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3036,7 +2825,7 @@ var AppDispatcher = (function (_Dispatcher) {
 exports["default"] = new AppDispatcher();
 module.exports = exports["default"];
 
-},{"flux":1}],36:[function(_dereq_,module,exports){
+},{"flux":1}],35:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3085,9 +2874,9 @@ var _storesQueries = _dereq_("./stores/queries");
 
 var _storesQueries2 = _interopRequireDefault(_storesQueries);
 
-var _componentsResultsSortMenuSortableList = _dereq_("./components/results/sort-menu/sortable-list");
+var _componentsResultsSortMenu = _dereq_("./components/results/sort-menu");
 
-var _componentsResultsSortMenuSortableList2 = _interopRequireDefault(_componentsResultsSortMenuSortableList);
+var _componentsResultsSortMenu2 = _interopRequireDefault(_componentsResultsSortMenu);
 
 var FacetedSearchController = (function (_React$Component) {
 	_inherits(FacetedSearchController, _React$Component);
@@ -3149,17 +2938,11 @@ var FacetedSearchController = (function (_React$Component) {
 			var results = this.state.results.get("queryResults").size > 1 ? _react2["default"].createElement(_componentsResults2["default"], {
 				facetData: data,
 				onSelect: this.handleResultSelect.bind(this),
-				sortLevels: this.props.config.levels }) : null;
-
-			// TMP
-			facetedSearch = null;
-			results = null;
-			// /TMP
+				sortParameters: this.state.queries.get("sortParameters") }) : null;
 
 			return _react2["default"].createElement(
 				"div",
 				{ className: "hire-faceted-search" },
-				_react2["default"].createElement(_componentsResultsSortMenuSortableList2["default"], { values: ["aap", "boom", "cloaca"] }),
 				facetedSearch,
 				results
 			);
@@ -3182,7 +2965,7 @@ FacetedSearchController.propTypes = {
 exports["default"] = FacetedSearchController;
 module.exports = exports["default"];
 
-},{"./actions/config":14,"./actions/queries":15,"./actions/results":16,"./components/faceted-search":18,"./components/results":29,"./components/results/sort-menu/sortable-list":32,"./stores/queries":40,"./stores/results":41,"react":"react"}],37:[function(_dereq_,module,exports){
+},{"./actions/config":14,"./actions/queries":15,"./actions/results":16,"./components/faceted-search":18,"./components/results":29,"./components/results/sort-menu":31,"./stores/queries":39,"./stores/results":40,"react":"react"}],36:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3262,7 +3045,7 @@ exports["default"] = {
 };
 module.exports = exports["default"];
 
-},{"../actions/server":17,"../stores/config":39,"../stores/queries":40,"xhr":7}],38:[function(_dereq_,module,exports){
+},{"../actions/server":17,"../stores/config":38,"../stores/queries":39,"xhr":7}],37:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3308,7 +3091,7 @@ var BaseStore = (function (_EventEmitter) {
 exports["default"] = BaseStore;
 module.exports = exports["default"];
 
-},{"events":6}],39:[function(_dereq_,module,exports){
+},{"events":6}],38:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3384,7 +3167,7 @@ configStore.dispatcherIndex = _dispatcher2["default"].register(dispatcherCallbac
 exports["default"] = configStore;
 module.exports = exports["default"];
 
-},{"../dispatcher":35,"./base":38,"immutable":"immutable"}],40:[function(_dereq_,module,exports){
+},{"../dispatcher":34,"./base":37,"immutable":"immutable"}],39:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3439,17 +3222,45 @@ var Queries = (function (_BaseStore) {
 	}, {
 		key: "setDefaults",
 		value: function setDefaults(props) {
-			var sortParameters = props.sortFields.map(function (fieldName) {
-				return {
+			var sortFields = _immutable2["default"].fromJS(props.sortFields);
+			var sortParameters = sortFields.map(function (fieldName) {
+				return new _immutable2["default"].Map({
 					fieldname: fieldName,
 					direction: "asc"
-				};
+				});
 			});
 
 			this.data = this.data.withMutations(function (map) {
 				map.set("sortParameters", sortParameters);
-				map.set("resultFields", props.sortFields);
+				map.set("resultFields", sortFields);
 			});
+		}
+	}, {
+		key: "setSortParameter",
+		value: function setSortParameter(field) {
+			var sorted = this.data.get("sortParameters").sort(function (valA, valB) {
+				if (valA.get("fieldname") === field) {
+					return -1;
+				}
+
+				if (valB.get("fieldname") === field) {
+					return 1;
+				}
+
+				if (valA.get("fieldname") < valB.get("fieldname")) {
+					return -1;
+				}
+
+				if (valA.get("fieldname") > valB.get("fieldname")) {
+					return 1;
+				}
+
+				return 0;
+			});
+
+			console.log("SORTED", sorted.first().toJS());
+			this.data = this.data.set("sortParameters", sorted);
+			console.log("DATA", this.data.get("sortParameters").first().toJS());
 		}
 	}, {
 		key: "add",
@@ -3504,6 +3315,9 @@ var dispatcherCallback = function dispatcherCallback(payload) {
 		case "QUERIES_SET_DEFAULTS":
 			queries.setDefaults(payload.action.props);
 			break;
+		case "QUERIES_SET_SORT_PARAMETER":
+			queries.setSortParameter(payload.action.field);
+			break;
 		case "QUERIES_ADD":
 			queries.add(payload.action.facetName, payload.action.value);
 			break;
@@ -3525,7 +3339,7 @@ queries.dispatcherIndex = _dispatcher2["default"].register(dispatcherCallback);
 exports["default"] = queries;
 module.exports = exports["default"];
 
-},{"../dispatcher":35,"./base":38,"immutable":"immutable"}],41:[function(_dereq_,module,exports){
+},{"../dispatcher":34,"./base":37,"immutable":"immutable"}],40:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3645,5 +3459,5 @@ resultsStore.dispatcherIndex = _dispatcher2["default"].register(dispatcherCallba
 exports["default"] = resultsStore;
 module.exports = exports["default"];
 
-},{"../dispatcher":35,"./base":38,"immutable":"immutable"}]},{},[36])(36)
+},{"../dispatcher":34,"./base":37,"immutable":"immutable"}]},{},[35])(35)
 });

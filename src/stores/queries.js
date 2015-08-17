@@ -21,17 +21,43 @@ class Queries extends BaseStore {
 	}
 
 	setDefaults(props) {
-		let sortParameters = props.sortFields.map((fieldName) => {
-			return {
+		let sortFields = Immutable.fromJS(props.sortFields);
+		let sortParameters = sortFields.map((fieldName) =>
+			new Immutable.Map({
 				fieldname: fieldName,
 				direction: "asc"
-			}
-		});
+			}));
 
 		this.data = this.data.withMutations((map) => {
 			map.set("sortParameters", sortParameters);
-			map.set("resultFields", props.sortFields);
+			map.set("resultFields", sortFields);
 		});
+	}
+
+	setSortParameter(field) {
+		let sorted = this.data.get("sortParameters").sort((valA, valB) => {
+			if (valA.get("fieldname") === field) {
+				return -1;
+			}
+
+			if (valB.get("fieldname") === field) {
+				return 1;
+			}
+
+			if (valA.get("fieldname") < valB.get("fieldname")) {
+				return -1;
+			}
+
+			if (valA.get("fieldname") > valB.get("fieldname")) {
+				return 1;
+			}
+
+			return 0;
+		});
+
+		console.log("SORTED", sorted.first().toJS());
+		this.data = this.data.set("sortParameters", sorted);
+		console.log("DATA", this.data.get("sortParameters").first().toJS());
 	}
 
 	add(facetName, value) {
@@ -82,6 +108,9 @@ let dispatcherCallback = function(payload) {
 	switch(payload.action.actionType) {
 		case "QUERIES_SET_DEFAULTS":
 			queries.setDefaults(payload.action.props);
+			break;
+		case "QUERIES_SET_SORT_PARAMETER":
+			queries.setSortParameter(payload.action.field);
 			break;
 		case "QUERIES_ADD":
 			queries.add(payload.action.facetName, payload.action.value);

@@ -8,6 +8,13 @@ let queriesActions = {
 		});
 	},
 
+	setSortParameter(field) {
+		dispatcher.handleViewAction({
+			actionType: "QUERIES_SET_SORT_PARAMETER",
+			field: field,
+		});
+	},
+
 	add(facetName, value) {
 		dispatcher.handleViewAction({
 			actionType: "QUERIES_ADD",

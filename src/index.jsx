@@ -9,7 +9,7 @@ import resultsStore from "./stores/results";
 import queriesActions from "./actions/queries";
 import queriesStore from "./stores/queries";
 
-import SortableList from "./components/results/sort-menu/sortable-list";
+import SortableList from "./components/results/sort-menu";
 
 class FacetedSearchController extends React.Component {
 	constructor(props) {
@@ -65,17 +65,11 @@ class FacetedSearchController extends React.Component {
 			<Results
 				facetData={data}
 				onSelect={this.handleResultSelect.bind(this)}
-				sortLevels={this.props.config.levels} /> :
+				sortParameters={this.state.queries.get("sortParameters")} /> :
 			null;
-
-		// TMP
-		facetedSearch = null;
-		results = null;
-		// /TMP
 
 		return (
 			<div className="hire-faceted-search">
-				<SortableList values={["aap", "boom", "cloaca"]} />
 				{facetedSearch}
 				{results}
 			</div>

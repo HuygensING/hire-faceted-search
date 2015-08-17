@@ -1,5 +1,8 @@
 import React from "react";
+import {List, Map} from "immutable";
 import cx from "classnames";
+
+import queriesActions from "../../../actions/queries";
 
 let fs = require("fs");
 import insertCss from "insert-css";
@@ -12,103 +15,55 @@ class ResultsSortMenu extends React.Component {
 		super(props);
 
 		this.state = {
-			draggingIndex: null,
-			draggingTop: null,
-			levels: this.props.sortLevels
+			optionsVisible: false,
+			level: this.props.values.first()
 		};
 	}
 
-	handleDragStart(ev) {
+	componentWillReceiveProps(nextProps) {
 		this.setState({
-			draggingIndex: this.state.levels.indexOf(ev.target.innerHTML),
-			draggingTop: ev.clientY
+			optionsVisible: false,
+			level: nextProps.values.first()
 		});
 	}
 
-	handleDrag(ev) {
-		let node = React.findDOMNode(this);
-		let ulRect = node.querySelector("ul").getBoundingClientRect()
-		let liRects = Array.prototype.slice.call(node.querySelectorAll("li")).map((li) =>
-			li.getBoundingClientRect()
-		)
-
-		let liHeight = liRects[0].height;
-
-		let data = liRects.map((liRect, index) => {
-			return {
-				height: liRect.height,
-				index: index,
-				top: (this.state.draggingIndex === index) ? ev.clientY : liRect.top,
-				html: this.state.levels[index]
-			}
-
+	handleButtonClick() {
+		this.setState({
+			optionsVisible: !this.state.optionsVisible
 		});
-
-		let reduced = data.reduce((prev, current, index) => {
-			if (index === 0) {
-				prev.push(current);
-			} else {
-				let last = prev[index - 1];
-
-				if (last.top + last.height > current.top) {
-					prev[index - 1] = current;
-					prev[index] = last;
-				} else {
-					prev.push(current);
-				}
-			}
-
-			return prev;
-		}, []);
-
-		if (ev.clientY > ulRect.top && ev.clientY < (ulRect.bottom - liHeight)) {
-			this.setState({
-				draggingTop: ev.clientY,
-				levels: reduced.map((r) => r.html)
-			});
-		}
-
 	}
 
-	handleDragEnd(ev) {
+	handleOptionClick(level, ev) {
+		queriesActions.setSortParameter(ev.target.innerHTML);
+
 		this.setState({
-			draggingIndex: null,
-			draggingTop: null
+			optionsVisible: false,
+			level: level
 		});
 	}
 
 	render() {
-		let buttonString = (this.state.levels.length) ?
-			"Sort by: " + this.state.levels[0] :
-			"Sort";
+		if (this.props.values.isEmpty()) {
+			return null;
+		}
 
-		let sortLevels = this.state.levels.map((level, index) =>
+		let values = this.props.values.map((level, index) =>
 			<li
-				className={cx({dragging: (this.state.draggingIndex === index)})}
-				draggable="true"
 				key={index}
-				onDrag={this.handleDrag.bind(this)}
-				onDragEnd={this.handleDragEnd.bind(this)}
-				onDragStart={this.handleDragStart.bind(this)}>
-				{level}
+				onClick={this.handleOptionClick.bind(this, level)}>
+				{level.get("fieldname")}
 			</li>
 		);
 
-		let fakeLi = (this.state.draggingIndex != null) ?
-			<div
-				className="fakeLi"
-				ref="fakeLi"
-				style={{top: this.state.draggingTop}}>
-				{this.state.levels[this.state.draggingIndex]}
-			</div> :
-			null;
-
 		return (
 			<div className="hire-faceted-search-results-sort-menu">
-				<button>{buttonString}</button>
-				{fakeLi}
-				<ul>
-					{sortLevels}
+				<button
+					onClick={this.handleButtonClick.bind(this)}>
+					Sort by: {this.state.level.get("fieldname")}
+				</button>
+				<ul
+					className={cx({visible: this.state.optionsVisible})}>
+					{values}
 				</ul>
 			</div>
 		);
@@ -116,10 +71,11 @@ class ResultsSortMenu extends React.Component {
 }
 
 ResultsSortMenu.defaultProps = {
-	sortLevels: []
+	values: new List()
 };
 
 ResultsSortMenu.propTypes = {
-	sortLevels: React.PropTypes.array
+	values: React.PropTypes.instanceOf(List)
 };
+
 export default ResultsSortMenu;
