@@ -2,9 +2,6 @@
 * Change facets - results ratio
 * Move styling from parent/client to FS
 * Replace dnd sort by simple results sort
-* WiP
-* WiP
-* WiP
 * Filter list facets
 * Merge pull request #1 from renevanderark/master
 * prepend css in stead of append, correct git repo in package.json
