@@ -1,3 +1,6 @@
+### v1.4.1	(2015/8/17 14:13)
+* Add receive props for i18n
+
 ### v1.4.0	(2015/8/17 13:58)
 * Add i18n and rows select
 
