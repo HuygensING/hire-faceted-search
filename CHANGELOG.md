@@ -1,3 +1,8 @@
+### v1.3.1	(2015/8/17 11:27)
+* Add example to README
+* Clean up
+* Clean up
+
 ### v1.3.0	(2015/8/17 11:19)
 * Change facets - results ratio
 * Move styling from parent/client to FS
