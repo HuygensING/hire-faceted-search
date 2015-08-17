@@ -1,3 +1,6 @@
+### v1.5.0	(2015/8/17 17:9)
+* Add pagination and current query
+
 ### v1.4.2	(2015/8/17 14:32)
 * Fix binding of event handlers
 
