@@ -4,12 +4,15 @@ import FacetedSearch from "./components/faceted-search";
 import Results from "./components/results";
 
 import configActions from "./actions/config";
+import configStore from "./stores/config";
 import resultsActions from "./actions/results";
 import resultsStore from "./stores/results";
 import queriesActions from "./actions/queries";
 import queriesStore from "./stores/queries";
 
 import SortableList from "./components/results/sort-menu";
+
+import i18n from "./i18n";
 
 let fs = require("fs");
 import insertCss from "insert-css";
@@ -20,23 +23,27 @@ class FacetedSearchController extends React.Component {
 	constructor(props) {
 		super(props);
 
-		configActions.set(this.props.config);
+		configActions.init(this.props.config);
 		queriesActions.setDefaults(this.props.config);
 
 		this.state = {
+			config: configStore.getState(),
+			i18n: Object.assign(i18n, this.props.i18n),
 			queries: queriesStore.getState(),
 			results: resultsStore.getState()
 		};
 	}
 
 	componentDidMount() {
-		resultsStore.listen(this.onStoreChange.bind(this));
+		configStore.listen(this.onConfigChange.bind(this));
+		resultsStore.listen(this.onResultsChange.bind(this));
 		queriesStore.listen(this.onQueriesChange.bind(this));
 		resultsActions.getAll();
 	}
 
 	componentWillUnmount() {
-		resultsStore.stopListening(this.onStoreChange.bind(this));
+		configStore.stopListening(this.onConfigChange.bind(this));
+		resultsStore.stopListening(this.onResultsChange.bind(this));
 		queriesStore.stopListening(this.onQueriesChange.bind(this));
 	}
 
@@ -44,7 +51,17 @@ class FacetedSearchController extends React.Component {
 		resultsActions.getResults();
 	}
 
-	onStoreChange() {
+	onConfigChange() {
+		if (this.state.config.get("rows") !== configStore.getState().get("rows")) {
+			resultsActions.getResults();
+		}
+
+		this.setState({
+			config: configStore.getState()
+		})
+	}
+
+	onResultsChange() {
 		this.setState({
 			queries: queriesStore.getState(),
 			results: resultsStore.getState()
@@ -63,13 +80,16 @@ class FacetedSearchController extends React.Component {
 		let facetedSearch = this.state.results.get("queryResults").size ?
 			<FacetedSearch
 				facetData={data}
+				i18n={this.state.i18n}
 				textValue={this.state.queries.get("term")}
 				selectedValues={this.state.queries.get("facetValues")} /> :
 			null;
 
-		let results = (this.state.results.get("queryResults").size > 1) ?
+		let results = (this.state.results.get("queryResults").size > 0) ?
 			<Results
+				rows={this.state.config.get("rows")}
 				facetData={data}
+				i18n={this.state.i18n}
 				onSelect={this.handleResultSelect.bind(this)}
 				sortParameters={this.state.queries.get("sortParameters")} /> :
 			null;
@@ -84,10 +104,12 @@ class FacetedSearchController extends React.Component {
 }
 
 FacetedSearchController.defaultProps = {
+	i18n: {}
 };
 
 FacetedSearchController.propTypes = {
 	config: React.PropTypes.object.isRequired,
+	i18n: React.PropTypes.object,
 	onChange: React.PropTypes.func.isRequired
 };
 

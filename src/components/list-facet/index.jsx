@@ -68,10 +68,15 @@ class ListFacet extends React.Component {
 			listItems = <li className="no-options-found">No options found.</li>
 		}
 
+		let title = this.props.data.get("title");
+		let facetTitle = this.props.i18n.facetTitles.hasOwnProperty(title) ?
+			this.props.i18n.facetTitles[title] :
+			title;
+
 		return (
 			<li className="hire-facet hire-list-facet">
 				<header>
-					<h3>{this.props.data.get("title")}</h3>
+					<h3>{facetTitle}</h3>
 					{filterMenu}
 					{sortMenu}
 				</header>

@@ -55,9 +55,7 @@ class Queries extends BaseStore {
 			return 0;
 		});
 
-		console.log("SORTED", sorted.first().toJS());
 		this.data = this.data.set("sortParameters", sorted);
-		console.log("DATA", this.data.get("sortParameters").first().toJS());
 	}
 
 	add(facetName, value) {

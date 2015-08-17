@@ -1149,10 +1149,18 @@ var _dispatcher = _dereq_("../dispatcher");
 var _dispatcher2 = _interopRequireDefault(_dispatcher);
 
 var configActions = {
-	set: function set(data) {
+	init: function init(data) {
+		_dispatcher2["default"].handleViewAction({
+			actionType: "CONFIG_INIT",
+			data: data
+		});
+	},
+
+	set: function set(key, value) {
 		_dispatcher2["default"].handleViewAction({
 			actionType: "CONFIG_SET",
-			data: data
+			key: key,
+			value: value
 		});
 	}
 };
@@ -1160,7 +1168,7 @@ var configActions = {
 exports["default"] = configActions;
 module.exports = exports["default"];
 
-},{"../dispatcher":34}],15:[function(_dereq_,module,exports){
+},{"../dispatcher":35}],15:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1215,7 +1223,7 @@ var queriesActions = {
 exports["default"] = queriesActions;
 module.exports = exports["default"];
 
-},{"../dispatcher":34}],16:[function(_dereq_,module,exports){
+},{"../dispatcher":35}],16:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1241,7 +1249,7 @@ var resultsActions = {
 exports["default"] = resultsActions;
 module.exports = exports["default"];
 
-},{"../stores/api":36}],17:[function(_dereq_,module,exports){
+},{"../stores/api":38}],17:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1273,7 +1281,7 @@ var serverActions = {
 exports["default"] = serverActions;
 module.exports = exports["default"];
 
-},{"../dispatcher":34}],18:[function(_dereq_,module,exports){
+},{"../dispatcher":35}],18:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1330,9 +1338,10 @@ var Facets = (function (_React$Component) {
 				}
 
 				return _react2["default"].createElement(_listFacet2["default"], {
-					selectedValues: selectedValues,
 					data: data,
-					key: index });
+					i18n: _this.props.i18n,
+					key: index,
+					selectedValues: selectedValues });
 			});
 
 			return _react2["default"].createElement(
@@ -1352,13 +1361,14 @@ Facets.defaultProps = {
 };
 
 Facets.propTypes = {
+	i18n: _react2["default"].PropTypes.object,
 	selectedValues: _react2["default"].PropTypes.instanceOf(_immutable2["default"].List)
 };
 
 exports["default"] = Facets;
 module.exports = exports["default"];
 
-},{"./list-facet":27,"./text-search":33,"immutable":"immutable","react":"react"}],19:[function(_dereq_,module,exports){
+},{"./list-facet":27,"./text-search":34,"immutable":"immutable","react":"react"}],19:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2048,6 +2058,9 @@ var ListFacet = (function (_React$Component) {
 				);
 			}
 
+			var title = this.props.data.get("title");
+			var facetTitle = this.props.i18n.facetTitles.hasOwnProperty(title) ? this.props.i18n.facetTitles[title] : title;
+
 			return _react2["default"].createElement(
 				"li",
 				{ className: "hire-facet hire-list-facet" },
@@ -2057,7 +2070,7 @@ var ListFacet = (function (_React$Component) {
 					_react2["default"].createElement(
 						"h3",
 						null,
-						this.props.data.get("title")
+						facetTitle
 					),
 					filterMenu,
 					sortMenu
@@ -2090,7 +2103,7 @@ ListFacet.propTypes = {
 exports["default"] = ListFacet;
 module.exports = exports["default"];
 
-},{"../filter-menu":19,"../sort-menu":32,"./list-item":28,"immutable":"immutable","insert-css":5,"react":"react"}],28:[function(_dereq_,module,exports){
+},{"../filter-menu":19,"../sort-menu":33,"./list-item":28,"immutable":"immutable","insert-css":5,"react":"react"}],28:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2230,13 +2243,17 @@ var _sortMenu = _dereq_("./sort-menu");
 
 var _sortMenu2 = _interopRequireDefault(_sortMenu);
 
+var _rows = _dereq_("./rows");
+
+var _rows2 = _interopRequireDefault(_rows);
+
 var _insertCss = _dereq_("insert-css");
 
 var _insertCss2 = _interopRequireDefault(_insertCss);
 
 
 
-var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciA+IGgzLAouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gaGVhZGVyID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1zb3J0LW1lbnUgewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCXZlcnRpY2FsLWFsaWduOiB0b3A7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiBoZWFkZXIgPiBoMyB7CgltYXJnaW4tdG9wOiAwOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gaGVhZGVyID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1zb3J0LW1lbnUgewoJbWFyZ2luLWxlZnQ6IDIwcHg7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiB1bCA+IGxpIHsKCWN1cnNvcjogcG9pbnRlcjsKCW1hcmdpbi1ib3R0b206IDIwcHg7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiB1bCA+IGxpID4gbGFiZWwgewoJY3Vyc29yOiBwb2ludGVyOwoJZm9udC1zaXplOiAxLjFlbTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IHVsID4gbGkgPiB1bC5tZXRhZGF0YSB7Cgljb2xvcjogIzg4ODsKCWZvbnQtc2l6ZTogMC43ZW07Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiB1bCA+IGxpID4gdWwubWV0YWRhdGEgPiBsaSA+IGxhYmVsIHsKCWJveC1zaXppbmc6IGJvcmRlci1ib3g7CglkaXNwbGF5OiBpbmxpbmUtYmxvY2s7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwoJd2lkdGg6IDE1MHB4Owp9","base64");
+var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciB7CgltYXJnaW4tYm90dG9tOiAyMHB4Owp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gaGVhZGVyID4gaDMsCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiBoZWFkZXIgPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzLXNvcnQtbWVudSwKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMtcm93cyB7Cglib3gtc2l6aW5nOiBib3JkZXItYm94OwoJZGlzcGxheTogaW5saW5lLWJsb2NrOwoJdmVydGljYWwtYWxpZ246IHRvcDsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciA+IGgzIHsKCW1hcmdpbi10b3A6IDA7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiBoZWFkZXIgPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzLXNvcnQtbWVudSwKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMtcm93cyB7CgltYXJnaW4tbGVmdDogMjBweDsKfQoKCgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gdWwgPiBsaSB7CgljdXJzb3I6IHBvaW50ZXI7CgltYXJnaW4tYm90dG9tOiAyMHB4Owp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gdWwgPiBsaSA+IGxhYmVsIHsKCWN1cnNvcjogcG9pbnRlcjsKCWZvbnQtc2l6ZTogMS4xZW07Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiB1bCA+IGxpID4gdWwubWV0YWRhdGEgewoJY29sb3I6ICM4ODg7Cglmb250LXNpemU6IDAuN2VtOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gdWwgPiBsaSA+IHVsLm1ldGFkYXRhID4gbGkgPiBsYWJlbCB7Cglib3gtc2l6aW5nOiBib3JkZXItYm94OwoJZGlzcGxheTogaW5saW5lLWJsb2NrOwoJdmVydGljYWwtYWxpZ246IHRvcDsKCXdpZHRoOiAxNTBweDsKfQ==","base64");
 (0, _insertCss2["default"])(css, { prepend: true });
 
 var Results = (function (_React$Component) {
@@ -2256,6 +2273,7 @@ var Results = (function (_React$Component) {
 			var results = this.props.facetData.get("results").map(function (data, index) {
 				return _react2["default"].createElement(_result2["default"], {
 					data: data,
+					i18n: _this.props.i18n,
 					key: index,
 					onSelect: _this.props.onSelect });
 			});
@@ -2269,11 +2287,15 @@ var Results = (function (_React$Component) {
 					_react2["default"].createElement(
 						"h3",
 						null,
-						"Found ",
-						this.props.facetData.get("numFound"),
-						" results"
+						this.props.i18n["Results found"],
+						": ",
+						this.props.facetData.get("numFound")
 					),
-					_react2["default"].createElement(_sortMenu2["default"], { values: this.props.sortParameters })
+					_react2["default"].createElement(_sortMenu2["default"], {
+						i18n: this.props.i18n,
+						values: this.props.sortParameters }),
+					_react2["default"].createElement(_rows2["default"], {
+						rows: this.props.rows })
 				),
 				_react2["default"].createElement(
 					"ul",
@@ -2287,10 +2309,15 @@ var Results = (function (_React$Component) {
 	return Results;
 })(_react2["default"].Component);
 
+Results.propTypes = {
+	i18n: _react2["default"].PropTypes.object,
+	rows: _react2["default"].PropTypes.number
+};
+
 exports["default"] = Results;
 module.exports = exports["default"];
 
-},{"./result":30,"./sort-menu":31,"insert-css":5,"react":"react"}],30:[function(_dereq_,module,exports){
+},{"./result":30,"./rows":31,"./sort-menu":32,"insert-css":5,"react":"react"}],30:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2321,8 +2348,15 @@ var Result = (function (_React$Component) {
 	}
 
 	_createClass(Result, [{
+		key: "toI18n",
+		value: function toI18n(name) {
+			return this.props.i18n.facetTitles.hasOwnProperty(name) ? this.props.i18n.facetTitles[name] : name;
+		}
+	}, {
 		key: "render",
 		value: function render() {
+			var _this = this;
+
 			var model = this.props.data;
 
 			var metadata = model.get("metadata").entrySeq().map(function (keyValuePair, index) {
@@ -2332,7 +2366,7 @@ var Result = (function (_React$Component) {
 					_react2["default"].createElement(
 						"label",
 						null,
-						keyValuePair[0]
+						_this.toI18n(keyValuePair[0])
 					),
 					_react2["default"].createElement(
 						"span",
@@ -2392,6 +2426,96 @@ var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
 
+var _actionsConfig = _dereq_("../../../actions/config");
+
+var _actionsConfig2 = _interopRequireDefault(_actionsConfig);
+
+var _insertCss = _dereq_("insert-css");
+
+var _insertCss2 = _interopRequireDefault(_insertCss);
+
+
+
+var css = Buffer("c2VsZWN0LmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1yb3dzIHsKCWJhY2tncm91bmQtY29sb3I6ICNEREQ7Cglib3JkZXI6IDFweCBzb2xpZCAjODg4OwoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCWhlaWdodDogMjJweDsKCW91dGxpbmU6IG5vbmU7CglwYWRkaW5nOiAwIDZweDsKfQ==","base64");
+(0, _insertCss2["default"])(css, { prepend: true });
+
+var ResultsRows = (function (_React$Component) {
+	_inherits(ResultsRows, _React$Component);
+
+	function ResultsRows(props) {
+		_classCallCheck(this, ResultsRows);
+
+		_get(Object.getPrototypeOf(ResultsRows.prototype), "constructor", this).call(this, props);
+
+		this.state = {
+			value: this.props.rows
+		};
+	}
+
+	_createClass(ResultsRows, [{
+		key: "handleSelectChange",
+		value: function handleSelectChange(ev) {
+			this.setState({
+				value: ev.target.value
+			});
+
+			_actionsConfig2["default"].set("rows", parseInt(ev.target.value, 10));
+		}
+	}, {
+		key: "render",
+		value: function render() {
+			var options = [10, 20, 50, 100, 1000].map(function (option, index) {
+				return _react2["default"].createElement(
+					"option",
+					{
+						key: index,
+						value: option },
+					option
+				);
+			});
+
+			return _react2["default"].createElement(
+				"select",
+				{
+					className: "hire-faceted-search-results-rows",
+					onChange: this.handleSelectChange.bind(this),
+					value: this.state.value },
+				options
+			);
+		}
+	}]);
+
+	return ResultsRows;
+})(_react2["default"].Component);
+
+ResultsRows.propTypes = {
+	rows: _react2["default"].PropTypes.number
+};
+
+exports["default"] = ResultsRows;
+module.exports = exports["default"];
+
+},{"../../../actions/config":14,"insert-css":5,"react":"react"}],32:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = _dereq_("react");
+
+var _react2 = _interopRequireDefault(_react);
+
 var _immutable = _dereq_("immutable");
 
 var _classnames = _dereq_("classnames");
@@ -2408,7 +2532,7 @@ var _insertCss2 = _interopRequireDefault(_insertCss);
 
 
 
-var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1zb3J0LW1lbnUgewoJZm9udC1zaXplOiAwLjhlbTsKCXBvc2l0aW9uOiByZWxhdGl2ZTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1zb3J0LW1lbnUgPiBidXR0b24gewoJYmFja2dyb3VuZC1jb2xvcjogd2hpdGU7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMtc29ydC1tZW51ID4gdWwgewoJYmFja2dyb3VuZC1jb2xvcjogd2hpdGU7CgljdXJzb3I6IHBvaW50ZXI7CglkaXNwbGF5OiBub25lOwoJbWF4LXdpZHRoOiAxODBweDsKCXBvc2l0aW9uOiBhYnNvbHV0ZTsKCXdpZHRoOiAxNTAlOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzLXNvcnQtbWVudSA+IHVsLnZpc2libGUgewoJZGlzcGxheTogYmxvY2s7Cn0=","base64");
+var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1zb3J0LW1lbnUgewoJZm9udC1zaXplOiAwLjhlbTsKCXBvc2l0aW9uOiByZWxhdGl2ZTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1zb3J0LW1lbnUgPiBidXR0b24gewoJYmFja2dyb3VuZC1jb2xvcjogI0RERDsKCWJvcmRlcjogMXB4IHNvbGlkICM4ODg7Cglib3gtc2l6aW5nOiBib3JkZXItYm94OwoJaGVpZ2h0OiAyMnB4OwoJb3V0bGluZTogbm9uZTsKCXBhZGRpbmc6IDAgNnB4OwoJdmVydGljYWwtYWxpZ246IHRvcDsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1zb3J0LW1lbnUgPiB1bCB7CgliYWNrZ3JvdW5kLWNvbG9yOiB3aGl0ZTsKCWN1cnNvcjogcG9pbnRlcjsKCWRpc3BsYXk6IG5vbmU7CgltYXgtd2lkdGg6IDE4MHB4OwoJcG9zaXRpb246IGFic29sdXRlOwoJd2lkdGg6IDE1MCU7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMtc29ydC1tZW51ID4gdWwudmlzaWJsZSB7CglkaXNwbGF5OiBibG9jazsKfQ==","base64");
 (0, _insertCss2["default"])(css, { prepend: true });
 
 var ResultsSortMenu = (function (_React$Component) {
@@ -2443,12 +2567,17 @@ var ResultsSortMenu = (function (_React$Component) {
 	}, {
 		key: "handleOptionClick",
 		value: function handleOptionClick(level, ev) {
-			_actionsQueries2["default"].setSortParameter(ev.target.innerHTML);
+			_actionsQueries2["default"].setSortParameter(level.get("fieldname"));
 
 			this.setState({
 				optionsVisible: false,
 				level: level
 			});
+		}
+	}, {
+		key: "toI18n",
+		value: function toI18n(name) {
+			return this.props.i18n.facetTitles.hasOwnProperty(name) ? this.props.i18n.facetTitles[name] : name;
 		}
 	}, {
 		key: "render",
@@ -2465,7 +2594,7 @@ var ResultsSortMenu = (function (_React$Component) {
 					{
 						key: index,
 						onClick: _this.handleOptionClick.bind(_this, level) },
-					level.get("fieldname")
+					_this.toI18n(level.get("fieldname"))
 				);
 			});
 
@@ -2476,8 +2605,9 @@ var ResultsSortMenu = (function (_React$Component) {
 					"button",
 					{
 						onClick: this.handleButtonClick.bind(this) },
-					"Sort by: ",
-					this.state.level.get("fieldname")
+					this.props.i18n["Sort by"],
+					": ",
+					this.toI18n(this.state.level.get("fieldname"))
 				),
 				_react2["default"].createElement(
 					"ul",
@@ -2497,13 +2627,14 @@ ResultsSortMenu.defaultProps = {
 };
 
 ResultsSortMenu.propTypes = {
+	i18n: _react2["default"].PropTypes.object,
 	values: _react2["default"].PropTypes.instanceOf(_immutable.List)
 };
 
 exports["default"] = ResultsSortMenu;
 module.exports = exports["default"];
 
-},{"../../../actions/queries":15,"classnames":"classnames","immutable":"immutable","insert-css":5,"react":"react"}],32:[function(_dereq_,module,exports){
+},{"../../../actions/queries":15,"classnames":"classnames","immutable":"immutable","insert-css":5,"react":"react"}],33:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2659,7 +2790,7 @@ SortMenu.propTypes = {
 exports["default"] = SortMenu;
 module.exports = exports["default"];
 
-},{"../icons/sort-alphabetically-ascending":22,"../icons/sort-alphabetically-descending":23,"../icons/sort-count-ascending":24,"../icons/sort-count-descending":25,"classnames":"classnames","insert-css":5,"react":"react"}],33:[function(_dereq_,module,exports){
+},{"../icons/sort-alphabetically-ascending":22,"../icons/sort-alphabetically-descending":23,"../icons/sort-count-ascending":24,"../icons/sort-count-descending":25,"classnames":"classnames","insert-css":5,"react":"react"}],34:[function(_dereq_,module,exports){
 // TODO add searching class to .search-icon when async query is busy
 
 "use strict";
@@ -2784,7 +2915,7 @@ TextSearch.propTypes = {};
 exports["default"] = TextSearch;
 module.exports = exports["default"];
 
-},{"../../actions/queries":15,"../icons/search":21,"classnames":"classnames","insert-css":5,"react":"react"}],34:[function(_dereq_,module,exports){
+},{"../../actions/queries":15,"../icons/search":21,"classnames":"classnames","insert-css":5,"react":"react"}],35:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2838,7 +2969,20 @@ var AppDispatcher = (function (_Dispatcher) {
 exports["default"] = new AppDispatcher();
 module.exports = exports["default"];
 
-},{"flux":1}],35:[function(_dereq_,module,exports){
+},{"flux":1}],36:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports["default"] = {
+	facetTitles: {},
+	"Results found": "Results found",
+	"Sort by": "Sort by"
+};
+module.exports = exports["default"];
+
+},{}],37:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2848,6 +2992,8 @@ Object.defineProperty(exports, "__esModule", {
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -2871,6 +3017,10 @@ var _actionsConfig = _dereq_("./actions/config");
 
 var _actionsConfig2 = _interopRequireDefault(_actionsConfig);
 
+var _storesConfig = _dereq_("./stores/config");
+
+var _storesConfig2 = _interopRequireDefault(_storesConfig);
+
 var _actionsResults = _dereq_("./actions/results");
 
 var _actionsResults2 = _interopRequireDefault(_actionsResults);
@@ -2891,6 +3041,10 @@ var _componentsResultsSortMenu = _dereq_("./components/results/sort-menu");
 
 var _componentsResultsSortMenu2 = _interopRequireDefault(_componentsResultsSortMenu);
 
+var _i18n = _dereq_("./i18n");
+
+var _i18n2 = _interopRequireDefault(_i18n);
+
 var _insertCss = _dereq_("insert-css");
 
 var _insertCss2 = _interopRequireDefault(_insertCss);
@@ -2908,10 +3062,12 @@ var FacetedSearchController = (function (_React$Component) {
 
 		_get(Object.getPrototypeOf(FacetedSearchController.prototype), "constructor", this).call(this, props);
 
-		_actionsConfig2["default"].set(this.props.config);
+		_actionsConfig2["default"].init(this.props.config);
 		_actionsQueries2["default"].setDefaults(this.props.config);
 
 		this.state = {
+			config: _storesConfig2["default"].getState(),
+			i18n: _extends(_i18n2["default"], this.props.i18n),
 			queries: _storesQueries2["default"].getState(),
 			results: _storesResults2["default"].getState()
 		};
@@ -2920,14 +3076,16 @@ var FacetedSearchController = (function (_React$Component) {
 	_createClass(FacetedSearchController, [{
 		key: "componentDidMount",
 		value: function componentDidMount() {
-			_storesResults2["default"].listen(this.onStoreChange.bind(this));
+			_storesConfig2["default"].listen(this.onConfigChange.bind(this));
+			_storesResults2["default"].listen(this.onResultsChange.bind(this));
 			_storesQueries2["default"].listen(this.onQueriesChange.bind(this));
 			_actionsResults2["default"].getAll();
 		}
 	}, {
 		key: "componentWillUnmount",
 		value: function componentWillUnmount() {
-			_storesResults2["default"].stopListening(this.onStoreChange.bind(this));
+			_storesConfig2["default"].stopListening(this.onConfigChange.bind(this));
+			_storesResults2["default"].stopListening(this.onResultsChange.bind(this));
 			_storesQueries2["default"].stopListening(this.onQueriesChange.bind(this));
 		}
 	}, {
@@ -2936,8 +3094,19 @@ var FacetedSearchController = (function (_React$Component) {
 			_actionsResults2["default"].getResults();
 		}
 	}, {
-		key: "onStoreChange",
-		value: function onStoreChange() {
+		key: "onConfigChange",
+		value: function onConfigChange() {
+			if (this.state.config.get("rows") !== _storesConfig2["default"].getState().get("rows")) {
+				_actionsResults2["default"].getResults();
+			}
+
+			this.setState({
+				config: _storesConfig2["default"].getState()
+			});
+		}
+	}, {
+		key: "onResultsChange",
+		value: function onResultsChange() {
 			this.setState({
 				queries: _storesQueries2["default"].getState(),
 				results: _storesResults2["default"].getState()
@@ -2955,11 +3124,14 @@ var FacetedSearchController = (function (_React$Component) {
 
 			var facetedSearch = this.state.results.get("queryResults").size ? _react2["default"].createElement(_componentsFacetedSearch2["default"], {
 				facetData: data,
+				i18n: this.state.i18n,
 				textValue: this.state.queries.get("term"),
 				selectedValues: this.state.queries.get("facetValues") }) : null;
 
-			var results = this.state.results.get("queryResults").size > 1 ? _react2["default"].createElement(_componentsResults2["default"], {
+			var results = this.state.results.get("queryResults").size > 0 ? _react2["default"].createElement(_componentsResults2["default"], {
+				rows: this.state.config.get("rows"),
 				facetData: data,
+				i18n: this.state.i18n,
 				onSelect: this.handleResultSelect.bind(this),
 				sortParameters: this.state.queries.get("sortParameters") }) : null;
 
@@ -2975,17 +3147,20 @@ var FacetedSearchController = (function (_React$Component) {
 	return FacetedSearchController;
 })(_react2["default"].Component);
 
-FacetedSearchController.defaultProps = {};
+FacetedSearchController.defaultProps = {
+	i18n: {}
+};
 
 FacetedSearchController.propTypes = {
 	config: _react2["default"].PropTypes.object.isRequired,
+	i18n: _react2["default"].PropTypes.object,
 	onChange: _react2["default"].PropTypes.func.isRequired
 };
 
 exports["default"] = FacetedSearchController;
 module.exports = exports["default"];
 
-},{"./actions/config":14,"./actions/queries":15,"./actions/results":16,"./components/faceted-search":18,"./components/results":29,"./components/results/sort-menu":31,"./stores/queries":39,"./stores/results":40,"insert-css":5,"react":"react"}],36:[function(_dereq_,module,exports){
+},{"./actions/config":14,"./actions/queries":15,"./actions/results":16,"./components/faceted-search":18,"./components/results":29,"./components/results/sort-menu":32,"./i18n":36,"./stores/config":40,"./stores/queries":41,"./stores/results":42,"insert-css":5,"react":"react"}],38:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3010,62 +3185,54 @@ var _storesConfig = _dereq_("../stores/config");
 
 var _storesConfig2 = _interopRequireDefault(_storesConfig);
 
-exports["default"] = {
-	getAllResults: function getAllResults() {
-		var options = {
-			url: _storesConfig2["default"].getState().get("baseURL") + "api/search"
-		};
+var _getResults = function _getResults(receiveFunc) {
+	var postOptions = {
+		data: JSON.stringify(_storesQueries2["default"].getState()),
+		headers: {
+			"Content-Type": "application/json"
+		},
+		method: "POST",
+		url: _storesConfig2["default"].getState().get("baseURL") + "api/search"
+	};
 
-		var done = function done(err, resp, body) {
-			if (err) {
-				handleError(err, resp, body);
-			}
+	var postDone = function postDone(err, resp, body) {
+		if (err) {
+			handleError(err, resp, body);
+		}
 
-			_actionsServer2["default"].receiveAllResults(JSON.parse(body));
-		};
-
-		(0, _xhr2["default"])(options, done);
-	},
-
-	getResults: function getResults() {
-		var postOptions = {
-			data: JSON.stringify(_storesQueries2["default"].getState()),
+		var getOptions = {
 			headers: {
 				"Content-Type": "application/json"
 			},
-			method: "POST",
-			url: _storesConfig2["default"].getState().get("baseURL") + "api/search"
+			url: resp.headers.location + "?rows=" + _storesConfig2["default"].getState().get("rows")
 		};
 
-		var postDone = function postDone(err, resp, body) {
+		var getDone = function getDone(err, resp, body) {
 			if (err) {
 				handleError(err, resp, body);
 			}
 
-			var getOptions = {
-				headers: {
-					"Content-Type": "application/json"
-				},
-				url: resp.headers.location
-			};
-
-			var getDone = function getDone(err, resp, body) {
-				if (err) {
-					handleError(err, resp, body);
-				}
-
-				_actionsServer2["default"].receiveResults(JSON.parse(body));
-			};
-
-			(0, _xhr2["default"])(getOptions, getDone);
+			_actionsServer2["default"][receiveFunc](JSON.parse(body));
 		};
 
-		(0, _xhr2["default"])(postOptions, postDone);
+		(0, _xhr2["default"])(getOptions, getDone);
+	};
+
+	(0, _xhr2["default"])(postOptions, postDone);
+};
+
+exports["default"] = {
+	getAllResults: function getAllResults() {
+		_getResults("receiveAllResults");
+	},
+
+	getResults: function getResults() {
+		_getResults("receiveResults");
 	}
 };
 module.exports = exports["default"];
 
-},{"../actions/server":17,"../stores/config":38,"../stores/queries":39,"xhr":7}],37:[function(_dereq_,module,exports){
+},{"../actions/server":17,"../stores/config":40,"../stores/queries":41,"xhr":7}],39:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3111,7 +3278,7 @@ var BaseStore = (function (_EventEmitter) {
 exports["default"] = BaseStore;
 module.exports = exports["default"];
 
-},{"events":6}],38:[function(_dereq_,module,exports){
+},{"events":6}],40:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3150,7 +3317,9 @@ var ConfigStore = (function (_BaseStore) {
 
 		_get(Object.getPrototypeOf(ConfigStore.prototype), "constructor", this).call(this);
 
-		this.data = new _immutable2["default"].Map();
+		this.data = new _immutable2["default"].Map({
+			rows: 20
+		});
 	}
 
 	_createClass(ConfigStore, [{
@@ -3159,9 +3328,14 @@ var ConfigStore = (function (_BaseStore) {
 			return this.data;
 		}
 	}, {
+		key: "init",
+		value: function init(data) {
+			this.data = this.data.mergeDeep(_immutable2["default"].fromJS(data));
+		}
+	}, {
 		key: "set",
-		value: function set(data) {
-			this.data = _immutable2["default"].fromJS(data);
+		value: function set(key, value) {
+			this.data = this.data.set(key, value);
 		}
 	}]);
 
@@ -3172,8 +3346,11 @@ var configStore = new ConfigStore();
 
 var dispatcherCallback = function dispatcherCallback(payload) {
 	switch (payload.action.actionType) {
+		case "CONFIG_INIT":
+			configStore.init(payload.action.data);
+			break;
 		case "CONFIG_SET":
-			configStore.set(payload.action.data);
+			configStore.set(payload.action.key, payload.action.value);
 			break;
 		default:
 			return;
@@ -3187,7 +3364,7 @@ configStore.dispatcherIndex = _dispatcher2["default"].register(dispatcherCallbac
 exports["default"] = configStore;
 module.exports = exports["default"];
 
-},{"../dispatcher":34,"./base":37,"immutable":"immutable"}],39:[function(_dereq_,module,exports){
+},{"../dispatcher":35,"./base":39,"immutable":"immutable"}],41:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3278,9 +3455,7 @@ var Queries = (function (_BaseStore) {
 				return 0;
 			});
 
-			console.log("SORTED", sorted.first().toJS());
 			this.data = this.data.set("sortParameters", sorted);
-			console.log("DATA", this.data.get("sortParameters").first().toJS());
 		}
 	}, {
 		key: "add",
@@ -3359,7 +3534,7 @@ queries.dispatcherIndex = _dispatcher2["default"].register(dispatcherCallback);
 exports["default"] = queries;
 module.exports = exports["default"];
 
-},{"../dispatcher":34,"./base":37,"immutable":"immutable"}],40:[function(_dereq_,module,exports){
+},{"../dispatcher":35,"./base":39,"immutable":"immutable"}],42:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3479,5 +3654,5 @@ resultsStore.dispatcherIndex = _dispatcher2["default"].register(dispatcherCallba
 exports["default"] = resultsStore;
 module.exports = exports["default"];
 
-},{"../dispatcher":34,"./base":37,"immutable":"immutable"}]},{},[35])(35)
+},{"../dispatcher":35,"./base":39,"immutable":"immutable"}]},{},[37])(37)
 });

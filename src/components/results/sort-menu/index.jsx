@@ -34,12 +34,18 @@ class ResultsSortMenu extends React.Component {
 	}
 
 	handleOptionClick(level, ev) {
-		queriesActions.setSortParameter(ev.target.innerHTML);
+		queriesActions.setSortParameter(level.get("fieldname"));
 
 		this.setState({
 			optionsVisible: false,
 			level: level
 		});
+	}
+
+	toI18n(name) {
+		return (this.props.i18n.facetTitles.hasOwnProperty(name)) ?
+			this.props.i18n.facetTitles[name] :
+			name;
 	}
 
 	render() {
@@ -51,7 +57,7 @@ class ResultsSortMenu extends React.Component {
 			<li
 				key={index}
 				onClick={this.handleOptionClick.bind(this, level)}>
-				{level.get("fieldname")}
+				{this.toI18n(level.get("fieldname"))}
 			</li>
 		);
 
@@ -59,7 +65,7 @@ class ResultsSortMenu extends React.Component {
 			<div className="hire-faceted-search-results-sort-menu">
 				<button
 					onClick={this.handleButtonClick.bind(this)}>
-					Sort by: {this.state.level.get("fieldname")}
+					{this.props.i18n["Sort by"]}: {this.toI18n(this.state.level.get("fieldname"))}
 				</button>
 				<ul
 					className={cx({visible: this.state.optionsVisible})}>
@@ -75,6 +81,7 @@ ResultsSortMenu.defaultProps = {
 };
 
 ResultsSortMenu.propTypes = {
+	i18n: React.PropTypes.object,
 	values: React.PropTypes.instanceOf(List)
 };
 

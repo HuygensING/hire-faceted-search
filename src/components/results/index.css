@@ -1,5 +1,10 @@
+.hire-faceted-search-results > header {
+	margin-bottom: 20px;
+}
+
 .hire-faceted-search-results > header > h3,
-.hire-faceted-search-results > header > .hire-faceted-search-results-sort-menu {
+.hire-faceted-search-results > header > .hire-faceted-search-results-sort-menu,
+.hire-faceted-search-results > header > .hire-faceted-search-results-rows {
 	box-sizing: border-box;
 	display: inline-block;
 	vertical-align: top;
@@ -9,9 +14,12 @@
 	margin-top: 0;
 }
 
-.hire-faceted-search-results > header > .hire-faceted-search-results-sort-menu {
+.hire-faceted-search-results > header > .hire-faceted-search-results-sort-menu,
+.hire-faceted-search-results > header > .hire-faceted-search-results-rows {
 	margin-left: 20px;
 }
+
+
 
 .hire-faceted-search-results > ul > li {
 	cursor: pointer;

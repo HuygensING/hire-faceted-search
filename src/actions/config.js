@@ -1,10 +1,18 @@
 import dispatcher from "../dispatcher";
 
 let configActions = {
-	set(data) {
+	init(data) {
+		dispatcher.handleViewAction({
+			actionType: "CONFIG_INIT",
+			data: data
+		});
+	},
+
+	set(key, value) {
 		dispatcher.handleViewAction({
 			actionType: "CONFIG_SET",
-			data: data
+			key: key,
+			value: value
 		});
 	}
 };

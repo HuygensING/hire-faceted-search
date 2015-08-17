@@ -16,9 +16,10 @@ class Facets extends React.Component {
 
 			return (
 				<ListFacet
-					selectedValues={selectedValues}
 					data={data}
-					key={index} />);
+					i18n={this.props.i18n}
+					key={index}
+					selectedValues={selectedValues} />);
 			})
 
 		return (
@@ -35,6 +36,7 @@ Facets.defaultProps = {
 };
 
 Facets.propTypes = {
+	i18n: React.PropTypes.object,
 	selectedValues: React.PropTypes.instanceOf(Immutable.List)
 };
 

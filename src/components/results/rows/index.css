@@ -1,0 +1,8 @@
+select.hire-faceted-search-results-rows {
+	background-color: #DDD;
+	border: 1px solid #888;
+	box-sizing: border-box;
+	height: 22px;
+	outline: none;
+	padding: 0 6px;
+}
