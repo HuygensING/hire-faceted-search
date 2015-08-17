@@ -1,7 +1,7 @@
 import React from "react";
 import Immutable from "immutable";
 
-import FacetedSearch from "./components/faceted-search";
+import Facets from "./components/faceted-search";
 import Results from "./components/results";
 
 import configActions from "./actions/config";
@@ -20,7 +20,7 @@ import insertCss from "insert-css";
 let css = fs.readFileSync(__dirname + "/index.css");
 insertCss(css, {prepend: true});
 
-class FacetedSearchController extends React.Component {
+class FacetedSearch extends React.Component {
 	constructor(props) {
 		super(props);
 
@@ -89,13 +89,13 @@ class FacetedSearchController extends React.Component {
 	}
 
 	render() {
-		let data = this.state.results.get("queryResults").size ?
+		let facetData = this.state.results.get("queryResults").size ?
 			this.state.results.get("queryResults").last() :
 			this.state.results.get("initResults");
 
-		let facetedSearch = this.state.results.get("queryResults").size ?
-			<FacetedSearch
-				facetData={data}
+		let facets = this.state.results.get("queryResults").size ?
+			<Facets
+				facetData={facetData}
 				i18n={this.state.i18n}
 				textValue={this.state.queries.get("term")}
 				selectedValues={this.state.queries.get("facetValues")} /> :
@@ -104,29 +104,29 @@ class FacetedSearchController extends React.Component {
 		let results = (this.state.results.get("queryResults").size > 0) ?
 			<Results
 				rows={this.state.config.get("rows")}
-				facetData={data}
+				facetData={facetData}
 				i18n={this.state.i18n}
 				onSelect={this.handleResultSelect.bind(this)}
-				sortParameters={this.state.queries.get("sortParameters")} /> :
+				query={this.state.queries} /> :
 			null;
 
 		return (
 			<div className="hire-faceted-search">
-				{facetedSearch}
+				{facets}
 				{results}
 			</div>
 		);
 	}
 }
 
-FacetedSearchController.defaultProps = {
+FacetedSearch.defaultProps = {
 	i18n: {}
 };
 
-FacetedSearchController.propTypes = {
+FacetedSearch.propTypes = {
 	config: React.PropTypes.object.isRequired,
 	i18n: React.PropTypes.object,
 	onChange: React.PropTypes.func.isRequired
 };
 
-export default FacetedSearchController;
+export default FacetedSearch;

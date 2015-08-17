@@ -9,10 +9,11 @@ class Queries extends BaseStore {
 		super();
 
 		this.data = Immutable.fromJS({
-			"textLayers": ["Diplomatic", "Opmerkingen en verwijzingen", "Comments and References", "Transcription", "Transcripción", "Transcriptie", "Vertaling", "Translation", "Traducción", "Comentarios y referencias"],
+			"facetValues": [],
 			"searchInAnnotations": true,
 			"searchInTranscriptions": true,
-			"facetValues": []
+			"term": "",
+			"textLayers": ["Diplomatic", "Opmerkingen en verwijzingen", "Comments and References", "Transcription", "Transcripción", "Transcriptie", "Vertaling", "Translation", "Traducción", "Comentarios y referencias"]
 		});
 	}
 

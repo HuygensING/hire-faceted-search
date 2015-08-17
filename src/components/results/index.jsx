@@ -1,8 +1,11 @@
 import React from "react";
+import {Map} from "immutable";
 
 import Result from "./result";
 import ResultsSortMenu from "./sort-menu";
 import ResultsRows from "./rows";
+import CurrentQuery from "./current-query";
+import Pagination from "./pagination";
 
 let fs = require("fs");
 import insertCss from "insert-css";
@@ -26,10 +29,15 @@ class Results extends React.Component {
 					<h3>{this.props.i18n["Results found"]}: {this.props.facetData.get("numFound")}</h3>
 					<ResultsSortMenu
 						i18n={this.props.i18n}
-						values={this.props.sortParameters} />
+						values={this.props.query.get("sortParameters")} />
 					<ResultsRows
 						rows={this.props.rows} />
+					<CurrentQuery
+						facetData={this.props.facetData}
+						i18n={this.props.i18n}
+						values={this.props.query} />
 				</header>
+				<Pagination facetData={this.props.facetData} />
 				<ul>
 					{results}
 				</ul>
@@ -39,7 +47,9 @@ class Results extends React.Component {
 }
 
 Results.propTypes = {
+	facetData: React.PropTypes.instanceOf(Map),
 	i18n: React.PropTypes.object,
+	query: React.PropTypes.instanceOf(Map),
 	rows: React.PropTypes.number
 }
 

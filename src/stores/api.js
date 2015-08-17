@@ -4,7 +4,7 @@ import serverActions from "../actions/server";
 import queriesStore from "../stores/queries";
 import configStore from "../stores/config";
 
-let getResults = function(receiveFunc) {
+let postResults = function(receiveFunc) {
 	let postOptions = {
 		data: JSON.stringify(queriesStore.getState()),
 		headers: {
@@ -17,31 +17,41 @@ let getResults = function(receiveFunc) {
 	let postDone = function(err, resp, body) {
 		if (err) { handleError(err, resp, body); }
 
-		let getOptions = {
-			headers: {
-				"Content-Type": "application/json",
-			},
-			url: `${resp.headers.location}?rows=${configStore.getState().get("rows")}`
-		}
+		let url = `${resp.headers.location}?rows=${configStore.getState().get("rows")}`
 
-		let getDone = function(err, resp, body) {
-			if (err) { handleError(err, resp, body); }
-
-			serverActions[receiveFunc](JSON.parse(body));
-		};
-
-		xhr(getOptions, getDone)
+		getResults(url, receiveFunc);
 	};
 
 	xhr(postOptions, postDone);
 }
 
+let getResults = function(url, receiveFunc) {
+	let getOptions = {
+		headers: {
+			"Content-Type": "application/json",
+		},
+		url: url
+	}
+
+	let getDone = function(err, resp, body) {
+		if (err) { handleError(err, resp, body); }
+
+		serverActions[receiveFunc](JSON.parse(body));
+	};
+
+	xhr(getOptions, getDone)
+}
+
 export default {
 	getAllResults() {
-		getResults("receiveAllResults");
+		postResults("receiveAllResults");
 	},
 
 	getResults() {
-		getResults("receiveResults");
+		postResults("receiveResults");
+	},
+
+	getResultsFromUrl(url) {
+		getResults(url, "receiveResults");
 	}
 };

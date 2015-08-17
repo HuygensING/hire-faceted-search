@@ -1,0 +1,16 @@
+/*.hire-faceted-search-selected-facet-value {
+	cursor: pointer;
+}
+
+.hire-faceted-search-selected-facet-value:hover {
+	color: red;
+}
+
+.hire-faceted-search-selected-facet-value:hover:after {
+	color: white;
+	content: "Remove";
+	background: #888;
+	margin-left: 8px;
+	border-radius: 4px;
+	padding: 0 6px 2px 6px;
+}*/

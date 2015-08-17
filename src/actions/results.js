@@ -7,6 +7,10 @@ let resultsActions = {
 
 	getResults() {
 		API.getResults();
+	},
+
+	getResultsFromUrl(url) {
+		API.getResultsFromUrl(url);
 	}
 };
 

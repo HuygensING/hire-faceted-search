@@ -22,9 +22,10 @@ class TextSearch extends React.Component {
 		}
 	}
 
-	componentWillReceiveProps() {
+	componentWillReceiveProps(nextProps) {
 		this.setState({
-			searching: false
+			searching: false,
+			value: nextProps.value
 		});
 	}
 
