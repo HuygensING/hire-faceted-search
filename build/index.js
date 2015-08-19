@@ -2641,7 +2641,7 @@ var ListFacet = (function (_React$Component) {
 		_get(Object.getPrototypeOf(ListFacet.prototype), "constructor", this).call(this, props);
 
 		this.state = {
-			currentSort: _sortMenu2["default"].sortFunctions[_sortMenu2["default"].defaultSort],
+			currentSort: _sortMenu2["default"].defaultSort,
 			filterQuery: "",
 			showAll: false
 		};
@@ -2658,7 +2658,7 @@ var ListFacet = (function (_React$Component) {
 		key: "handleSortMenuChange",
 		value: function handleSortMenuChange(funcName) {
 			this.setState({
-				currentSort: _sortMenu2["default"].sortFunctions[funcName]
+				currentSort: funcName
 			});
 		}
 	}, {
@@ -2673,11 +2673,12 @@ var ListFacet = (function (_React$Component) {
 		value: function render() {
 			var _this = this;
 
+			console.log("R");
 			var filterMenu = undefined,
 			    sortMenu = undefined;
 			var options = this.props.data.get("options");
 
-			options = options.sort(this.state.currentSort);
+			options = options.sort(_sortMenu2["default"].sortFunctions[this.state.currentSort]);
 
 			if (this.props.sortMenu) {
 				sortMenu = _react2["default"].createElement(_sortMenu2["default"], { onChange: this.handleSortMenuChange.bind(this) });

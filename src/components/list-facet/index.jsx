@@ -20,7 +20,7 @@ class ListFacet extends React.Component {
 		super(props);
 
 		this.state = {
-			currentSort: SortMenu.sortFunctions[SortMenu.defaultSort],
+			currentSort: SortMenu.defaultSort,
 			filterQuery: "",
 			showAll: false
 		}
@@ -34,7 +34,7 @@ class ListFacet extends React.Component {
 
 	handleSortMenuChange(funcName) {
 		this.setState({
-			currentSort: SortMenu.sortFunctions[funcName]
+			currentSort: funcName
 		});
 	}
 
@@ -45,10 +45,11 @@ class ListFacet extends React.Component {
 	}
 
 	render() {
+		console.log("R");
 		let filterMenu, sortMenu;
 		let options = this.props.data.get("options");
 
-		options = options.sort(this.state.currentSort);
+		options = options.sort(SortMenu.sortFunctions[this.state.currentSort]);
 
 		if (this.props.sortMenu) {
 			sortMenu = <SortMenu onChange={this.handleSortMenuChange.bind(this)} />;
