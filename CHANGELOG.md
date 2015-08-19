@@ -1,3 +1,6 @@
+### v1.6.2	(2015/8/19 15:5)
+* Fix results receive props bug
+
 ### v1.6.1	(2015/8/19 14:37)
 * Remove console.log
 
