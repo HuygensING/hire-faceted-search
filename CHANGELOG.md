@@ -1,3 +1,6 @@
+### v1.6.0	(2015/8/19 14:36)
+* Add i18n and infinite scroll
+
 ### v1.5.0	(2015/8/17 17:9)
 * Add pagination and current query
 
