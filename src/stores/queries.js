@@ -8,17 +8,23 @@ class Queries extends BaseStore {
 	constructor() {
 		super();
 
-		this.data = Immutable.fromJS({
+		this.model = Immutable.fromJS({
 			"facetValues": [],
 			"searchInAnnotations": true,
 			"searchInTranscriptions": true,
 			"term": "",
 			"textLayers": ["Diplomatic", "Opmerkingen en verwijzingen", "Comments and References", "Transcription", "Transcripción", "Transcriptie", "Vertaling", "Translation", "Traducción", "Comentarios y referencias"]
 		});
+
+		this.data = this.model;
 	}
 
 	getState() {
 		return this.data;
+	}
+
+	reset() {
+		this.data = this.model;
 	}
 
 	setDefaults(config) {
@@ -29,10 +35,12 @@ class Queries extends BaseStore {
 				direction: "asc"
 			}));
 
-		this.data = this.data.withMutations((map) => {
+		this.model = this.data.withMutations((map) => {
 			map.set("sortParameters", sortParameters);
 			map.set("resultFields", sortLevels);
 		});
+
+		this.data = this.model;
 	}
 
 	setSortParameter(field) {
@@ -116,6 +124,9 @@ let dispatcherCallback = function(payload) {
 			break;
 		case "QUERIES_REMOVE":
 			queries.remove(payload.action.facetName, payload.action.value);
+			break;
+		case "QUERIES_RESET":
+			queries.reset();
 			break;
 		case "QUERIES_CHANGE_SEARCH_TERM":
 			queries.changeSearchTerm(payload.action.value);

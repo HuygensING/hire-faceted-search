@@ -1587,6 +1587,12 @@ var queriesActions = {
 		});
 	},
 
+	reset: function reset() {
+		_dispatcher2["default"].handleViewAction({
+			actionType: "QUERIES_RESET"
+		});
+	},
+
 	changeSearchTerm: function changeSearchTerm(value) {
 		_dispatcher2["default"].handleViewAction({
 			actionType: "QUERIES_CHANGE_SEARCH_TERM",
@@ -1693,6 +1699,10 @@ var _listFacet = _dereq_("./list-facet");
 
 var _listFacet2 = _interopRequireDefault(_listFacet);
 
+var _actionsQueries = _dereq_("../actions/queries");
+
+var _actionsQueries2 = _interopRequireDefault(_actionsQueries);
+
 var Facets = (function (_React$Component) {
 	_inherits(Facets, _React$Component);
 
@@ -1703,6 +1713,11 @@ var Facets = (function (_React$Component) {
 	}
 
 	_createClass(Facets, [{
+		key: "handleButtonClick",
+		value: function handleButtonClick() {
+			_actionsQueries2["default"].reset();
+		}
+	}, {
 		key: "render",
 		value: function render() {
 			var _this = this;
@@ -1726,6 +1741,11 @@ var Facets = (function (_React$Component) {
 			return _react2["default"].createElement(
 				"ul",
 				{ className: "hire-faceted-search-facets" },
+				_react2["default"].createElement(
+					"button",
+					{ onClick: this.handleButtonClick.bind(this) },
+					"New search"
+				),
 				_react2["default"].createElement(_textSearch2["default"], { value: this.props.textValue }),
 				facets
 			);
@@ -1747,7 +1767,7 @@ Facets.propTypes = {
 exports["default"] = Facets;
 module.exports = exports["default"];
 
-},{"./list-facet":31,"./text-search":40,"immutable":"immutable","react":"react"}],21:[function(_dereq_,module,exports){
+},{"../actions/queries":17,"./list-facet":31,"./text-search":40,"immutable":"immutable","react":"react"}],21:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3993,7 +4013,7 @@ var _insertCss2 = _interopRequireDefault(_insertCss);
 
 
 
-var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2ggewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCXBhZGRpbmc6IDUlOwoJd2lkdGg6IDEwMCU7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtZmFjZXRzLAouaGlyZS1mYWNldGVkLXNlYXJjaCA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCXZlcnRpY2FsLWFsaWduOiB0b3A7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtZmFjZXRzIHsKCXdpZHRoOiAzNSU7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyB7CglwYWRkaW5nLWxlZnQ6IDUlOwoJd2lkdGg6IDYwJTsKfQ==","base64");
+var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2ggewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCXBhZGRpbmc6IDUlOwoJd2lkdGg6IDEwMCU7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtZmFjZXRzLAouaGlyZS1mYWNldGVkLXNlYXJjaCA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCXZlcnRpY2FsLWFsaWduOiB0b3A7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtZmFjZXRzIHsKCXdpZHRoOiAzNSU7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtZmFjZXRzID4gYnV0dG9uIHsKCWJhY2tncm91bmQ6IHdoaXRlOwoJYm9yZGVyOiBub25lOwoJY3Vyc29yOiBwb2ludGVyOwoJaGVpZ2h0OiA0MHB4OwoJbWFyZ2luLWJvdHRvbTogMjBweDsKCW91dGxpbmU6IG5vbmU7CglwYWRkaW5nOiAwIDIwcHg7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyB7CglwYWRkaW5nLWxlZnQ6IDUlOwoJd2lkdGg6IDYwJTsKfQ==","base64");
 (0, _insertCss2["default"])(css, { prepend: true });
 
 var FacetedSearch = (function (_React$Component) {
@@ -4371,19 +4391,26 @@ var Queries = (function (_BaseStore) {
 
 		_get(Object.getPrototypeOf(Queries.prototype), "constructor", this).call(this);
 
-		this.data = _immutable2["default"].fromJS({
+		this.model = _immutable2["default"].fromJS({
 			"facetValues": [],
 			"searchInAnnotations": true,
 			"searchInTranscriptions": true,
 			"term": "",
 			"textLayers": ["Diplomatic", "Opmerkingen en verwijzingen", "Comments and References", "Transcription", "Transcripción", "Transcriptie", "Vertaling", "Translation", "Traducción", "Comentarios y referencias"]
 		});
+
+		this.data = this.model;
 	}
 
 	_createClass(Queries, [{
 		key: "getState",
 		value: function getState() {
 			return this.data;
+		}
+	}, {
+		key: "reset",
+		value: function reset() {
+			this.data = this.model;
 		}
 	}, {
 		key: "setDefaults",
@@ -4396,10 +4423,12 @@ var Queries = (function (_BaseStore) {
 				});
 			});
 
-			this.data = this.data.withMutations(function (map) {
+			this.model = this.data.withMutations(function (map) {
 				map.set("sortParameters", sortParameters);
 				map.set("resultFields", sortLevels);
 			});
+
+			this.data = this.model;
 		}
 	}, {
 		key: "setSortParameter",
@@ -4487,6 +4516,9 @@ var dispatcherCallback = function dispatcherCallback(payload) {
 			break;
 		case "QUERIES_REMOVE":
 			queries.remove(payload.action.facetName, payload.action.value);
+			break;
+		case "QUERIES_RESET":
+			queries.reset();
 			break;
 		case "QUERIES_CHANGE_SEARCH_TERM":
 			queries.changeSearchTerm(payload.action.value);

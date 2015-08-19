@@ -31,6 +31,12 @@ let queriesActions = {
 		});
 	},
 
+	reset() {
+		dispatcher.handleViewAction({
+			actionType: "QUERIES_RESET"
+		});
+	},
+
 	changeSearchTerm(value) {
 		dispatcher.handleViewAction({
 			actionType: "QUERIES_CHANGE_SEARCH_TERM",

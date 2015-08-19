@@ -15,6 +15,16 @@
 	width: 35%;
 }
 
+.hire-faceted-search > .hire-faceted-search-facets > button {
+	background: white;
+	border: none;
+	cursor: pointer;
+	height: 40px;
+	margin-bottom: 20px;
+	outline: none;
+	padding: 0 20px;
+}
+
 .hire-faceted-search > .hire-faceted-search-results {
 	padding-left: 5%;
 	width: 60%;
