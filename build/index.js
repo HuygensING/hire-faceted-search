@@ -2000,7 +2000,6 @@ var _react = _dereq_("react");
 var _react2 = _interopRequireDefault(_react);
 
 var getNextState = function getNextState(prevState, ratio) {
-	console.log("gs");
 	var state = Object.keys(prevState).reduce(function (obj, currentProp) {
 		var delta = prevState[currentProp].max - prevState[currentProp].min;
 

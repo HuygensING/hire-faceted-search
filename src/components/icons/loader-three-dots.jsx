@@ -1,7 +1,6 @@
 import React from "react";
 
 let getNextState = function(prevState, ratio) {
-	console.log("gs");
 	let state = Object.keys(prevState).reduce((obj, currentProp) => {
 		let delta = prevState[currentProp].max - prevState[currentProp].min;
 
