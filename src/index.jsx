@@ -11,7 +11,10 @@ import resultsStore from "./stores/results";
 import queriesActions from "./actions/queries";
 import queriesStore from "./stores/queries";
 
-import SortableList from "./components/results/sort-menu";
+import {createStore} from "redux";
+import reducers from "./reducers";
+
+let store = createStore(reducers);
 
 import i18n from "./i18n";
 
@@ -24,8 +27,18 @@ class FacetedSearch extends React.Component {
 	constructor(props) {
 		super(props);
 
-		configActions.init(this.props.config);
-		queriesActions.setDefaults(this.props.config);
+		// configActions.init(this.props.config);
+		// queriesActions.setDefaults(this.props.config);
+
+		store.dispatch({
+			type: "SET_QUERY_DEFAULTS",
+			config: this.props.config
+		})
+
+		store.dispatch({
+			type: "SET_CONFIG_DEFAULTS",
+			config: this.props.config
+		});
 
 		this.onConfigChange = this.onConfigChange.bind(this)
 		this.onResultsChange = this.onResultsChange.bind(this)

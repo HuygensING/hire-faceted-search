@@ -874,6 +874,538 @@ function isNative(value) {
 module.exports = getNative;
 
 },{}],8:[function(_dereq_,module,exports){
+'use strict';
+
+exports.__esModule = true;
+exports['default'] = createStore;
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _utilsIsPlainObject = _dereq_('./utils/isPlainObject');
+
+var _utilsIsPlainObject2 = _interopRequireDefault(_utilsIsPlainObject);
+
+/**
+ * These are private action types reserved by Redux.
+ * For any unknown actions, you must return the current state.
+ * If the current state is undefined, you must return the initial state.
+ * Do not reference these action types directly in your code.
+ */
+var ActionTypes = {
+  INIT: '@@redux/INIT'
+};
+
+exports.ActionTypes = ActionTypes;
+/**
+ * Creates a Redux store that holds the state tree.
+ * The only way to change the data in the store is to call `dispatch()` on it.
+ *
+ * There should only be a single store in your app. To specify how different
+ * parts of the state tree respond to actions, you may combine several reducers
+ * into a single reducer function by using `combineReducers`.
+ *
+ * @param {Function} reducer A function that returns the next state tree, given
+ * the current state tree and the action to handle.
+ *
+ * @param {any} [initialState] The initial state. You may optionally specify it
+ * to hydrate the state from the server in universal apps, or to restore a
+ * previously serialized user session.
+ * If you use `combineReducers` to produce the root reducer function, this must be
+ * an object with the same shape as `combineReducers` keys.
+ *
+ * @returns {Store} A Redux store that lets you read the state, dispatch actions
+ * and subscribe to changes.
+ */
+
+function createStore(reducer, initialState) {
+  if (typeof reducer !== 'function') {
+    throw new Error('Expected the reducer to be a function.');
+  }
+
+  var currentReducer = reducer;
+  var currentState = initialState;
+  var listeners = [];
+  var isDispatching = false;
+
+  /**
+   * Reads the state tree managed by the store.
+   *
+   * @returns {any} The current state tree of your application.
+   */
+  function getState() {
+    return currentState;
+  }
+
+  /**
+   * Adds a change listener. It will be called any time an action is dispatched,
+   * and some part of the state tree may potentially have changed. You may then
+   * call `getState()` to read the current state tree inside the callback.
+   *
+   * @param {Function} listener A callback to be invoked on every dispatch.
+   * @returns {Function} A function to remove this change listener.
+   */
+  function subscribe(listener) {
+    listeners.push(listener);
+
+    return function unsubscribe() {
+      var index = listeners.indexOf(listener);
+      listeners.splice(index, 1);
+    };
+  }
+
+  /**
+   * Dispatches an action. It is the only way to trigger a state change.
+   *
+   * The `reducer` function, used to create the store, will be called with the
+   * current state tree and the given `action`. Its return value will
+   * be considered the **next** state of the tree, and the change listeners
+   * will be notified.
+   *
+   * The base implementation only supports plain object actions. If you want to
+   * dispatch a Promise, an Observable, a thunk, or something else, you need to
+   * wrap your store creating function into the corresponding middleware. For
+   * example, see the documentation for the `redux-thunk` package. Even the
+   * middleware will eventually dispatch plain object actions using this method.
+   *
+   * @param {Object} action A plain object representing “what changed”. It is
+   * a good idea to keep actions serializable so you can record and replay user
+   * sessions, or use the time travelling `redux-devtools`.
+   *
+   * @returns {Object} For convenience, the same action object you dispatched.
+   *
+   * Note that, if you use a custom middleware, it may wrap `dispatch()` to
+   * return something else (for example, a Promise you can await).
+   */
+  function dispatch(action) {
+    if (!_utilsIsPlainObject2['default'](action)) {
+      throw new Error('Actions must be plain objects. Use custom middleware for async actions.');
+    }
+
+    if (isDispatching) {
+      throw new Error('Reducers may not dispatch actions.');
+    }
+
+    try {
+      isDispatching = true;
+      currentState = currentReducer(currentState, action);
+    } finally {
+      isDispatching = false;
+    }
+
+    listeners.slice().forEach(function (listener) {
+      return listener();
+    });
+    return action;
+  }
+
+  /**
+   * Returns the reducer currently used by the store to calculate the state.
+   *
+   * It is likely that you will only need this function if you implement a hot
+   * reloading mechanism for Redux.
+   *
+   * @returns {Function} The reducer used by the current store.
+   */
+  function getReducer() {
+    return currentReducer;
+  }
+
+  /**
+   * Replaces the reducer currently used by the store to calculate the state.
+   *
+   * You might need this if your app implements code splitting and you want to
+   * load some of the reducers dynamically. You might also need this if you
+   * implement a hot reloading mechanism for Redux.
+   *
+   * @param {Function} nextReducer The reducer for the store to use instead.
+   * @returns {void}
+   */
+  function replaceReducer(nextReducer) {
+    currentReducer = nextReducer;
+    dispatch({ type: ActionTypes.INIT });
+  }
+
+  // When a store is created, an "INIT" action is dispatched so that every
+  // reducer returns their initial state. This effectively populates
+  // the initial state tree.
+  dispatch({ type: ActionTypes.INIT });
+
+  return {
+    dispatch: dispatch,
+    subscribe: subscribe,
+    getState: getState,
+    getReducer: getReducer,
+    replaceReducer: replaceReducer
+  };
+}
+},{"./utils/isPlainObject":14}],9:[function(_dereq_,module,exports){
+'use strict';
+
+exports.__esModule = true;
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _createStore = _dereq_('./createStore');
+
+var _createStore2 = _interopRequireDefault(_createStore);
+
+var _utilsCombineReducers = _dereq_('./utils/combineReducers');
+
+var _utilsCombineReducers2 = _interopRequireDefault(_utilsCombineReducers);
+
+var _utilsBindActionCreators = _dereq_('./utils/bindActionCreators');
+
+var _utilsBindActionCreators2 = _interopRequireDefault(_utilsBindActionCreators);
+
+var _utilsApplyMiddleware = _dereq_('./utils/applyMiddleware');
+
+var _utilsApplyMiddleware2 = _interopRequireDefault(_utilsApplyMiddleware);
+
+var _utilsCompose = _dereq_('./utils/compose');
+
+var _utilsCompose2 = _interopRequireDefault(_utilsCompose);
+
+exports.createStore = _createStore2['default'];
+exports.combineReducers = _utilsCombineReducers2['default'];
+exports.bindActionCreators = _utilsBindActionCreators2['default'];
+exports.applyMiddleware = _utilsApplyMiddleware2['default'];
+exports.compose = _utilsCompose2['default'];
+},{"./createStore":8,"./utils/applyMiddleware":10,"./utils/bindActionCreators":11,"./utils/combineReducers":12,"./utils/compose":13}],10:[function(_dereq_,module,exports){
+'use strict';
+
+exports.__esModule = true;
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+exports['default'] = applyMiddleware;
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _compose = _dereq_('./compose');
+
+var _compose2 = _interopRequireDefault(_compose);
+
+/**
+ * Creates a store enhancer that applies middleware to the dispatch method
+ * of the Redux store. This is handy for a variety of tasks, such as expressing
+ * asynchronous actions in a concise manner, or logging every action payload.
+ *
+ * See `redux-thunk` package as an example of the Redux middleware.
+ *
+ * Because middleware is potentially asynchronous, this should be the first
+ * store enhancer in the composition chain.
+ *
+ * Note that each middleware will be given the `dispatch` and `getState` functions
+ * as named arguments.
+ *
+ * @param {...Function} middlewares The middleware chain to be applied.
+ * @returns {Function} A store enhancer applying the middleware.
+ */
+
+function applyMiddleware() {
+  for (var _len = arguments.length, middlewares = Array(_len), _key = 0; _key < _len; _key++) {
+    middlewares[_key] = arguments[_key];
+  }
+
+  return function (next) {
+    return function (reducer, initialState) {
+      var store = next(reducer, initialState);
+      var _dispatch = store.dispatch;
+      var chain = [];
+
+      var middlewareAPI = {
+        getState: store.getState,
+        dispatch: function dispatch(action) {
+          return _dispatch(action);
+        }
+      };
+      chain = middlewares.map(function (middleware) {
+        return middleware(middlewareAPI);
+      });
+      _dispatch = _compose2['default'].apply(undefined, chain.concat([store.dispatch]));
+
+      return _extends({}, store, {
+        dispatch: _dispatch
+      });
+    };
+  };
+}
+
+module.exports = exports['default'];
+},{"./compose":13}],11:[function(_dereq_,module,exports){
+'use strict';
+
+exports.__esModule = true;
+exports['default'] = bindActionCreators;
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _utilsMapValues = _dereq_('../utils/mapValues');
+
+var _utilsMapValues2 = _interopRequireDefault(_utilsMapValues);
+
+function bindActionCreator(actionCreator, dispatch) {
+  return function () {
+    return dispatch(actionCreator.apply(undefined, arguments));
+  };
+}
+
+/**
+ * Turns an object whose values are action creators, into an object with the
+ * same keys, but with every function wrapped into a `dispatch` call so they
+ * may be invoked directly. This is just a convenience method, as you can call
+ * `store.dispatch(MyActionCreators.doSomething())` yourself just fine.
+ *
+ * For convenience, you can also pass a single function as the first argument,
+ * and get a function in return.
+ *
+ * @param {Function|Object} actionCreators An object whose values are action
+ * creator functions. One handy way to obtain it is to use ES6 `import * as`
+ * syntax. You may also pass a single function.
+ *
+ * @param {Function} dispatch The `dispatch` function available on your Redux
+ * store.
+ *
+ * @returns {Function|Object} The object mimicking the original object, but with
+ * every action creator wrapped into the `dispatch` call. If you passed a
+ * function as `actionCreators`, the return value will also be a single
+ * function.
+ */
+
+function bindActionCreators(actionCreators, dispatch) {
+  if (typeof actionCreators === 'function') {
+    return bindActionCreator(actionCreators, dispatch);
+  }
+
+  if (typeof actionCreators !== 'object' || actionCreators == null) {
+    throw new Error('bindActionCreators expected an object or a function, instead received ' + typeof actionCreators + '. ' + 'Did you write "import ActionCreators from" instead of "import * as ActionCreators from"?');
+  }
+
+  return _utilsMapValues2['default'](actionCreators, function (actionCreator) {
+    return bindActionCreator(actionCreator, dispatch);
+  });
+}
+
+module.exports = exports['default'];
+},{"../utils/mapValues":15}],12:[function(_dereq_,module,exports){
+'use strict';
+
+exports.__esModule = true;
+exports['default'] = combineReducers;
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _createStore = _dereq_('../createStore');
+
+var _utilsIsPlainObject = _dereq_('../utils/isPlainObject');
+
+var _utilsIsPlainObject2 = _interopRequireDefault(_utilsIsPlainObject);
+
+var _utilsMapValues = _dereq_('../utils/mapValues');
+
+var _utilsMapValues2 = _interopRequireDefault(_utilsMapValues);
+
+var _utilsPick = _dereq_('../utils/pick');
+
+var _utilsPick2 = _interopRequireDefault(_utilsPick);
+
+function getErrorMessage(key, action) {
+  var actionType = action && action.type;
+  var actionName = actionType && '"' + actionType.toString() + '"' || 'an action';
+
+  return 'Reducer "' + key + '" returned undefined handling ' + actionName + '. ' + 'To ignore an action, you must explicitly return the previous state.';
+}
+
+function verifyStateShape(initialState, currentState) {
+  var reducerKeys = Object.keys(currentState);
+
+  if (reducerKeys.length === 0) {
+    console.error('Store does not have a valid reducer. Make sure the argument passed ' + 'to combineReducers is an object whose values are reducers.');
+    return;
+  }
+
+  if (!_utilsIsPlainObject2['default'](initialState)) {
+    console.error('initialState has unexpected type of "' + ({}).toString.call(initialState).match(/\s([a-z|A-Z]+)/)[1] + '". Expected initialState to be an object with the following ' + ('keys: "' + reducerKeys.join('", "') + '"'));
+    return;
+  }
+
+  var unexpectedKeys = Object.keys(initialState).filter(function (key) {
+    return reducerKeys.indexOf(key) < 0;
+  });
+
+  if (unexpectedKeys.length > 0) {
+    console.error('Unexpected ' + (unexpectedKeys.length > 1 ? 'keys' : 'key') + ' ' + ('"' + unexpectedKeys.join('", "') + '" in initialState will be ignored. ') + ('Expected to find one of the known reducer keys instead: "' + reducerKeys.join('", "') + '"'));
+  }
+}
+
+/**
+ * Turns an object whose values are different reducer functions, into a single
+ * reducer function. It will call every child reducer, and gather their results
+ * into a single state object, whose keys correspond to the keys of the passed
+ * reducer functions.
+ *
+ * @param {Object} reducers An object whose values correspond to different
+ * reducer functions that need to be combined into one. One handy way to obtain
+ * it is to use ES6 `import * as reducers` syntax. The reducers may never return
+ * undefined for any action. Instead, they should return their initial state
+ * if the state passed to them was undefined, and the current state for any
+ * unrecognized action.
+ *
+ * @returns {Function} A reducer function that invokes every reducer inside the
+ * passed object, and builds a state object with the same shape.
+ */
+
+function combineReducers(reducers) {
+  var finalReducers = _utilsPick2['default'](reducers, function (val) {
+    return typeof val === 'function';
+  });
+
+  Object.keys(finalReducers).forEach(function (key) {
+    var reducer = finalReducers[key];
+    if (typeof reducer(undefined, { type: _createStore.ActionTypes.INIT }) === 'undefined') {
+      throw new Error('Reducer "' + key + '" returned undefined during initialization. ' + 'If the state passed to the reducer is undefined, you must ' + 'explicitly return the initial state. The initial state may ' + 'not be undefined.');
+    }
+
+    var type = Math.random().toString(36).substring(7).split('').join('.');
+    if (typeof reducer(undefined, { type: type }) === 'undefined') {
+      throw new Error('Reducer "' + key + '" returned undefined when probed with a random type. ' + ('Don\'t try to handle ' + _createStore.ActionTypes.INIT + ' or other actions in "redux/*" ') + 'namespace. They are considered private. Instead, you must return the ' + 'current state for any unknown actions, unless it is undefined, ' + 'in which case you must return the initial state, regardless of the ' + 'action type. The initial state may not be undefined.');
+    }
+  });
+
+  var defaultState = _utilsMapValues2['default'](finalReducers, function () {
+    return undefined;
+  });
+  var stateShapeVerified;
+
+  return function combination(state, action) {
+    if (state === undefined) state = defaultState;
+
+    var finalState = _utilsMapValues2['default'](finalReducers, function (reducer, key) {
+      var newState = reducer(state[key], action);
+      if (typeof newState === 'undefined') {
+        throw new Error(getErrorMessage(key, action));
+      }
+      return newState;
+    });
+
+    if (
+    // Node-like CommonJS environments (Browserify, Webpack)
+    typeof process !== 'undefined' && typeof process.env !== 'undefined' && process.env.NODE_ENV !== 'production' ||
+    // React Native
+    typeof __DEV__ !== 'undefined' && __DEV__ //eslint-disable-line no-undef
+    ) {
+      if (!stateShapeVerified) {
+        verifyStateShape(state, finalState);
+        stateShapeVerified = true;
+      }
+    }
+
+    return finalState;
+  };
+}
+
+module.exports = exports['default'];
+},{"../createStore":8,"../utils/isPlainObject":14,"../utils/mapValues":15,"../utils/pick":16}],13:[function(_dereq_,module,exports){
+/**
+ * Composes functions from left to right.
+ *
+ * @param {...Function} funcs - The functions to compose. Each is expected to
+ * accept a function as an argument and to return a function.
+ * @returns {Function} A function obtained by composing functions from left to
+ * right.
+ */
+"use strict";
+
+exports.__esModule = true;
+exports["default"] = compose;
+
+function compose() {
+  for (var _len = arguments.length, funcs = Array(_len), _key = 0; _key < _len; _key++) {
+    funcs[_key] = arguments[_key];
+  }
+
+  return funcs.reduceRight(function (composed, f) {
+    return f(composed);
+  });
+}
+
+module.exports = exports["default"];
+},{}],14:[function(_dereq_,module,exports){
+'use strict';
+
+exports.__esModule = true;
+exports['default'] = isPlainObject;
+var fnToString = function fnToString(fn) {
+  return Function.prototype.toString.call(fn);
+};
+
+/**
+ * @param {any} obj The object to inspect.
+ * @returns {boolean} True if the argument appears to be a plain object.
+ */
+
+function isPlainObject(obj) {
+  if (!obj || typeof obj !== 'object') {
+    return false;
+  }
+
+  var proto = typeof obj.constructor === 'function' ? Object.getPrototypeOf(obj) : Object.prototype;
+
+  if (proto === null) {
+    return true;
+  }
+
+  var constructor = proto.constructor;
+
+  return typeof constructor === 'function' && constructor instanceof constructor && fnToString(constructor) === fnToString(Object);
+}
+
+module.exports = exports['default'];
+},{}],15:[function(_dereq_,module,exports){
+/**
+ * Applies a function to every key-value pair inside an object.
+ *
+ * @param {Object} obj The source object.
+ * @param {Function} fn The mapper function taht receives the value and the key.
+ * @returns {Object} A new object that contains the mapped values for the keys.
+ */
+"use strict";
+
+exports.__esModule = true;
+exports["default"] = mapValues;
+
+function mapValues(obj, fn) {
+  return Object.keys(obj).reduce(function (result, key) {
+    result[key] = fn(obj[key], key);
+    return result;
+  }, {});
+}
+
+module.exports = exports["default"];
+},{}],16:[function(_dereq_,module,exports){
+/**
+ * Picks key-value pairs from an object where values satisfy a predicate.
+ *
+ * @param {Object} obj The object to pick from.
+ * @param {Function} fn The predicate the values must satisfy to be copied.
+ * @returns {Object} The object with the values that satisfied the predicate.
+ */
+"use strict";
+
+exports.__esModule = true;
+exports["default"] = pick;
+
+function pick(obj, fn) {
+  return Object.keys(obj).reduce(function (result, key) {
+    if (fn(obj[key])) {
+      result[key] = obj[key];
+    }
+    return result;
+  }, {});
+}
+
+module.exports = exports["default"];
+},{}],17:[function(_dereq_,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -1176,7 +1708,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],9:[function(_dereq_,module,exports){
+},{}],18:[function(_dereq_,module,exports){
 "use strict";
 var window = _dereq_("global/window")
 var once = _dereq_("once")
@@ -1365,7 +1897,7 @@ function createXHR(options, callback) {
 
 function noop() {}
 
-},{"global/window":10,"once":11,"parse-headers":15}],10:[function(_dereq_,module,exports){
+},{"global/window":19,"once":20,"parse-headers":24}],19:[function(_dereq_,module,exports){
 if (typeof window !== "undefined") {
     module.exports = window;
 } else if (typeof global !== "undefined") {
@@ -1376,7 +1908,7 @@ if (typeof window !== "undefined") {
     module.exports = {};
 }
 
-},{}],11:[function(_dereq_,module,exports){
+},{}],20:[function(_dereq_,module,exports){
 module.exports = once
 
 once.proto = once(function () {
@@ -1397,7 +1929,7 @@ function once (fn) {
   }
 }
 
-},{}],12:[function(_dereq_,module,exports){
+},{}],21:[function(_dereq_,module,exports){
 var isFunction = _dereq_('is-function')
 
 module.exports = forEach
@@ -1445,7 +1977,7 @@ function forEachObject(object, iterator, context) {
     }
 }
 
-},{"is-function":13}],13:[function(_dereq_,module,exports){
+},{"is-function":22}],22:[function(_dereq_,module,exports){
 module.exports = isFunction
 
 var toString = Object.prototype.toString
@@ -1462,7 +1994,7 @@ function isFunction (fn) {
       fn === window.prompt))
 };
 
-},{}],14:[function(_dereq_,module,exports){
+},{}],23:[function(_dereq_,module,exports){
 
 exports = module.exports = trim;
 
@@ -1478,7 +2010,7 @@ exports.right = function(str){
   return str.replace(/\s*$/, '');
 };
 
-},{}],15:[function(_dereq_,module,exports){
+},{}],24:[function(_dereq_,module,exports){
 var trim = _dereq_('trim')
   , forEach = _dereq_('for-each')
   , isArray = function(arg) {
@@ -1510,7 +2042,7 @@ module.exports = function (headers) {
 
   return result
 }
-},{"for-each":12,"trim":14}],16:[function(_dereq_,module,exports){
+},{"for-each":21,"trim":23}],25:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1543,7 +2075,7 @@ var configActions = {
 exports["default"] = configActions;
 module.exports = exports["default"];
 
-},{"../dispatcher":41}],17:[function(_dereq_,module,exports){
+},{"../dispatcher":50}],26:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1604,7 +2136,7 @@ var queriesActions = {
 exports["default"] = queriesActions;
 module.exports = exports["default"];
 
-},{"../dispatcher":41}],18:[function(_dereq_,module,exports){
+},{"../dispatcher":50}],27:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1634,7 +2166,7 @@ var resultsActions = {
 exports["default"] = resultsActions;
 module.exports = exports["default"];
 
-},{"../stores/api":44}],19:[function(_dereq_,module,exports){
+},{"../stores/api":56}],28:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1666,7 +2198,7 @@ var serverActions = {
 exports["default"] = serverActions;
 module.exports = exports["default"];
 
-},{"../dispatcher":41}],20:[function(_dereq_,module,exports){
+},{"../dispatcher":50}],29:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1767,7 +2299,7 @@ Facets.propTypes = {
 exports["default"] = Facets;
 module.exports = exports["default"];
 
-},{"../actions/queries":17,"./list-facet":31,"./text-search":40,"immutable":"immutable","react":"react"}],21:[function(_dereq_,module,exports){
+},{"../actions/queries":26,"./list-facet":40,"./text-search":49,"immutable":"immutable","react":"react"}],30:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1875,7 +2407,7 @@ FilterMenu.propTypes = {
 exports["default"] = FilterMenu;
 module.exports = exports["default"];
 
-},{"../icons/filter":23,"classnames":"classnames","hire-forms-input":4,"insert-css":5,"react":"react"}],22:[function(_dereq_,module,exports){
+},{"../icons/filter":32,"classnames":"classnames","hire-forms-input":4,"insert-css":5,"react":"react"}],31:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1936,7 +2468,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],23:[function(_dereq_,module,exports){
+},{"react":"react"}],32:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1996,7 +2528,7 @@ FilterIcon.propTypes = {
 exports["default"] = FilterIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],24:[function(_dereq_,module,exports){
+},{"react":"react"}],33:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2179,7 +2711,7 @@ LoaderThreeDots.PropTypes = {
 exports["default"] = LoaderThreeDots;
 module.exports = exports["default"];
 
-},{"react":"react"}],25:[function(_dereq_,module,exports){
+},{"react":"react"}],34:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2239,7 +2771,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],26:[function(_dereq_,module,exports){
+},{"react":"react"}],35:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2310,7 +2842,7 @@ SortAlphabeticallyAscending.propTypes = {
 exports["default"] = SortAlphabeticallyAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],27:[function(_dereq_,module,exports){
+},{"react":"react"}],36:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2381,7 +2913,7 @@ SortAlphabeticallyDescending.propTypes = {
 exports["default"] = SortAlphabeticallyDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],28:[function(_dereq_,module,exports){
+},{"react":"react"}],37:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2450,7 +2982,7 @@ SortCountAscending.propTypes = {
 exports["default"] = SortCountAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],29:[function(_dereq_,module,exports){
+},{"react":"react"}],38:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2519,7 +3051,7 @@ SortCountDescending.propTypes = {
 exports["default"] = SortCountDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],30:[function(_dereq_,module,exports){
+},{"react":"react"}],39:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2578,7 +3110,7 @@ UncheckedIcon.propTypes = {
 exports["default"] = UncheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],31:[function(_dereq_,module,exports){
+},{"react":"react"}],40:[function(_dereq_,module,exports){
 // TODO cap at 50 results if results > 200
 
 "use strict";
@@ -2673,7 +3205,6 @@ var ListFacet = (function (_React$Component) {
 		value: function render() {
 			var _this = this;
 
-			console.log("R");
 			var filterMenu = undefined,
 			    sortMenu = undefined;
 			var options = this.props.data.get("options");
@@ -2774,7 +3305,7 @@ ListFacet.propTypes = {
 exports["default"] = ListFacet;
 module.exports = exports["default"];
 
-},{"../filter-menu":21,"../sort-menu":39,"./list-item":32,"classnames":"classnames","immutable":"immutable","insert-css":5,"react":"react"}],32:[function(_dereq_,module,exports){
+},{"../filter-menu":30,"../sort-menu":48,"./list-item":41,"classnames":"classnames","immutable":"immutable","insert-css":5,"react":"react"}],41:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2885,7 +3416,7 @@ ListFacetListItem.propTypes = {
 exports["default"] = ListFacetListItem;
 module.exports = exports["default"];
 
-},{"../../actions/queries":17,"../icons/checked":22,"../icons/unchecked":30,"react":"react"}],33:[function(_dereq_,module,exports){
+},{"../../actions/queries":26,"../icons/checked":31,"../icons/unchecked":39,"react":"react"}],42:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2953,7 +3484,7 @@ FacetValue.propTypes = {
 exports["default"] = FacetValue;
 module.exports = exports["default"];
 
-},{"../../../../actions/queries":17,"react":"react"}],34:[function(_dereq_,module,exports){
+},{"../../../../actions/queries":26,"react":"react"}],43:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3083,7 +3614,7 @@ CurrentQuery.propTypes = {
 exports["default"] = CurrentQuery;
 module.exports = exports["default"];
 
-},{"../../../actions/queries":17,"./facet-value":33,"immutable":"immutable","insert-css":5,"react":"react"}],35:[function(_dereq_,module,exports){
+},{"../../../actions/queries":26,"./facet-value":42,"immutable":"immutable","insert-css":5,"react":"react"}],44:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3274,7 +3805,7 @@ module.exports = exports["default"];
 /* <ResultsRows
 rows={this.props.rows} /> */ /* <Pagination facetData={this.props.facetData} /> */
 
-},{"../../actions/results":18,"../icons/loader-three-dots":24,"./current-query":34,"./result":36,"./rows":37,"./sort-menu":38,"immutable":"immutable","insert-css":5,"lodash.debounce":6,"react":"react"}],36:[function(_dereq_,module,exports){
+},{"../../actions/results":27,"../icons/loader-three-dots":33,"./current-query":43,"./result":45,"./rows":46,"./sort-menu":47,"immutable":"immutable","insert-css":5,"lodash.debounce":6,"react":"react"}],45:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3362,7 +3893,7 @@ Result.propTypes = {};
 exports["default"] = Result;
 module.exports = exports["default"];
 
-},{"react":"react"}],37:[function(_dereq_,module,exports){
+},{"react":"react"}],46:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3452,7 +3983,7 @@ ResultsRows.propTypes = {
 exports["default"] = ResultsRows;
 module.exports = exports["default"];
 
-},{"../../../actions/config":16,"insert-css":5,"react":"react"}],38:[function(_dereq_,module,exports){
+},{"../../../actions/config":25,"insert-css":5,"react":"react"}],47:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3591,7 +4122,7 @@ ResultsSortMenu.propTypes = {
 exports["default"] = ResultsSortMenu;
 module.exports = exports["default"];
 
-},{"../../../actions/queries":17,"classnames":"classnames","immutable":"immutable","insert-css":5,"react":"react"}],39:[function(_dereq_,module,exports){
+},{"../../../actions/queries":26,"classnames":"classnames","immutable":"immutable","insert-css":5,"react":"react"}],48:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3747,7 +4278,7 @@ SortMenu.propTypes = {
 exports["default"] = SortMenu;
 module.exports = exports["default"];
 
-},{"../icons/sort-alphabetically-ascending":26,"../icons/sort-alphabetically-descending":27,"../icons/sort-count-ascending":28,"../icons/sort-count-descending":29,"classnames":"classnames","insert-css":5,"react":"react"}],40:[function(_dereq_,module,exports){
+},{"../icons/sort-alphabetically-ascending":35,"../icons/sort-alphabetically-descending":36,"../icons/sort-count-ascending":37,"../icons/sort-count-descending":38,"classnames":"classnames","insert-css":5,"react":"react"}],49:[function(_dereq_,module,exports){
 // TODO add searching class to .search-icon when async query is busy
 
 "use strict";
@@ -3873,7 +4404,7 @@ TextSearch.propTypes = {};
 exports["default"] = TextSearch;
 module.exports = exports["default"];
 
-},{"../../actions/queries":17,"../icons/search":25,"classnames":"classnames","insert-css":5,"react":"react"}],41:[function(_dereq_,module,exports){
+},{"../../actions/queries":26,"../icons/search":34,"classnames":"classnames","insert-css":5,"react":"react"}],50:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3927,7 +4458,7 @@ var AppDispatcher = (function (_Dispatcher) {
 exports["default"] = new AppDispatcher();
 module.exports = exports["default"];
 
-},{"flux":1}],42:[function(_dereq_,module,exports){
+},{"flux":1}],51:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3941,7 +4472,7 @@ exports["default"] = {
 };
 module.exports = exports["default"];
 
-},{}],43:[function(_dereq_,module,exports){
+},{}],52:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4000,9 +4531,11 @@ var _storesQueries = _dereq_("./stores/queries");
 
 var _storesQueries2 = _interopRequireDefault(_storesQueries);
 
-var _componentsResultsSortMenu = _dereq_("./components/results/sort-menu");
+var _redux = _dereq_("redux");
 
-var _componentsResultsSortMenu2 = _interopRequireDefault(_componentsResultsSortMenu);
+var _reducers = _dereq_("./reducers");
+
+var _reducers2 = _interopRequireDefault(_reducers);
 
 var _i18n = _dereq_("./i18n");
 
@@ -4011,6 +4544,8 @@ var _i18n2 = _interopRequireDefault(_i18n);
 var _insertCss = _dereq_("insert-css");
 
 var _insertCss2 = _interopRequireDefault(_insertCss);
+
+var store = (0, _redux.createStore)(_reducers2["default"]);
 
 
 
@@ -4025,8 +4560,18 @@ var FacetedSearch = (function (_React$Component) {
 
 		_get(Object.getPrototypeOf(FacetedSearch.prototype), "constructor", this).call(this, props);
 
-		_actionsConfig2["default"].init(this.props.config);
-		_actionsQueries2["default"].setDefaults(this.props.config);
+		// configActions.init(this.props.config);
+		// queriesActions.setDefaults(this.props.config);
+
+		store.dispatch({
+			type: "SET_QUERY_DEFAULTS",
+			config: this.props.config
+		});
+
+		store.dispatch({
+			type: "SET_CONFIG_DEFAULTS",
+			config: this.props.config
+		});
 
 		this.onConfigChange = this.onConfigChange.bind(this);
 		this.onResultsChange = this.onResultsChange.bind(this);
@@ -4139,7 +4684,172 @@ FacetedSearch.propTypes = {
 exports["default"] = FacetedSearch;
 module.exports = exports["default"];
 
-},{"./actions/config":16,"./actions/queries":17,"./actions/results":18,"./components/faceted-search":20,"./components/results":35,"./components/results/sort-menu":38,"./i18n":42,"./stores/config":46,"./stores/queries":47,"./stores/results":48,"immutable":"immutable","insert-css":5,"react":"react"}],44:[function(_dereq_,module,exports){
+},{"./actions/config":25,"./actions/queries":26,"./actions/results":27,"./components/faceted-search":29,"./components/results":44,"./i18n":51,"./reducers":54,"./stores/config":58,"./stores/queries":59,"./stores/results":60,"immutable":"immutable","insert-css":5,"react":"react","redux":9}],53:[function(_dereq_,module,exports){
+// let initialState = {
+// 	queries: [],
+// 	queryModel: {
+// 		"facetValues": [],
+// 		"searchInAnnotations": true,
+// 		"searchInTranscriptions": true,
+// 		"term": "",
+// 		"textLayers": ["Diplomatic", "Opmerkingen en verwijzingen", "Comments and References", "Transcription", "Transcripción", "Transcriptie", "Vertaling", "Translation", "Traducción", "Comentarios y referencias"]
+// 	}
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+exports["default"] = function (state, action) {
+	if (state === undefined) state = {};
+
+	switch (action.type) {
+		case "SET_CONFIG_DEFAULTS":
+			return _extends({}, state, action.config);
+		default:
+			return state;
+	}
+};
+
+module.exports = exports["default"];
+// }
+
+},{}],54:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+var _redux = _dereq_("redux");
+
+var _queries = _dereq_("./queries");
+
+var _queries2 = _interopRequireDefault(_queries);
+
+var _config = _dereq_("./config");
+
+var _config2 = _interopRequireDefault(_config);
+
+exports["default"] = (0, _redux.combineReducers)({
+	config: _config2["default"],
+	queries: _queries2["default"]
+});
+module.exports = exports["default"];
+
+},{"./config":53,"./queries":55,"redux":9}],55:[function(_dereq_,module,exports){
+// import dispatcher from "../dispatcher";
+
+// let queriesActions = {
+// 	setDefaults(props) {
+// 		dispatcher.handleViewAction({
+// 			actionType: "QUERIES_SET_DEFAULTS",
+// 			props: props,
+// 		});
+// 	},
+
+// 	setSortParameter(field) {
+// 		dispatcher.handleViewAction({
+// 			actionType: "QUERIES_SET_SORT_PARAMETER",
+// 			field: field,
+// 		});
+// 	},
+
+// 	add(facetName, value) {
+// 		dispatcher.handleViewAction({
+// 			actionType: "QUERIES_ADD",
+// 			facetName: facetName,
+// 			value: value
+// 		});
+// 	},
+
+// 	remove(facetName, value) {
+// 		dispatcher.handleViewAction({
+// 			actionType: "QUERIES_REMOVE",
+// 			facetName: facetName,
+// 			value: value
+// 		});
+// 	},
+
+// 	reset() {
+// 		dispatcher.handleViewAction({
+// 			actionType: "QUERIES_RESET"
+// 		});
+// 	},
+
+// 	changeSearchTerm(value) {
+// 		dispatcher.handleViewAction({
+// 			actionType: "QUERIES_CHANGE_SEARCH_TERM",
+// 			value: value
+// 		});
+// 	}
+// };
+
+// setDefaults(config) {
+// 		let sortLevels = Immutable.fromJS(config.levels);
+// 		let sortParameters = sortLevels.map((fieldName) =>
+// 			new Immutable.Map({
+// 				fieldname: fieldName,
+// 				direction: "asc"
+// 			}));
+
+// 		this.model = this.data.withMutations((map) => {
+// 			map.set("sortParameters", sortParameters);
+// 			map.set("resultFields", sortLevels);
+// 		});
+
+// 		this.data = this.model;
+// 	}
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var initialState = {
+	queries: [],
+	queryModel: {
+		"facetValues": [],
+		"searchInAnnotations": true,
+		"searchInTranscriptions": true,
+		"term": "",
+		"textLayers": ["Diplomatic", "Opmerkingen en verwijzingen", "Comments and References", "Transcription", "Transcripción", "Transcriptie", "Vertaling", "Translation", "Traducción", "Comentarios y referencias"]
+	}
+};
+
+exports["default"] = function (state, action) {
+	if (state === undefined) state = initialState;
+
+	switch (action.type) {
+		case "SET_QUERY_DEFAULTS":
+			var newQueryModel = {
+				queryModel: _extends({}, initialState.queryModel, {
+					sortLevels: action.config.levels,
+					sortParameters: action.config.levels.map(function (level) {
+						return {
+							fieldname: level,
+							direction: "asc"
+						};
+					})
+				})
+			};
+
+			return _extends({}, state, newQueryModel);
+		default:
+			return state;
+	}
+};
+
+module.exports = exports["default"];
+
+},{}],56:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4221,7 +4931,7 @@ exports["default"] = {
 };
 module.exports = exports["default"];
 
-},{"../actions/server":19,"../stores/config":46,"../stores/queries":47,"xhr":9}],45:[function(_dereq_,module,exports){
+},{"../actions/server":28,"../stores/config":58,"../stores/queries":59,"xhr":18}],57:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4267,7 +4977,7 @@ var BaseStore = (function (_EventEmitter) {
 exports["default"] = BaseStore;
 module.exports = exports["default"];
 
-},{"events":8}],46:[function(_dereq_,module,exports){
+},{"events":17}],58:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4353,7 +5063,7 @@ configStore.dispatcherIndex = _dispatcher2["default"].register(dispatcherCallbac
 exports["default"] = configStore;
 module.exports = exports["default"];
 
-},{"../dispatcher":41,"./base":45,"immutable":"immutable"}],47:[function(_dereq_,module,exports){
+},{"../dispatcher":50,"./base":57,"immutable":"immutable"}],59:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4536,7 +5246,7 @@ queries.dispatcherIndex = _dispatcher2["default"].register(dispatcherCallback);
 exports["default"] = queries;
 module.exports = exports["default"];
 
-},{"../dispatcher":41,"./base":45,"immutable":"immutable"}],48:[function(_dereq_,module,exports){
+},{"../dispatcher":50,"./base":57,"immutable":"immutable"}],60:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4656,5 +5366,5 @@ resultsStore.dispatcherIndex = _dispatcher2["default"].register(dispatcherCallba
 exports["default"] = resultsStore;
 module.exports = exports["default"];
 
-},{"../dispatcher":41,"./base":45,"immutable":"immutable"}]},{},[43])(43)
+},{"../dispatcher":50,"./base":57,"immutable":"immutable"}]},{},[52])(52)
 });

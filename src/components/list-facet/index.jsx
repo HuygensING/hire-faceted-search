@@ -45,7 +45,6 @@ class ListFacet extends React.Component {
 	}
 
 	render() {
-		console.log("R");
 		let filterMenu, sortMenu;
 		let options = this.props.data.get("options");
 
