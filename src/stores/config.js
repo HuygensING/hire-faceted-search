@@ -10,7 +10,7 @@ class ConfigStore extends BaseStore {
 		super();
 
 		this.data = new Immutable.Map({
-			rows: 20
+			rows: 50
 		});
 	}
 

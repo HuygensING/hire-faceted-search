@@ -1,7 +1,15 @@
 li.hire-list-facet {
 	background-color: white;
 	margin-top: 20px;
+	padding: 20px 20px 20px 20px;
+}
+
+li.hire-list-facet.show-all {
 	padding: 20px 0 0 20px;
+}
+
+li.hire-list-facet.show-all > header {
+	padding-right: 20px;
 }
 
 li.hire-list-facet > header > h3,
@@ -21,9 +29,26 @@ li.hire-list-facet > header > .hire-faceted-search-filter-menu {
 }
 
 li.hire-list-facet > ul {
-	max-height: 300px;
-	padding-bottom: 20px;
+	max-height: 264px;
+}
+
+li.hire-list-facet.show-all > ul {
+	/*height: auto;*/
+	max-height: 316px; /* 264px (ul.height) + 16px (button.lineHeight) + 16px (button.paddingTop + 20px (.hire-list-facet.paddingBottom) */
 	overflow-y: scroll;
+}
+
+li.hire-list-facet > button {
+	background: none;
+	border: none;
+	color: #AAA;
+	cursor: pointer;
+	font-size: 0.8em;
+	font-style: italic;
+	line-height: 16px;
+	margin: 0;
+	outline: none;
+	padding: 16px 0 0 0;
 }
 
 li.hire-list-facet > ul > li.hire-list-facet-list-item {
@@ -56,7 +81,10 @@ li.hire-list-facet > ul > li.hire-list-facet-list-item svg.checked {
 
 li.hire-list-facet > ul > li.hire-list-facet-list-item label {
 	cursor: pointer;
+	overflow-x: hidden;
 	padding: 0 4px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 	width: calc(100% - 44px);
 }
 

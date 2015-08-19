@@ -499,6 +499,381 @@ module.exports = function (css, options) {
 };
 
 },{}],6:[function(_dereq_,module,exports){
+/**
+ * lodash 3.1.1 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modern modularize exports="npm" -o ./`
+ * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+var getNative = _dereq_('lodash._getnative');
+
+/** Used as the `TypeError` message for "Functions" methods. */
+var FUNC_ERROR_TEXT = 'Expected a function';
+
+/* Native method references for those with the same name as other `lodash` methods. */
+var nativeMax = Math.max,
+    nativeNow = getNative(Date, 'now');
+
+/**
+ * Gets the number of milliseconds that have elapsed since the Unix epoch
+ * (1 January 1970 00:00:00 UTC).
+ *
+ * @static
+ * @memberOf _
+ * @category Date
+ * @example
+ *
+ * _.defer(function(stamp) {
+ *   console.log(_.now() - stamp);
+ * }, _.now());
+ * // => logs the number of milliseconds it took for the deferred function to be invoked
+ */
+var now = nativeNow || function() {
+  return new Date().getTime();
+};
+
+/**
+ * Creates a debounced function that delays invoking `func` until after `wait`
+ * milliseconds have elapsed since the last time the debounced function was
+ * invoked. The debounced function comes with a `cancel` method to cancel
+ * delayed invocations. Provide an options object to indicate that `func`
+ * should be invoked on the leading and/or trailing edge of the `wait` timeout.
+ * Subsequent calls to the debounced function return the result of the last
+ * `func` invocation.
+ *
+ * **Note:** If `leading` and `trailing` options are `true`, `func` is invoked
+ * on the trailing edge of the timeout only if the the debounced function is
+ * invoked more than once during the `wait` timeout.
+ *
+ * See [David Corbacho's article](http://drupalmotion.com/article/debounce-and-throttle-visual-explanation)
+ * for details over the differences between `_.debounce` and `_.throttle`.
+ *
+ * @static
+ * @memberOf _
+ * @category Function
+ * @param {Function} func The function to debounce.
+ * @param {number} [wait=0] The number of milliseconds to delay.
+ * @param {Object} [options] The options object.
+ * @param {boolean} [options.leading=false] Specify invoking on the leading
+ *  edge of the timeout.
+ * @param {number} [options.maxWait] The maximum time `func` is allowed to be
+ *  delayed before it is invoked.
+ * @param {boolean} [options.trailing=true] Specify invoking on the trailing
+ *  edge of the timeout.
+ * @returns {Function} Returns the new debounced function.
+ * @example
+ *
+ * // avoid costly calculations while the window size is in flux
+ * jQuery(window).on('resize', _.debounce(calculateLayout, 150));
+ *
+ * // invoke `sendMail` when the click event is fired, debouncing subsequent calls
+ * jQuery('#postbox').on('click', _.debounce(sendMail, 300, {
+ *   'leading': true,
+ *   'trailing': false
+ * }));
+ *
+ * // ensure `batchLog` is invoked once after 1 second of debounced calls
+ * var source = new EventSource('/stream');
+ * jQuery(source).on('message', _.debounce(batchLog, 250, {
+ *   'maxWait': 1000
+ * }));
+ *
+ * // cancel a debounced call
+ * var todoChanges = _.debounce(batchLog, 1000);
+ * Object.observe(models.todo, todoChanges);
+ *
+ * Object.observe(models, function(changes) {
+ *   if (_.find(changes, { 'user': 'todo', 'type': 'delete'})) {
+ *     todoChanges.cancel();
+ *   }
+ * }, ['delete']);
+ *
+ * // ...at some point `models.todo` is changed
+ * models.todo.completed = true;
+ *
+ * // ...before 1 second has passed `models.todo` is deleted
+ * // which cancels the debounced `todoChanges` call
+ * delete models.todo;
+ */
+function debounce(func, wait, options) {
+  var args,
+      maxTimeoutId,
+      result,
+      stamp,
+      thisArg,
+      timeoutId,
+      trailingCall,
+      lastCalled = 0,
+      maxWait = false,
+      trailing = true;
+
+  if (typeof func != 'function') {
+    throw new TypeError(FUNC_ERROR_TEXT);
+  }
+  wait = wait < 0 ? 0 : (+wait || 0);
+  if (options === true) {
+    var leading = true;
+    trailing = false;
+  } else if (isObject(options)) {
+    leading = !!options.leading;
+    maxWait = 'maxWait' in options && nativeMax(+options.maxWait || 0, wait);
+    trailing = 'trailing' in options ? !!options.trailing : trailing;
+  }
+
+  function cancel() {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    if (maxTimeoutId) {
+      clearTimeout(maxTimeoutId);
+    }
+    lastCalled = 0;
+    maxTimeoutId = timeoutId = trailingCall = undefined;
+  }
+
+  function complete(isCalled, id) {
+    if (id) {
+      clearTimeout(id);
+    }
+    maxTimeoutId = timeoutId = trailingCall = undefined;
+    if (isCalled) {
+      lastCalled = now();
+      result = func.apply(thisArg, args);
+      if (!timeoutId && !maxTimeoutId) {
+        args = thisArg = undefined;
+      }
+    }
+  }
+
+  function delayed() {
+    var remaining = wait - (now() - stamp);
+    if (remaining <= 0 || remaining > wait) {
+      complete(trailingCall, maxTimeoutId);
+    } else {
+      timeoutId = setTimeout(delayed, remaining);
+    }
+  }
+
+  function maxDelayed() {
+    complete(trailing, timeoutId);
+  }
+
+  function debounced() {
+    args = arguments;
+    stamp = now();
+    thisArg = this;
+    trailingCall = trailing && (timeoutId || !leading);
+
+    if (maxWait === false) {
+      var leadingCall = leading && !timeoutId;
+    } else {
+      if (!maxTimeoutId && !leading) {
+        lastCalled = stamp;
+      }
+      var remaining = maxWait - (stamp - lastCalled),
+          isCalled = remaining <= 0 || remaining > maxWait;
+
+      if (isCalled) {
+        if (maxTimeoutId) {
+          maxTimeoutId = clearTimeout(maxTimeoutId);
+        }
+        lastCalled = stamp;
+        result = func.apply(thisArg, args);
+      }
+      else if (!maxTimeoutId) {
+        maxTimeoutId = setTimeout(maxDelayed, remaining);
+      }
+    }
+    if (isCalled && timeoutId) {
+      timeoutId = clearTimeout(timeoutId);
+    }
+    else if (!timeoutId && wait !== maxWait) {
+      timeoutId = setTimeout(delayed, wait);
+    }
+    if (leadingCall) {
+      isCalled = true;
+      result = func.apply(thisArg, args);
+    }
+    if (isCalled && !timeoutId && !maxTimeoutId) {
+      args = thisArg = undefined;
+    }
+    return result;
+  }
+  debounced.cancel = cancel;
+  return debounced;
+}
+
+/**
+ * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
+ * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(1);
+ * // => false
+ */
+function isObject(value) {
+  // Avoid a V8 JIT bug in Chrome 19-20.
+  // See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+module.exports = debounce;
+
+},{"lodash._getnative":7}],7:[function(_dereq_,module,exports){
+/**
+ * lodash 3.9.1 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modern modularize exports="npm" -o ./`
+ * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+
+/** `Object#toString` result references. */
+var funcTag = '[object Function]';
+
+/** Used to detect host constructors (Safari > 5). */
+var reIsHostCtor = /^\[object .+?Constructor\]$/;
+
+/**
+ * Checks if `value` is object-like.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/** Used for native method references. */
+var objectProto = Object.prototype;
+
+/** Used to resolve the decompiled source of functions. */
+var fnToString = Function.prototype.toString;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
+/**
+ * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objToString = objectProto.toString;
+
+/** Used to detect if a method is native. */
+var reIsNative = RegExp('^' +
+  fnToString.call(hasOwnProperty).replace(/[\\^$.*+?()[\]{}|]/g, '\\$&')
+  .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
+);
+
+/**
+ * Gets the native function at `key` of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {string} key The key of the method to get.
+ * @returns {*} Returns the function if it's native, else `undefined`.
+ */
+function getNative(object, key) {
+  var value = object == null ? undefined : object[key];
+  return isNative(value) ? value : undefined;
+}
+
+/**
+ * Checks if `value` is classified as a `Function` object.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+ * @example
+ *
+ * _.isFunction(_);
+ * // => true
+ *
+ * _.isFunction(/abc/);
+ * // => false
+ */
+function isFunction(value) {
+  // The use of `Object#toString` avoids issues with the `typeof` operator
+  // in older versions of Chrome and Safari which return 'function' for regexes
+  // and Safari 8 equivalents which return 'object' for typed array constructors.
+  return isObject(value) && objToString.call(value) == funcTag;
+}
+
+/**
+ * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
+ * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(1);
+ * // => false
+ */
+function isObject(value) {
+  // Avoid a V8 JIT bug in Chrome 19-20.
+  // See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+/**
+ * Checks if `value` is a native function.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a native function, else `false`.
+ * @example
+ *
+ * _.isNative(Array.prototype.push);
+ * // => true
+ *
+ * _.isNative(_);
+ * // => false
+ */
+function isNative(value) {
+  if (value == null) {
+    return false;
+  }
+  if (isFunction(value)) {
+    return reIsNative.test(fnToString.call(value));
+  }
+  return isObjectLike(value) && reIsHostCtor.test(value);
+}
+
+module.exports = getNative;
+
+},{}],8:[function(_dereq_,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -801,7 +1176,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],7:[function(_dereq_,module,exports){
+},{}],9:[function(_dereq_,module,exports){
 "use strict";
 var window = _dereq_("global/window")
 var once = _dereq_("once")
@@ -990,7 +1365,7 @@ function createXHR(options, callback) {
 
 function noop() {}
 
-},{"global/window":8,"once":9,"parse-headers":13}],8:[function(_dereq_,module,exports){
+},{"global/window":10,"once":11,"parse-headers":15}],10:[function(_dereq_,module,exports){
 if (typeof window !== "undefined") {
     module.exports = window;
 } else if (typeof global !== "undefined") {
@@ -1001,7 +1376,7 @@ if (typeof window !== "undefined") {
     module.exports = {};
 }
 
-},{}],9:[function(_dereq_,module,exports){
+},{}],11:[function(_dereq_,module,exports){
 module.exports = once
 
 once.proto = once(function () {
@@ -1022,7 +1397,7 @@ function once (fn) {
   }
 }
 
-},{}],10:[function(_dereq_,module,exports){
+},{}],12:[function(_dereq_,module,exports){
 var isFunction = _dereq_('is-function')
 
 module.exports = forEach
@@ -1070,7 +1445,7 @@ function forEachObject(object, iterator, context) {
     }
 }
 
-},{"is-function":11}],11:[function(_dereq_,module,exports){
+},{"is-function":13}],13:[function(_dereq_,module,exports){
 module.exports = isFunction
 
 var toString = Object.prototype.toString
@@ -1087,7 +1462,7 @@ function isFunction (fn) {
       fn === window.prompt))
 };
 
-},{}],12:[function(_dereq_,module,exports){
+},{}],14:[function(_dereq_,module,exports){
 
 exports = module.exports = trim;
 
@@ -1103,7 +1478,7 @@ exports.right = function(str){
   return str.replace(/\s*$/, '');
 };
 
-},{}],13:[function(_dereq_,module,exports){
+},{}],15:[function(_dereq_,module,exports){
 var trim = _dereq_('trim')
   , forEach = _dereq_('for-each')
   , isArray = function(arg) {
@@ -1135,7 +1510,7 @@ module.exports = function (headers) {
 
   return result
 }
-},{"for-each":10,"trim":12}],14:[function(_dereq_,module,exports){
+},{"for-each":12,"trim":14}],16:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1168,7 +1543,7 @@ var configActions = {
 exports["default"] = configActions;
 module.exports = exports["default"];
 
-},{"../dispatcher":38}],15:[function(_dereq_,module,exports){
+},{"../dispatcher":41}],17:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1223,7 +1598,7 @@ var queriesActions = {
 exports["default"] = queriesActions;
 module.exports = exports["default"];
 
-},{"../dispatcher":38}],16:[function(_dereq_,module,exports){
+},{"../dispatcher":41}],18:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1253,7 +1628,7 @@ var resultsActions = {
 exports["default"] = resultsActions;
 module.exports = exports["default"];
 
-},{"../stores/api":41}],17:[function(_dereq_,module,exports){
+},{"../stores/api":44}],19:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1285,7 +1660,7 @@ var serverActions = {
 exports["default"] = serverActions;
 module.exports = exports["default"];
 
-},{"../dispatcher":38}],18:[function(_dereq_,module,exports){
+},{"../dispatcher":41}],20:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1372,7 +1747,7 @@ Facets.propTypes = {
 exports["default"] = Facets;
 module.exports = exports["default"];
 
-},{"./list-facet":27,"./text-search":37,"immutable":"immutable","react":"react"}],19:[function(_dereq_,module,exports){
+},{"./list-facet":31,"./text-search":40,"immutable":"immutable","react":"react"}],21:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1401,9 +1776,9 @@ var _hireFormsInput = _dereq_("hire-forms-input");
 
 var _hireFormsInput2 = _interopRequireDefault(_hireFormsInput);
 
-var _iconsSearch = _dereq_("../icons/search");
+var _iconsFilter = _dereq_("../icons/filter");
 
-var _iconsSearch2 = _interopRequireDefault(_iconsSearch);
+var _iconsFilter2 = _interopRequireDefault(_iconsFilter);
 
 var _insertCss = _dereq_("insert-css");
 
@@ -1411,7 +1786,7 @@ var _insertCss2 = _interopRequireDefault(_insertCss);
 
 
 
-var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2gtZmlsdGVyLW1lbnUgewoJcG9zaXRpb246IHJlbGF0aXZlOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1maWx0ZXItbWVudSBzdmcgewoJZmlsbDogI0VFRTsKCWhlaWdodDogMTJweDsKCW1hcmdpbi10b3A6IDFweDsKCXBvc2l0aW9uOiBhYnNvbHV0ZTsKCXRvcDogNXB4OwoJdHJhbnNpdGlvbjogZmlsbCAzNTBtczsKCXJpZ2h0OiA0cHg7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwoJd2lkdGg6IDEycHg7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLWZpbHRlci1tZW51LmFjdGl2ZSBzdmcgewoJZmlsbDogI0FBQTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtZmlsdGVyLW1lbnUgPiAuaGlyZS1pbnB1dCB7Cgl3aWR0aDogMzAlOwoJZmxvYXQ6IHJpZ2h0OwoJdHJhbnNpdGlvbjogd2lkdGggMzUwbXM7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLWZpbHRlci1tZW51LmFjdGl2ZSA+IC5oaXJlLWlucHV0IHsKCXdpZHRoOiAxMDAlOwoKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtZmlsdGVyLW1lbnUgPiAuaGlyZS1pbnB1dCA+IGlucHV0IHsKCWJvcmRlcjogMXB4IHNvbGlkICNFRUU7Cglib3JkZXItcmlnaHQ6IG5vbmU7Cglib3gtc2l6aW5nOiBib3JkZXItYm94OwoJb3V0bGluZTogbm9uZTsKCXBhZGRpbmctbGVmdDogNHB4OwoJdHJhbnNpdGlvbjogYm9yZGVyIDM1MG1zOwoJd2lkdGg6IDEwMCU7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLWZpbHRlci1tZW51LmFjdGl2ZSA+IC5oaXJlLWlucHV0ID4gaW5wdXQgewoJYm9yZGVyOiAxcHggc29saWQgI0FBQTsKCWJvcmRlci1yaWdodDogbm9uZTsKfQ==","base64");
+var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2gtZmlsdGVyLW1lbnUgewoJcG9zaXRpb246IHJlbGF0aXZlOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1maWx0ZXItbWVudSBzdmcgewoJZmlsbDogI0VFRTsKCWhlaWdodDogMTJweDsKCW1hcmdpbi10b3A6IDFweDsKCXBvc2l0aW9uOiBhYnNvbHV0ZTsKCXRvcDogNXB4OwoJdHJhbnNpdGlvbjogZmlsbCAzNTBtczsKCXJpZ2h0OiA0cHg7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwoJd2lkdGg6IDEycHg7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLWZpbHRlci1tZW51LmFjdGl2ZSBzdmcgewoJZmlsbDogI0FBQTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtZmlsdGVyLW1lbnUgPiAuaGlyZS1pbnB1dCB7Cgl3aWR0aDogNTAlOwoJZmxvYXQ6IHJpZ2h0OwoJdHJhbnNpdGlvbjogd2lkdGggMzUwbXM7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLWZpbHRlci1tZW51LmFjdGl2ZSA+IC5oaXJlLWlucHV0IHsKCXdpZHRoOiAxMDAlOwoKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtZmlsdGVyLW1lbnUgPiAuaGlyZS1pbnB1dCA+IGlucHV0IHsKCWJvcmRlcjogMXB4IHNvbGlkICNFRUU7Cglib3gtc2l6aW5nOiBib3JkZXItYm94OwoJb3V0bGluZTogbm9uZTsKCXBhZGRpbmctbGVmdDogNHB4OwoJdHJhbnNpdGlvbjogYm9yZGVyIDM1MG1zOwoJd2lkdGg6IDEwMCU7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLWZpbHRlci1tZW51LmFjdGl2ZSA+IC5oaXJlLWlucHV0ID4gaW5wdXQgewoJYm9yZGVyOiAxcHggc29saWQgI0FBQTsKfQ==","base64");
 (0, _insertCss2["default"])(css, { prepend: true });
 
 var FilterMenu = (function (_React$Component) {
@@ -1463,7 +1838,7 @@ var FilterMenu = (function (_React$Component) {
 					onChange: this.handleInputChange.bind(this),
 					onFocus: this.handleInputFocus.bind(this),
 					value: this.state.value }),
-				_react2["default"].createElement(_iconsSearch2["default"], null)
+				_react2["default"].createElement(_iconsFilter2["default"], null)
 			);
 		}
 	}]);
@@ -1480,7 +1855,7 @@ FilterMenu.propTypes = {
 exports["default"] = FilterMenu;
 module.exports = exports["default"];
 
-},{"../icons/search":21,"classnames":"classnames","hire-forms-input":4,"insert-css":5,"react":"react"}],20:[function(_dereq_,module,exports){
+},{"../icons/filter":23,"classnames":"classnames","hire-forms-input":4,"insert-css":5,"react":"react"}],22:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1541,7 +1916,251 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],21:[function(_dereq_,module,exports){
+},{"react":"react"}],23:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = _dereq_("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var FilterIcon = (function (_React$Component) {
+	_inherits(FilterIcon, _React$Component);
+
+	function FilterIcon() {
+		_classCallCheck(this, FilterIcon);
+
+		_get(Object.getPrototypeOf(FilterIcon.prototype), "constructor", this).apply(this, arguments);
+	}
+
+	_createClass(FilterIcon, [{
+		key: "render",
+		value: function render() {
+			var title = this.props.title != null ? _react2["default"].createElement(
+				"title",
+				null,
+				this.props.title
+			) : null;
+
+			return _react2["default"].createElement(
+				"svg",
+				{ className: "hire-icon filter", viewBox: "0 0 971.986 971.986" },
+				title,
+				_react2["default"].createElement("path", { d: "M370.216,459.3c10.2,11.1,15.8,25.6,15.8,40.6v442c0,26.601,32.1,40.101,51.1,21.4l123.3-141.3 c16.5-19.8,25.6-29.601,25.6-49.2V500c0-15,5.7-29.5,15.8-40.601L955.615,75.5c26.5-28.8,6.101-75.5-33.1-75.5h-873 c-39.2,0-59.7,46.6-33.1,75.5L370.216,459.3z" })
+			);
+		}
+	}]);
+
+	return FilterIcon;
+})(_react2["default"].Component);
+
+FilterIcon.defaultProps = {};
+
+FilterIcon.propTypes = {
+	title: _react2["default"].PropTypes.string
+};
+
+exports["default"] = FilterIcon;
+module.exports = exports["default"];
+
+},{"react":"react"}],24:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = _dereq_("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var getNextState = function getNextState(prevState, ratio) {
+	console.log("gs");
+	var state = Object.keys(prevState).reduce(function (obj, currentProp) {
+		var delta = prevState[currentProp].max - prevState[currentProp].min;
+
+		var direction = prevState[currentProp].forward ? 1 : -1;
+
+		var begin = prevState[currentProp].forward ? prevState[currentProp].min : prevState[currentProp].max;
+
+		var current = begin + delta * ratio * direction;
+
+		var nextState = {
+			current: current
+		};
+
+		var forwardPassedEnd = prevState[currentProp].forward && nextState.current > prevState[currentProp].max;
+		var backwardPassedBegin = !prevState[currentProp].forward && nextState.current < prevState[currentProp].min;
+
+		if (forwardPassedEnd || backwardPassedBegin) {
+			nextState.forward = !prevState[currentProp].forward;
+		}
+
+		obj[currentProp] = _extends({}, prevState[currentProp], nextState);
+
+		return obj;
+	}, {});
+
+	return state;
+};
+
+var LoaderThreeDots = (function (_React$Component) {
+	_inherits(LoaderThreeDots, _React$Component);
+
+	function LoaderThreeDots(props) {
+		_classCallCheck(this, LoaderThreeDots);
+
+		_get(Object.getPrototypeOf(LoaderThreeDots.prototype), "constructor", this).call(this, props);
+
+		this.start = null;
+
+		var radiusDefaults = {
+			max: 12,
+			forward: true,
+			min: 9
+		};
+
+		var opacityDefaults = {
+			forward: true,
+			max: 1,
+			min: 0.3
+		};
+
+		this.state = {
+			circle1: {
+				opacity: _extends({}, opacityDefaults, {
+					current: 1,
+					forward: false
+				}),
+				radius: _extends({}, radiusDefaults, {
+					current: 15,
+					forward: false
+				})
+			},
+			circle2: {
+				opacity: _extends({}, opacityDefaults, {
+					current: 0.3
+				}),
+				radius: _extends({}, radiusDefaults, {
+					current: 9
+				})
+			},
+			circle3: {
+				opacity: _extends({}, opacityDefaults, {
+					current: 1,
+					forward: false
+				}),
+				radius: _extends({}, radiusDefaults, {
+					current: 15,
+					forward: false
+				})
+			}
+		};
+	}
+
+	_createClass(LoaderThreeDots, [{
+		key: "componentDidMount",
+		value: function componentDidMount() {
+			this.mounted = true;
+			window.requestAnimationFrame(this.step.bind(this));
+		}
+	}, {
+		key: "componentWillUnmount",
+		value: function componentWillUnmount() {
+			this.mounted = false;
+		}
+	}, {
+		key: "step",
+		value: function step(timestamp) {
+			if (!this.mounted) {
+				return;
+			}
+
+			if (this.start == null) {
+				this.start = timestamp;
+			}
+
+			var progress = timestamp - this.start;
+			var ratio = progress / 800;
+
+			this.setState({
+				circle1: getNextState(this.state.circle1, ratio),
+				circle2: getNextState(this.state.circle2, ratio),
+				circle3: getNextState(this.state.circle3, ratio)
+			});
+
+			if (ratio > 1) {
+				this.start = null;
+			}
+
+			window.requestAnimationFrame(this.step.bind(this));
+		}
+	}, {
+		key: "render",
+		value: function render() {
+			return _react2["default"].createElement(
+				"svg",
+				{
+					className: this.props.className,
+					fill: "#fff",
+					height: "30",
+					viewBox: "0 0 120 30",
+					width: "120" },
+				_react2["default"].createElement("circle", {
+					cx: "15",
+					cy: "15",
+					r: this.state.circle1.radius.current,
+					fillOpacity: this.state.circle1.opacity.current }),
+				_react2["default"].createElement("circle", {
+					cx: "60",
+					cy: "15",
+					r: this.state.circle2.radius.current,
+					fillOpacity: this.state.circle2.opacity.current }),
+				_react2["default"].createElement("circle", {
+					cx: "105",
+					cy: "15",
+					r: this.state.circle3.radius.current,
+					fillOpacity: this.state.circle3.opacity.current })
+			);
+		}
+	}]);
+
+	return LoaderThreeDots;
+})(_react2["default"].Component);
+
+LoaderThreeDots.PropTypes = {
+	className: _react2["default"].PropTypes.string
+};
+
+exports["default"] = LoaderThreeDots;
+module.exports = exports["default"];
+
+},{"react":"react"}],25:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1601,7 +2220,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],22:[function(_dereq_,module,exports){
+},{"react":"react"}],26:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1672,7 +2291,7 @@ SortAlphabeticallyAscending.propTypes = {
 exports["default"] = SortAlphabeticallyAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],23:[function(_dereq_,module,exports){
+},{"react":"react"}],27:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1743,7 +2362,7 @@ SortAlphabeticallyDescending.propTypes = {
 exports["default"] = SortAlphabeticallyDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],24:[function(_dereq_,module,exports){
+},{"react":"react"}],28:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1812,7 +2431,7 @@ SortCountAscending.propTypes = {
 exports["default"] = SortCountAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],25:[function(_dereq_,module,exports){
+},{"react":"react"}],29:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1881,7 +2500,7 @@ SortCountDescending.propTypes = {
 exports["default"] = SortCountDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],26:[function(_dereq_,module,exports){
+},{"react":"react"}],30:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1940,7 +2559,7 @@ UncheckedIcon.propTypes = {
 exports["default"] = UncheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],27:[function(_dereq_,module,exports){
+},{"react":"react"}],31:[function(_dereq_,module,exports){
 // TODO cap at 50 results if results > 200
 
 "use strict";
@@ -1967,6 +2586,10 @@ var _immutable = _dereq_("immutable");
 
 var _immutable2 = _interopRequireDefault(_immutable);
 
+var _classnames = _dereq_("classnames");
+
+var _classnames2 = _interopRequireDefault(_classnames);
+
 var _sortMenu = _dereq_("../sort-menu");
 
 var _sortMenu2 = _interopRequireDefault(_sortMenu);
@@ -1985,8 +2608,10 @@ var _insertCss2 = _interopRequireDefault(_insertCss);
 
 
 
-var css = Buffer("bGkuaGlyZS1saXN0LWZhY2V0IHsKCWJhY2tncm91bmQtY29sb3I6IHdoaXRlOwoJbWFyZ2luLXRvcDogMjBweDsKCXBhZGRpbmc6IDIwcHggMCAwIDIwcHg7Cn0KCmxpLmhpcmUtbGlzdC1mYWNldCA+IGhlYWRlciA+IGgzLApsaS5oaXJlLWxpc3QtZmFjZXQgPiBoZWFkZXIgPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1maWx0ZXItbWVudSB7CglkaXNwbGF5OiBpbmxpbmUtYmxvY2s7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwoJYm94LXNpemluZzogYm9yZGVyLWJveDsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gaGVhZGVyID4gaDMgewoJbWFyZ2luOiAwIDAgMTJweCAwOwoJcGFkZGluZzogMDsKCXdpZHRoOiA2MCU7Cn0KbGkuaGlyZS1saXN0LWZhY2V0ID4gaGVhZGVyID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtZmlsdGVyLW1lbnUgewoJd2lkdGg6IDQwJTsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgewoJbWF4LWhlaWdodDogMzAwcHg7CglwYWRkaW5nLWJvdHRvbTogMjBweDsKCW92ZXJmbG93LXk6IHNjcm9sbDsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtIHsKCWN1cnNvcjogcG9pbnRlcjsKCXBvc2l0aW9uOiByZWxhdGl2ZTsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5uby1vcHRpb25zLWZvdW5kIHsKCWNvbG9yOiAjQUFBOwoJZm9udC1zaXplOiAwLjhlbTsKCWZvbnQtc3R5bGU6IGl0YWxpYzsKCW1hcmdpbjogMjBweCAwOwp9CgpsaS5oaXJlLWxpc3QtZmFjZXQgPiB1bCA+IGxpLmhpcmUtbGlzdC1mYWNldC1saXN0LWl0ZW0gPiBzdmcsCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkuaGlyZS1saXN0LWZhY2V0LWxpc3QtaXRlbSA+IGxhYmVsLApsaS5oaXJlLWxpc3QtZmFjZXQgPiB1bCA+IGxpLmhpcmUtbGlzdC1mYWNldC1saXN0LWl0ZW0gPiBzcGFuLmNvdW50IHsKCWJveC1zaXppbmc6IGJvcmRlci1ib3g7CglkaXNwbGF5OiBpbmxpbmUtYmxvY2s7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwp9CgpsaS5oaXJlLWxpc3QtZmFjZXQgPiB1bCA+IGxpLmhpcmUtbGlzdC1mYWNldC1saXN0LWl0ZW0gc3ZnLnVuY2hlY2tlZCwKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtIHN2Zy5jaGVja2VkIHsKCWhlaWdodDogMTJweDsKCWZpbGw6ICNBQUE7CgltYXJnaW4tdG9wOiA1cHg7Cgl3aWR0aDogMTJweDsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtIGxhYmVsIHsKCWN1cnNvcjogcG9pbnRlcjsKCXBhZGRpbmc6IDAgNHB4OwoJd2lkdGg6IGNhbGMoMTAwJSAtIDQ0cHgpOwp9CgpsaS5oaXJlLWxpc3QtZmFjZXQgPiB1bCA+IGxpLmhpcmUtbGlzdC1mYWNldC1saXN0LWl0ZW0gPiBzcGFuLmNvdW50IHsKCXRleHQtYWxpZ246IHJpZ2h0OwoJd2lkdGg6IDMycHg7Cn0KCgovKgkJCWxpCgkJCQlwb3NpdGlvbiByZWxhdGl2ZQoJCQkJY3Vyc29yIHBvaW50ZXIKCgkJCQkmOmhvdmVyCgkJCQkJYmFja2dyb3VuZC1jb2xvciB3d1llbGxvdwoKCQkJCWxhYmVsCgkJCQkJY3Vyc29yIHBvaW50ZXIKCQkJCQltYXgtd2lkdGggY2FsYygxMDAlIC0gNnB4KQoKCQkJCXNwYW4uY291bnQKCQkJCQlwb3NpdGlvbiBhYnNvbHV0ZQoJCQkJCXJpZ2h0IDZweCov","base64");
+var css = Buffer("bGkuaGlyZS1saXN0LWZhY2V0IHsKCWJhY2tncm91bmQtY29sb3I6IHdoaXRlOwoJbWFyZ2luLXRvcDogMjBweDsKCXBhZGRpbmc6IDIwcHggMjBweCAyMHB4IDIwcHg7Cn0KCmxpLmhpcmUtbGlzdC1mYWNldC5zaG93LWFsbCB7CglwYWRkaW5nOiAyMHB4IDAgMCAyMHB4Owp9CgpsaS5oaXJlLWxpc3QtZmFjZXQuc2hvdy1hbGwgPiBoZWFkZXIgewoJcGFkZGluZy1yaWdodDogMjBweDsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gaGVhZGVyID4gaDMsCmxpLmhpcmUtbGlzdC1mYWNldCA+IGhlYWRlciA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLWZpbHRlci1tZW51IHsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCXZlcnRpY2FsLWFsaWduOiB0b3A7Cglib3gtc2l6aW5nOiBib3JkZXItYm94Owp9CgpsaS5oaXJlLWxpc3QtZmFjZXQgPiBoZWFkZXIgPiBoMyB7CgltYXJnaW46IDAgMCAxMnB4IDA7CglwYWRkaW5nOiAwOwoJd2lkdGg6IDYwJTsKfQpsaS5oaXJlLWxpc3QtZmFjZXQgPiBoZWFkZXIgPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1maWx0ZXItbWVudSB7Cgl3aWR0aDogNDAlOwp9CgpsaS5oaXJlLWxpc3QtZmFjZXQgPiB1bCB7CgltYXgtaGVpZ2h0OiAyNjRweDsKfQoKbGkuaGlyZS1saXN0LWZhY2V0LnNob3ctYWxsID4gdWwgewoJLypoZWlnaHQ6IGF1dG87Ki8KCW1heC1oZWlnaHQ6IDMxNnB4OyAvKiAyNjRweCAodWwuaGVpZ2h0KSArIDE2cHggKGJ1dHRvbi5saW5lSGVpZ2h0KSArIDE2cHggKGJ1dHRvbi5wYWRkaW5nVG9wICsgMjBweCAoLmhpcmUtbGlzdC1mYWNldC5wYWRkaW5nQm90dG9tKSAqLwoJb3ZlcmZsb3cteTogc2Nyb2xsOwp9CgpsaS5oaXJlLWxpc3QtZmFjZXQgPiBidXR0b24gewoJYmFja2dyb3VuZDogbm9uZTsKCWJvcmRlcjogbm9uZTsKCWNvbG9yOiAjQUFBOwoJY3Vyc29yOiBwb2ludGVyOwoJZm9udC1zaXplOiAwLjhlbTsKCWZvbnQtc3R5bGU6IGl0YWxpYzsKCWxpbmUtaGVpZ2h0OiAxNnB4OwoJbWFyZ2luOiAwOwoJb3V0bGluZTogbm9uZTsKCXBhZGRpbmc6IDE2cHggMCAwIDA7Cn0KCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkuaGlyZS1saXN0LWZhY2V0LWxpc3QtaXRlbSB7CgljdXJzb3I6IHBvaW50ZXI7Cglwb3NpdGlvbjogcmVsYXRpdmU7Cn0KCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkubm8tb3B0aW9ucy1mb3VuZCB7Cgljb2xvcjogI0FBQTsKCWZvbnQtc2l6ZTogMC44ZW07Cglmb250LXN0eWxlOiBpdGFsaWM7CgltYXJnaW46IDIwcHggMDsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtID4gc3ZnLApsaS5oaXJlLWxpc3QtZmFjZXQgPiB1bCA+IGxpLmhpcmUtbGlzdC1mYWNldC1saXN0LWl0ZW0gPiBsYWJlbCwKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtID4gc3Bhbi5jb3VudCB7Cglib3gtc2l6aW5nOiBib3JkZXItYm94OwoJZGlzcGxheTogaW5saW5lLWJsb2NrOwoJdmVydGljYWwtYWxpZ246IHRvcDsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtIHN2Zy51bmNoZWNrZWQsCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkuaGlyZS1saXN0LWZhY2V0LWxpc3QtaXRlbSBzdmcuY2hlY2tlZCB7CgloZWlnaHQ6IDEycHg7CglmaWxsOiAjQUFBOwoJbWFyZ2luLXRvcDogNXB4OwoJd2lkdGg6IDEycHg7Cn0KCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkuaGlyZS1saXN0LWZhY2V0LWxpc3QtaXRlbSBsYWJlbCB7CgljdXJzb3I6IHBvaW50ZXI7CglvdmVyZmxvdy14OiBoaWRkZW47CglwYWRkaW5nOiAwIDRweDsKCXRleHQtb3ZlcmZsb3c6IGVsbGlwc2lzOwoJd2hpdGUtc3BhY2U6IG5vd3JhcDsKCXdpZHRoOiBjYWxjKDEwMCUgLSA0NHB4KTsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtID4gc3Bhbi5jb3VudCB7Cgl0ZXh0LWFsaWduOiByaWdodDsKCXdpZHRoOiAzMnB4Owp9CgoKLyoJCQlsaQoJCQkJcG9zaXRpb24gcmVsYXRpdmUKCQkJCWN1cnNvciBwb2ludGVyCgoJCQkJJjpob3ZlcgoJCQkJCWJhY2tncm91bmQtY29sb3Igd3dZZWxsb3cKCgkJCQlsYWJlbAoJCQkJCWN1cnNvciBwb2ludGVyCgkJCQkJbWF4LXdpZHRoIGNhbGMoMTAwJSAtIDZweCkKCgkJCQlzcGFuLmNvdW50CgkJCQkJcG9zaXRpb24gYWJzb2x1dGUKCQkJCQlyaWdodCA2cHgqLw==","base64");
 (0, _insertCss2["default"])(css, { prepend: true });
+
+var initSize = 12;
 
 var ListFacet = (function (_React$Component) {
 	_inherits(ListFacet, _React$Component);
@@ -1998,11 +2623,19 @@ var ListFacet = (function (_React$Component) {
 
 		this.state = {
 			currentSort: _sortMenu2["default"].sortFunctions[_sortMenu2["default"].defaultSort],
-			filterQuery: ""
+			filterQuery: "",
+			showAll: false
 		};
 	}
 
 	_createClass(ListFacet, [{
+		key: "handleButtonClick",
+		value: function handleButtonClick() {
+			this.setState({
+				showAll: true
+			});
+		}
+	}, {
 		key: "handleSortMenuChange",
 		value: function handleSortMenuChange(funcName) {
 			this.setState({
@@ -2045,7 +2678,9 @@ var ListFacet = (function (_React$Component) {
 				}
 			}
 
-			var listItems = options.map(function (option, index) {
+			var optionsToRender = this.state.showAll ? options : options.take(initSize);
+
+			var listItems = optionsToRender.map(function (option, index) {
 				return _react2["default"].createElement(_listItem2["default"], {
 					count: option.get("count"),
 					checked: _this.props.selectedValues.contains(option.get("name")),
@@ -2065,9 +2700,19 @@ var ListFacet = (function (_React$Component) {
 			var title = this.props.data.get("title");
 			var facetTitle = this.props.i18n.facetTitles.hasOwnProperty(title) ? this.props.i18n.facetTitles[title] : title;
 
+			var moreButton = !this.state.showAll && options.size > initSize ? _react2["default"].createElement(
+				"button",
+				{ onClick: this.handleButtonClick.bind(this) },
+				this.props.i18n.hasOwnProperty("Show all") ? this.props.i18n["Show all"] : "Show all",
+				" (",
+				options.size,
+				")"
+			) : null;
+
 			return _react2["default"].createElement(
 				"li",
-				{ className: "hire-facet hire-list-facet" },
+				{
+					className: (0, _classnames2["default"])("hire-facet", "hire-list-facet", { "show-all": this.state.showAll }) },
 				_react2["default"].createElement(
 					"header",
 					null,
@@ -2083,7 +2728,8 @@ var ListFacet = (function (_React$Component) {
 					"ul",
 					null,
 					listItems
-				)
+				),
+				moreButton
 			);
 		}
 	}]);
@@ -2100,6 +2746,7 @@ ListFacet.defaultProps = {
 ListFacet.propTypes = {
 	data: _react2["default"].PropTypes.instanceOf(_immutable2["default"].Map),
 	filterMenu: _react2["default"].PropTypes.bool,
+	i18n: _react2["default"].PropTypes.object,
 	selectedValues: _react2["default"].PropTypes.instanceOf(_immutable2["default"].List),
 	sortMenu: _react2["default"].PropTypes.bool
 };
@@ -2107,7 +2754,7 @@ ListFacet.propTypes = {
 exports["default"] = ListFacet;
 module.exports = exports["default"];
 
-},{"../filter-menu":19,"../sort-menu":36,"./list-item":28,"immutable":"immutable","insert-css":5,"react":"react"}],28:[function(_dereq_,module,exports){
+},{"../filter-menu":21,"../sort-menu":39,"./list-item":32,"classnames":"classnames","immutable":"immutable","insert-css":5,"react":"react"}],32:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2186,7 +2833,7 @@ var ListFacetListItem = (function (_React$Component) {
 				icon,
 				_react2["default"].createElement(
 					"label",
-					null,
+					{ title: this.props.name },
 					this.props.name
 				),
 				_react2["default"].createElement(
@@ -2218,7 +2865,7 @@ ListFacetListItem.propTypes = {
 exports["default"] = ListFacetListItem;
 module.exports = exports["default"];
 
-},{"../../actions/queries":15,"../icons/checked":20,"../icons/unchecked":26,"react":"react"}],29:[function(_dereq_,module,exports){
+},{"../../actions/queries":17,"../icons/checked":22,"../icons/unchecked":30,"react":"react"}],33:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2286,7 +2933,7 @@ FacetValue.propTypes = {
 exports["default"] = FacetValue;
 module.exports = exports["default"];
 
-},{"../../../../actions/queries":15,"react":"react"}],30:[function(_dereq_,module,exports){
+},{"../../../../actions/queries":17,"react":"react"}],34:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2416,7 +3063,7 @@ CurrentQuery.propTypes = {
 exports["default"] = CurrentQuery;
 module.exports = exports["default"];
 
-},{"../../../actions/queries":15,"./facet-value":29,"immutable":"immutable","insert-css":5,"react":"react"}],31:[function(_dereq_,module,exports){
+},{"../../../actions/queries":17,"./facet-value":33,"immutable":"immutable","insert-css":5,"react":"react"}],35:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2438,6 +3085,10 @@ var _react = _dereq_("react");
 var _react2 = _interopRequireDefault(_react);
 
 var _immutable = _dereq_("immutable");
+
+var _lodashDebounce = _dereq_("lodash.debounce");
+
+var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
 
 var _result = _dereq_("./result");
 
@@ -2455,9 +3106,15 @@ var _currentQuery = _dereq_("./current-query");
 
 var _currentQuery2 = _interopRequireDefault(_currentQuery);
 
-var _pagination = _dereq_("./pagination");
+// import Pagination from "./pagination";
 
-var _pagination2 = _interopRequireDefault(_pagination);
+var _iconsLoaderThreeDots = _dereq_("../icons/loader-three-dots");
+
+var _iconsLoaderThreeDots2 = _interopRequireDefault(_iconsLoaderThreeDots);
+
+var _actionsResults = _dereq_("../../actions/results");
+
+var _actionsResults2 = _interopRequireDefault(_actionsResults);
 
 var _insertCss = _dereq_("insert-css");
 
@@ -2465,30 +3122,84 @@ var _insertCss2 = _interopRequireDefault(_insertCss);
 
 
 
-var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciB7CgltYXJnaW4tYm90dG9tOiAyMHB4OwoJYm9yZGVyLWJvdHRvbTogMXB4IHNvbGlkICNBQUE7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiBoZWFkZXIgPiBoMywKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMtc29ydC1tZW51LAouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gaGVhZGVyID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1yb3dzIHsKCWJveC1zaXppbmc6IGJvcmRlci1ib3g7CglkaXNwbGF5OiBpbmxpbmUtYmxvY2s7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gaGVhZGVyID4gaDMgewoJbWFyZ2luLXRvcDogMDsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMtc29ydC1tZW51LAouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gaGVhZGVyID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1yb3dzIHsKCW1hcmdpbi1sZWZ0OiAyMHB4Owp9CgoKCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiB1bCA+IGxpIHsKCWN1cnNvcjogcG9pbnRlcjsKCW1hcmdpbi1ib3R0b206IDIwcHg7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiB1bCA+IGxpID4gbGFiZWwgewoJY3Vyc29yOiBwb2ludGVyOwoJZm9udC1zaXplOiAxLjFlbTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IHVsID4gbGkgPiB1bC5tZXRhZGF0YSB7Cgljb2xvcjogIzg4ODsKCWZvbnQtc2l6ZTogMC43ZW07Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiB1bCA+IGxpID4gdWwubWV0YWRhdGEgPiBsaSA+IGxhYmVsIHsKCWJveC1zaXppbmc6IGJvcmRlci1ib3g7CglkaXNwbGF5OiBpbmxpbmUtYmxvY2s7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwoJd2lkdGg6IDE1MHB4Owp9","base64");
+var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciB7CgltYXJnaW4tYm90dG9tOiAyMHB4OwoJYm9yZGVyLWJvdHRvbTogMXB4IHNvbGlkICNBQUE7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiBoZWFkZXIgPiBoMywKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMtc29ydC1tZW51LAouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gaGVhZGVyID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1yb3dzIHsKCWJveC1zaXppbmc6IGJvcmRlci1ib3g7CglkaXNwbGF5OiBpbmxpbmUtYmxvY2s7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gaGVhZGVyID4gaDMgewoJbWFyZ2luLXRvcDogMDsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMtc29ydC1tZW51LAouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gaGVhZGVyID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1yb3dzIHsKCW1hcmdpbi1sZWZ0OiAyMHB4Owp9CgoKCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiB1bCA+IGxpIHsKCWN1cnNvcjogcG9pbnRlcjsKCW1hcmdpbi1ib3R0b206IDIwcHg7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiB1bCA+IGxpID4gbGFiZWwgewoJY3Vyc29yOiBwb2ludGVyOwoJZm9udC1zaXplOiAxLjFlbTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IHVsID4gbGkgPiB1bC5tZXRhZGF0YSB7Cgljb2xvcjogIzg4ODsKCWZvbnQtc2l6ZTogMC43ZW07Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiB1bCA+IGxpID4gdWwubWV0YWRhdGEgPiBsaSA+IGxhYmVsIHsKCWJveC1zaXppbmc6IGJvcmRlci1ib3g7CglkaXNwbGF5OiBpbmxpbmUtYmxvY2s7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwoJd2lkdGg6IDE1MHB4Owp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzIHN2Zy5sb2FkZXIgewoJcGFkZGluZzogNjBweCAwIDQwcHggMDsKCXdpZHRoOiAxMDAlCn0=","base64");
 (0, _insertCss2["default"])(css, { prepend: true });
+
+var inViewport = function inViewport(el) {
+	var rect = el.getBoundingClientRect();
+
+	return rect.bottom <= (window.innerHeight || document.documentElement.clientHeight);
+};
 
 var Results = (function (_React$Component) {
 	_inherits(Results, _React$Component);
 
-	function Results() {
+	function Results(props) {
 		_classCallCheck(this, Results);
 
-		_get(Object.getPrototypeOf(Results.prototype), "constructor", this).apply(this, arguments);
+		_get(Object.getPrototypeOf(Results.prototype), "constructor", this).call(this, props);
+
+		this.onScroll = (0, _lodashDebounce2["default"])(this.onScroll, 300).bind(this);
+
+		this.state = {
+			results: this.dataToComponents(this.props.facetData.get("results"))
+		};
 	}
 
 	_createClass(Results, [{
-		key: "render",
-		value: function render() {
+		key: "componentDidMount",
+		value: function componentDidMount() {
+			window.addEventListener("scroll", this.onScroll);
+		}
+	}, {
+		key: "componentWillReceiveProps",
+		value: function componentWillReceiveProps(nextProps) {
+			if (this.props.facetData.get("start") + this.props.rows === nextProps.facetData.get("start")) {
+				var nextResults = this.dataToComponents(nextProps.facetData.get("results"));
+
+				this.setState({
+					results: this.state.results.concat(nextResults)
+				});
+
+				window.addEventListener("scroll", this.onScroll);
+			}
+		}
+	}, {
+		key: "componentWillUnmount",
+		value: function componentWillUnmount() {
+			window.removeEventListener("scroll", this.onScroll);
+		}
+	}, {
+		key: "onScroll",
+		value: function onScroll(ev) {
+			var nth = this.state.results.size - this.props.rows + 1;
+
+			var listItem = _react2["default"].findDOMNode(this).querySelector(".hire-faceted-search-result-list > li:nth-child(" + nth + ")");
+
+			if (this.props.facetData.has("_next") && inViewport(listItem)) {
+				var url = this.props.facetData.get("_next").replace("draft//api", "draft/api");
+				_actionsResults2["default"].getResultsFromUrl(url);
+
+				window.removeEventListener("scroll", this.onScroll);
+			}
+		}
+	}, {
+		key: "dataToComponents",
+		value: function dataToComponents(results) {
 			var _this = this;
 
-			var results = this.props.facetData.get("results").map(function (data, index) {
+			return results.map(function (data, index) {
 				return _react2["default"].createElement(_result2["default"], {
 					data: data,
 					i18n: _this.props.i18n,
-					key: index,
+					key: index + Math.random(),
 					onSelect: _this.props.onSelect });
 			});
+		}
+	}, {
+		key: "render",
+		value: function render() {
+			var loader = this.props.facetData.get("numFound") > this.state.results.size ? _react2["default"].createElement(_iconsLoaderThreeDots2["default"], { className: "loader" }) : null;
 
 			return _react2["default"].createElement(
 				"div",
@@ -2506,19 +3217,17 @@ var Results = (function (_React$Component) {
 					_react2["default"].createElement(_sortMenu2["default"], {
 						i18n: this.props.i18n,
 						values: this.props.query.get("sortParameters") }),
-					_react2["default"].createElement(_rows2["default"], {
-						rows: this.props.rows }),
 					_react2["default"].createElement(_currentQuery2["default"], {
 						facetData: this.props.facetData,
 						i18n: this.props.i18n,
 						values: this.props.query })
 				),
-				_react2["default"].createElement(_pagination2["default"], { facetData: this.props.facetData }),
 				_react2["default"].createElement(
 					"ul",
-					null,
-					results
-				)
+					{ className: "hire-faceted-search-result-list" },
+					this.state.results
+				),
+				loader
 			);
 		}
 	}]);
@@ -2535,101 +3244,10 @@ Results.propTypes = {
 
 exports["default"] = Results;
 module.exports = exports["default"];
+/* <ResultsRows
+rows={this.props.rows} /> */ /* <Pagination facetData={this.props.facetData} /> */
 
-},{"./current-query":30,"./pagination":32,"./result":33,"./rows":34,"./sort-menu":35,"immutable":"immutable","insert-css":5,"react":"react"}],32:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = _dereq_("react");
-
-var _react2 = _interopRequireDefault(_react);
-
-var _immutable = _dereq_("immutable");
-
-var _actionsResults = _dereq_("../../../actions/results");
-
-var _actionsResults2 = _interopRequireDefault(_actionsResults);
-
-var _insertCss = _dereq_("insert-css");
-
-var _insertCss2 = _interopRequireDefault(_insertCss);
-
-
-
-var css = Buffer("dWwuaGlyZS1mYWNldGVkLXNlYXJjaC1wYWdpbmF0aW9uID4gbGkgewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCXZlcnRpY2FsLWFsaWduOiB0b3A7Cgl3aWR0aDogNTAlOwp9Cgp1bC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXBhZ2luYXRpb24gPiBsaS5uZXh0IHsKCXRleHQtYWxpZ246IHJpZ2h0Owp9Cg==","base64");
-(0, _insertCss2["default"])(css, { prepend: true });
-
-var Pagination = (function (_React$Component) {
-	_inherits(Pagination, _React$Component);
-
-	function Pagination() {
-		_classCallCheck(this, Pagination);
-
-		_get(Object.getPrototypeOf(Pagination.prototype), "constructor", this).apply(this, arguments);
-	}
-
-	_createClass(Pagination, [{
-		key: "handleClick",
-		value: function handleClick(url) {
-			url = url.replace("draft//api", "draft/api");
-			_actionsResults2["default"].getResultsFromUrl(url);
-		}
-	}, {
-		key: "render",
-		value: function render() {
-			var prev = this.props.facetData.has("_prev") ? _react2["default"].createElement(
-				"li",
-				{
-					className: "prev",
-					onClick: this.handleClick.bind(this, this.props.facetData.get("_prev")) },
-				"Prev"
-			) : _react2["default"].createElement(
-				"li",
-				null,
-				" "
-			);
-
-			var next = this.props.facetData.has("_next") ? _react2["default"].createElement(
-				"li",
-				{
-					className: "next",
-					onClick: this.handleClick.bind(this, this.props.facetData.get("_next")) },
-				"Next"
-			) : null;
-
-			return _react2["default"].createElement(
-				"ul",
-				{ className: "hire-faceted-search-pagination" },
-				prev,
-				next
-			);
-		}
-	}]);
-
-	return Pagination;
-})(_react2["default"].Component);
-
-Pagination.propTypes = {
-	facetData: _react2["default"].PropTypes.instanceOf(_immutable.Map)
-};
-
-exports["default"] = Pagination;
-module.exports = exports["default"];
-
-},{"../../../actions/results":16,"immutable":"immutable","insert-css":5,"react":"react"}],33:[function(_dereq_,module,exports){
+},{"../../actions/results":18,"../icons/loader-three-dots":24,"./current-query":34,"./result":36,"./rows":37,"./sort-menu":38,"immutable":"immutable","insert-css":5,"lodash.debounce":6,"react":"react"}],36:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2717,7 +3335,7 @@ Result.propTypes = {};
 exports["default"] = Result;
 module.exports = exports["default"];
 
-},{"react":"react"}],34:[function(_dereq_,module,exports){
+},{"react":"react"}],37:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2807,7 +3425,7 @@ ResultsRows.propTypes = {
 exports["default"] = ResultsRows;
 module.exports = exports["default"];
 
-},{"../../../actions/config":14,"insert-css":5,"react":"react"}],35:[function(_dereq_,module,exports){
+},{"../../../actions/config":16,"insert-css":5,"react":"react"}],38:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2946,7 +3564,7 @@ ResultsSortMenu.propTypes = {
 exports["default"] = ResultsSortMenu;
 module.exports = exports["default"];
 
-},{"../../../actions/queries":15,"classnames":"classnames","immutable":"immutable","insert-css":5,"react":"react"}],36:[function(_dereq_,module,exports){
+},{"../../../actions/queries":17,"classnames":"classnames","immutable":"immutable","insert-css":5,"react":"react"}],39:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3102,7 +3720,7 @@ SortMenu.propTypes = {
 exports["default"] = SortMenu;
 module.exports = exports["default"];
 
-},{"../icons/sort-alphabetically-ascending":22,"../icons/sort-alphabetically-descending":23,"../icons/sort-count-ascending":24,"../icons/sort-count-descending":25,"classnames":"classnames","insert-css":5,"react":"react"}],37:[function(_dereq_,module,exports){
+},{"../icons/sort-alphabetically-ascending":26,"../icons/sort-alphabetically-descending":27,"../icons/sort-count-ascending":28,"../icons/sort-count-descending":29,"classnames":"classnames","insert-css":5,"react":"react"}],40:[function(_dereq_,module,exports){
 // TODO add searching class to .search-icon when async query is busy
 
 "use strict";
@@ -3228,7 +3846,7 @@ TextSearch.propTypes = {};
 exports["default"] = TextSearch;
 module.exports = exports["default"];
 
-},{"../../actions/queries":15,"../icons/search":21,"classnames":"classnames","insert-css":5,"react":"react"}],38:[function(_dereq_,module,exports){
+},{"../../actions/queries":17,"../icons/search":25,"classnames":"classnames","insert-css":5,"react":"react"}],41:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3282,7 +3900,7 @@ var AppDispatcher = (function (_Dispatcher) {
 exports["default"] = new AppDispatcher();
 module.exports = exports["default"];
 
-},{"flux":1}],39:[function(_dereq_,module,exports){
+},{"flux":1}],42:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3291,11 +3909,12 @@ Object.defineProperty(exports, "__esModule", {
 exports["default"] = {
 	facetTitles: {},
 	"Results found": "Results found",
+	"Show all": "Show all",
 	"Sort by": "Sort by"
 };
 module.exports = exports["default"];
 
-},{}],40:[function(_dereq_,module,exports){
+},{}],43:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3493,7 +4112,7 @@ FacetedSearch.propTypes = {
 exports["default"] = FacetedSearch;
 module.exports = exports["default"];
 
-},{"./actions/config":14,"./actions/queries":15,"./actions/results":16,"./components/faceted-search":18,"./components/results":31,"./components/results/sort-menu":35,"./i18n":39,"./stores/config":43,"./stores/queries":44,"./stores/results":45,"immutable":"immutable","insert-css":5,"react":"react"}],41:[function(_dereq_,module,exports){
+},{"./actions/config":16,"./actions/queries":17,"./actions/results":18,"./components/faceted-search":20,"./components/results":35,"./components/results/sort-menu":38,"./i18n":42,"./stores/config":46,"./stores/queries":47,"./stores/results":48,"immutable":"immutable","insert-css":5,"react":"react"}],44:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3575,7 +4194,7 @@ exports["default"] = {
 };
 module.exports = exports["default"];
 
-},{"../actions/server":17,"../stores/config":43,"../stores/queries":44,"xhr":7}],42:[function(_dereq_,module,exports){
+},{"../actions/server":19,"../stores/config":46,"../stores/queries":47,"xhr":9}],45:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3621,7 +4240,7 @@ var BaseStore = (function (_EventEmitter) {
 exports["default"] = BaseStore;
 module.exports = exports["default"];
 
-},{"events":6}],43:[function(_dereq_,module,exports){
+},{"events":8}],46:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3661,7 +4280,7 @@ var ConfigStore = (function (_BaseStore) {
 		_get(Object.getPrototypeOf(ConfigStore.prototype), "constructor", this).call(this);
 
 		this.data = new _immutable2["default"].Map({
-			rows: 20
+			rows: 50
 		});
 	}
 
@@ -3707,7 +4326,7 @@ configStore.dispatcherIndex = _dispatcher2["default"].register(dispatcherCallbac
 exports["default"] = configStore;
 module.exports = exports["default"];
 
-},{"../dispatcher":38,"./base":42,"immutable":"immutable"}],44:[function(_dereq_,module,exports){
+},{"../dispatcher":41,"./base":45,"immutable":"immutable"}],47:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3878,7 +4497,7 @@ queries.dispatcherIndex = _dispatcher2["default"].register(dispatcherCallback);
 exports["default"] = queries;
 module.exports = exports["default"];
 
-},{"../dispatcher":38,"./base":42,"immutable":"immutable"}],45:[function(_dereq_,module,exports){
+},{"../dispatcher":41,"./base":45,"immutable":"immutable"}],48:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3998,5 +4617,5 @@ resultsStore.dispatcherIndex = _dispatcher2["default"].register(dispatcherCallba
 exports["default"] = resultsStore;
 module.exports = exports["default"];
 
-},{"../dispatcher":38,"./base":42,"immutable":"immutable"}]},{},[40])(40)
+},{"../dispatcher":41,"./base":45,"immutable":"immutable"}]},{},[43])(43)
 });

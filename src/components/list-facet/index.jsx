@@ -2,6 +2,7 @@
 
 import React from "react";
 import Immutable from "immutable";
+import cx from "classnames";
 
 import SortMenu from "../sort-menu";
 import FilterMenu from "../filter-menu";
@@ -12,14 +13,23 @@ import insertCss from "insert-css";
 let css = fs.readFileSync(__dirname + "/index.css");
 insertCss(css, {prepend: true});
 
+const initSize = 12;
+
 class ListFacet extends React.Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
 			currentSort: SortMenu.sortFunctions[SortMenu.defaultSort],
-			filterQuery: ""
+			filterQuery: "",
+			showAll: false
 		}
+	}
+
+	handleButtonClick() {
+		this.setState({
+			showAll: true
+		});
 	}
 
 	handleSortMenuChange(funcName) {
@@ -56,7 +66,11 @@ class ListFacet extends React.Component {
 			}
 		}
 
-		let listItems = options.map((option, index) =>
+		let optionsToRender = (this.state.showAll) ?
+			options :
+			options.take(initSize);
+
+		let listItems = optionsToRender.map((option, index) =>
 			<ListItem
 				count={option.get("count")}
 				checked={this.props.selectedValues.contains(option.get("name"))}
@@ -73,16 +87,28 @@ class ListFacet extends React.Component {
 			this.props.i18n.facetTitles[title] :
 			title;
 
+		let moreButton = (!this.state.showAll && options.size > initSize) ?
+			<button onClick={this.handleButtonClick.bind(this)}>
+				{this.props.i18n.hasOwnProperty("Show all") ? this.props.i18n["Show all"] : "Show all"} ({options.size})
+			</button> :
+			null;
+
 		return (
-			<li className="hire-facet hire-list-facet">
+			<li
+				className={cx(
+					"hire-facet",
+					"hire-list-facet",
+					{"show-all": this.state.showAll}
+				)}>
 				<header>
 					<h3>{facetTitle}</h3>
 					{filterMenu}
 					{sortMenu}
 				</header>
-				<ul>
+				<ul >
 					{listItems}
 				</ul>
+				{moreButton}
 			</li>
 		);
 	}
@@ -97,6 +123,7 @@ ListFacet.defaultProps = {
 ListFacet.propTypes = {
 	data: React.PropTypes.instanceOf(Immutable.Map),
 	filterMenu: React.PropTypes.bool,
+	i18n: React.PropTypes.object,
 	selectedValues: React.PropTypes.instanceOf(Immutable.List),
 	sortMenu: React.PropTypes.bool
 };

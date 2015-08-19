@@ -19,7 +19,7 @@
 }
 
 .hire-faceted-search-filter-menu > .hire-input {
-	width: 30%;
+	width: 50%;
 	float: right;
 	transition: width 350ms;
 }
@@ -31,7 +31,6 @@
 
 .hire-faceted-search-filter-menu > .hire-input > input {
 	border: 1px solid #EEE;
-	border-right: none;
 	box-sizing: border-box;
 	outline: none;
 	padding-left: 4px;
@@ -41,5 +40,4 @@
 
 .hire-faceted-search-filter-menu.active > .hire-input > input {
 	border: 1px solid #AAA;
-	border-right: none;
 }

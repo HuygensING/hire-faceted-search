@@ -2,7 +2,7 @@ import React from "react";
 import cx from "classnames";
 
 import Input from "hire-forms-input";
-import SearchIcon from "../icons/search";
+import FilterIcon from "../icons/filter";
 
 let fs = require("fs");
 import insertCss from "insert-css";
@@ -50,7 +50,7 @@ class FilterMenu extends React.Component {
 					onChange={this.handleInputChange.bind(this)}
 					onFocus={this.handleInputFocus.bind(this)}
 					value={this.state.value} />
-				<SearchIcon />
+				<FilterIcon />
 			</div>
 		);
 	}

@@ -43,3 +43,8 @@
 	vertical-align: top;
 	width: 150px;
 }
+
+.hire-faceted-search-results svg.loader {
+	padding: 60px 0 40px 0;
+	width: 100%
+}

@@ -41,7 +41,7 @@ class ListFacetListItem extends React.Component {
 				className="hire-list-facet-list-item"
 				onClick={this.handleClick.bind(this)}>
 				{icon}
-				<label>{this.props.name}</label>
+				<label title={this.props.name}>{this.props.name}</label>
 				<span className="count">{this.props.count}</span>
 			</li>
 		);
