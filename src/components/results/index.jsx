@@ -39,14 +39,21 @@ class Results extends React.Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		if (this.props.facetData.get("start") + this.props.rows === nextProps.facetData.get("start")) {
+		let nextPage = this.props.facetData.get("start") + this.props.rows === nextProps.facetData.get("start");
+		let otherQuery = this.props.query !== nextProps.query;
+
+		if (nextPage || otherQuery) {
 			let nextResults = this.dataToComponents(nextProps.facetData.get("results"));
 
-			this.setState({
-				results: this.state.results.concat(nextResults)
-			});
+			if (nextPage) {
+				nextResults = this.state.results.concat(nextResults)
 
-			window.addEventListener("scroll", this.onScroll);
+				window.addEventListener("scroll", this.onScroll);
+			}
+
+			this.setState({
+				results: nextResults
+			});
 		}
 	}
 

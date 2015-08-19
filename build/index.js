@@ -3153,14 +3153,21 @@ var Results = (function (_React$Component) {
 	}, {
 		key: "componentWillReceiveProps",
 		value: function componentWillReceiveProps(nextProps) {
-			if (this.props.facetData.get("start") + this.props.rows === nextProps.facetData.get("start")) {
+			var nextPage = this.props.facetData.get("start") + this.props.rows === nextProps.facetData.get("start");
+			var otherQuery = this.props.query !== nextProps.query;
+
+			if (nextPage || otherQuery) {
 				var nextResults = this.dataToComponents(nextProps.facetData.get("results"));
 
-				this.setState({
-					results: this.state.results.concat(nextResults)
-				});
+				if (nextPage) {
+					nextResults = this.state.results.concat(nextResults);
 
-				window.addEventListener("scroll", this.onScroll);
+					window.addEventListener("scroll", this.onScroll);
+				}
+
+				this.setState({
+					results: nextResults
+				});
 			}
 		}
 	}, {
@@ -3986,7 +3993,7 @@ var _insertCss2 = _interopRequireDefault(_insertCss);
 
 
 
-var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2ggewoJd2lkdGg6IDEwMCU7CglwYWRkaW5nOiA1JTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1mYWNldHMsCi5oaXJlLWZhY2V0ZWQtc2VhcmNoID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyB7CglkaXNwbGF5OiBpbmxpbmUtYmxvY2s7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwoJYm94LXNpemluZzogYm9yZGVyLWJveDsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1mYWNldHMgewoJd2lkdGg6IDM1JTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzIHsKCXBhZGRpbmctbGVmdDogNSU7Cgl3aWR0aDogNjAlOwp9","base64");
+var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2ggewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCXBhZGRpbmc6IDUlOwoJd2lkdGg6IDEwMCU7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtZmFjZXRzLAouaGlyZS1mYWNldGVkLXNlYXJjaCA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCXZlcnRpY2FsLWFsaWduOiB0b3A7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtZmFjZXRzIHsKCXdpZHRoOiAzNSU7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyB7CglwYWRkaW5nLWxlZnQ6IDUlOwoJd2lkdGg6IDYwJTsKfQ==","base64");
 (0, _insertCss2["default"])(css, { prepend: true });
 
 var FacetedSearch = (function (_React$Component) {
