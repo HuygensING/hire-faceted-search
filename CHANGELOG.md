@@ -1,3 +1,6 @@
+### v1.6.1	(2015/8/19 14:37)
+* Remove console.log
+
 ### v1.6.0	(2015/8/19 14:36)
 * Add i18n and infinite scroll
 
