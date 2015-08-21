@@ -1,48 +1,58 @@
-import dispatcher from "../dispatcher";
+import {fetchResults} from "./results";
 
-let queriesActions = {
-	setDefaults(props) {
-		dispatcher.handleViewAction({
-			actionType: "QUERIES_SET_DEFAULTS",
-			props: props,
-		});
-	},
+export function createNewQuery(dispatchData) {
+	return function (dispatch) {
+		dispatch(dispatchData);
 
-	setSortParameter(field) {
-		dispatcher.handleViewAction({
-			actionType: "QUERIES_SET_SORT_PARAMETER",
-			field: field,
-		});
-	},
+		dispatch(fetchResults());
+	};
+}
 
-	add(facetName, value) {
-		dispatcher.handleViewAction({
-			actionType: "QUERIES_ADD",
-			facetName: facetName,
-			value: value
-		});
-	},
+// import dispatcher from "../dispatcher";
 
-	remove(facetName, value) {
-		dispatcher.handleViewAction({
-			actionType: "QUERIES_REMOVE",
-			facetName: facetName,
-			value: value
-		});
-	},
+// let queriesActions = {
+// 	setDefaults(props) {
+// 		dispatcher.handleViewAction({
+// 			actionType: "QUERIES_SET_DEFAULTS",
+// 			props: props
+// 		});
+// 	},
 
-	reset() {
-		dispatcher.handleViewAction({
-			actionType: "QUERIES_RESET"
-		});
-	},
+// 	setSortParameter(field) {
+// 		dispatcher.handleViewAction({
+// 			actionType: "QUERIES_SET_SORT_PARAMETER",
+// 			field: field
+// 		});
+// 	},
 
-	changeSearchTerm(value) {
-		dispatcher.handleViewAction({
-			actionType: "QUERIES_CHANGE_SEARCH_TERM",
-			value: value
-		});
-	}
-};
+// 	add(facetName, value) {
+// 		dispatcher.handleViewAction({
+// 			actionType: "QUERIES_ADD",
+// 			facetName: facetName,
+// 			value: value
+// 		});
+// 	},
 
-export default queriesActions;
+// 	remove(facetName, value) {
+// 		dispatcher.handleViewAction({
+// 			actionType: "QUERIES_REMOVE",
+// 			facetName: facetName,
+// 			value: value
+// 		});
+// 	},
+
+// 	reset() {
+// 		dispatcher.handleViewAction({
+// 			actionType: "QUERIES_RESET"
+// 		});
+// 	},
+
+// 	changeSearchTerm(value) {
+// 		dispatcher.handleViewAction({
+// 			actionType: "QUERIES_CHANGE_SEARCH_TERM",
+// 			value: value
+// 		});
+// 	}
+// };
+
+// export default queriesActions;

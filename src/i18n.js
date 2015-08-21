@@ -1,6 +1,6 @@
 export default {
 	facetTitles: {},
-	"Results found": "Results found",
-	"Show all": "Show all",
-	"Sort by": "Sort by"
+	"resultsFound": "Results found",
+	"showAll": "Show all",
+	"sortBy": "Sort by"
 };

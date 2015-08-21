@@ -1,9 +1,13 @@
 import {combineReducers} from "redux";
 
-import queries from "./queries";
 import config from "./config";
+import labels from "./labels";
+import queries from "./queries";
+import results from "./results";
 
 export default combineReducers({
 	config: config,
-	queries: queries
+	labels: labels,
+	queries: queries,
+	results: results
 });

@@ -1,8 +1,8 @@
 import React from "react";
-import {List, Map} from "immutable";
+// import {List, Map} from "immutable";
 import cx from "classnames";
 
-import queriesActions from "../../../actions/queries";
+// import queriesActions from "../../../actions/queries";
 
 let fs = require("fs");
 import insertCss from "insert-css";
@@ -16,14 +16,14 @@ class ResultsSortMenu extends React.Component {
 
 		this.state = {
 			optionsVisible: false,
-			level: this.props.values.first()
+			level: props.values.length ? props.values[0] : null
 		};
 	}
 
 	componentWillReceiveProps(nextProps) {
 		this.setState({
 			optionsVisible: false,
-			level: nextProps.values.first()
+			level: nextProps.values.length ? nextProps.values[0] : null
 		});
 	}
 
@@ -33,8 +33,9 @@ class ResultsSortMenu extends React.Component {
 		});
 	}
 
-	handleOptionClick(level, ev) {
-		queriesActions.setSortParameter(level.get("fieldname"));
+	handleOptionClick(level) {
+		// queriesActions.setSortParameter(level.fieldname);
+		this.props.onSetSort(level.fieldname);
 
 		this.setState({
 			optionsVisible: false,
@@ -42,14 +43,14 @@ class ResultsSortMenu extends React.Component {
 		});
 	}
 
-	toI18n(name) {
-		return (this.props.i18n.facetTitles.hasOwnProperty(name)) ?
-			this.props.i18n.facetTitles[name] :
+	toLabel(name) {
+		return (this.props.labels.facetTitles.hasOwnProperty(name)) ?
+			this.props.labels.facetTitles[name] :
 			name;
 	}
 
 	render() {
-		if (this.props.values.isEmpty()) {
+		if (!this.props.values.length) {
 			return null;
 		}
 
@@ -57,7 +58,7 @@ class ResultsSortMenu extends React.Component {
 			<li
 				key={index}
 				onClick={this.handleOptionClick.bind(this, level)}>
-				{this.toI18n(level.get("fieldname"))}
+				{this.toLabel(level.fieldname)}
 			</li>
 		);
 
@@ -65,7 +66,7 @@ class ResultsSortMenu extends React.Component {
 			<div className="hire-faceted-search-results-sort-menu">
 				<button
 					onClick={this.handleButtonClick.bind(this)}>
-					{this.props.i18n["Sort by"]}: {this.toI18n(this.state.level.get("fieldname"))}
+					{this.props.labels.sortBy}: {this.toLabel(this.state.level.fieldname)}
 				</button>
 				<ul
 					className={cx({visible: this.state.optionsVisible})}>
@@ -77,12 +78,12 @@ class ResultsSortMenu extends React.Component {
 }
 
 ResultsSortMenu.defaultProps = {
-	values: new List()
 };
 
 ResultsSortMenu.propTypes = {
-	i18n: React.PropTypes.object,
-	values: React.PropTypes.instanceOf(List)
+	labels: React.PropTypes.object,
+	onSetSort: React.PropTypes.func,
+	values: React.PropTypes.array
 };
 
 export default ResultsSortMenu;

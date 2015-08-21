@@ -1,5 +1,5 @@
 import React from "react";
-import Immutable from "immutable"
+// import Immutable from "immutable";
 
 import TextSearch from "./text-search";
 import ListFacet from "./list-facet";
@@ -12,26 +12,20 @@ class Facets extends React.Component {
 	}
 
 	render() {
-		let facets = this.props.facetData.get("facets").map((data, index) => {
-			let selectedValues = this.props.selectedValues
-				.find((values) =>	values.get("name") === data.get("name"));
-
-			if (selectedValues != null) {
-				selectedValues = selectedValues.get("values");
-			}
-
+		let facets = this.props.results.last.facets.map((data, index) => {
 			return (
 				<ListFacet
 					data={data}
-					i18n={this.props.i18n}
 					key={index}
-					selectedValues={selectedValues} />);
-			})
+					labels={this.props.labels}
+					onSelectFacetValue={this.props.onSelectFacetValue}
+					queries={this.props.queries} />);
+			});
 
 		return (
 			<ul className="hire-faceted-search-facets">
 				<button onClick={this.handleButtonClick.bind(this)}>New search</button>
-				<TextSearch value={this.props.textValue} />
+				<TextSearch value={this.props.queries.last.term} />
 				{facets}
 			</ul>
 		);
@@ -39,12 +33,14 @@ class Facets extends React.Component {
 }
 
 Facets.defaultProps = {
-	selectedValues: new Immutable.List()
+
 };
 
 Facets.propTypes = {
-	i18n: React.PropTypes.object,
-	selectedValues: React.PropTypes.instanceOf(Immutable.List)
+	labels: React.PropTypes.object,
+	onSelectFacetValue: React.PropTypes.func,
+	queries: React.PropTypes.object,
+	results: React.PropTypes.object
 };
 
 export default Facets;

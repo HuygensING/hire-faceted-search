@@ -1,5 +1,5 @@
 import React from "react";
-import {Map} from "immutable";
+// import {Map} from "immutable";
 
 import queriesActions from "../../../actions/queries";
 import FacetValue from "./facet-value";
@@ -10,9 +10,9 @@ let css = fs.readFileSync(__dirname + "/index.css");
 insertCss(css, {prepend: true});
 
 class CurrentQuery extends React.Component {
-	toI18n(name) {
-		return (this.props.i18n.facetTitles.hasOwnProperty(name)) ?
-			this.props.i18n.facetTitles[name] :
+	toLabel(name) {
+		return (this.props.labels.facetTitles.hasOwnProperty(name)) ?
+			this.props.labels.facetTitles[name] :
 			name;
 	}
 
@@ -21,31 +21,38 @@ class CurrentQuery extends React.Component {
 	}
 
 	render() {
-		let query = this.props.values;
+		let query = this.props.queries.last;
 
-		let searchTerm = (query.get("term") !== "") ?
+		let searchTerm = (query.term !== "") ?
 			<li className="search-term">
 				<label>Search term</label>
-				<span onClick={this.handleSearchTermClick.bind(this)}>{query.get("term")}</span>
+				<span onClick={this.handleSearchTermClick.bind(this)}>{query.term}</span>
 			</li> :
-			null
+			null;
 
-		let facets = query.get("facetValues")
+		let facets = query.facetValues
 			.map((selectedFacet, index) => {
-				let facetTitle = (this.props.facetData.get("facets").find((facet) =>
-					facet.get("name") === selectedFacet.get("name")
-				)).get("title");
+				let facetTitle;
+				let filteredFacets = (this.props.results.last.facets.filter((facet) =>
+					facet.name === selectedFacet.name
+				));
 
-				let facetValues = selectedFacet.get("values")
+				if (filteredFacets.length) {
+					facetTitle = filteredFacets[0].title;
+				} else {
+					return new Error("CurrentQuery: facet not found!");
+				}
+
+				let facetValues = selectedFacet.values
 					.map((value, index2) =>
 						<FacetValue
-							facetName={selectedFacet.get("name")}
+							facetName={selectedFacet.name}
 							key={index2}
-							value={value} />)
+							value={value} />);
 
 				return (
 					<li key={index}>
-						<label>{this.toI18n(facetTitle)}</label>
+						<label>{this.toLabel(facetTitle)}</label>
 						<ul>
 							{facetValues}
 						</ul>
@@ -63,9 +70,9 @@ class CurrentQuery extends React.Component {
 }
 
 CurrentQuery.propTypes = {
-	facetData: React.PropTypes.instanceOf(Map),
-	i18n: React.PropTypes.object,
-	values: React.PropTypes.instanceOf(Map)
-}
+	labels: React.PropTypes.object,
+	queries: React.PropTypes.object,
+	results: React.PropTypes.object
+};
 
 export default CurrentQuery;

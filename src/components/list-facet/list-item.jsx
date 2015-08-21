@@ -10,7 +10,7 @@ class ListFacetListItem extends React.Component {
 
 		this.state = {
 			checked: false
-		}
+		};
 	}
 
 	componentWillReceiveProps(nextProps) {
@@ -19,16 +19,17 @@ class ListFacetListItem extends React.Component {
 		});
 	}
 
-	handleClick(value) {
-		if (this.props.checked) {
-			queriesActions.remove(this.props.facetName, this.props.name);
-		} else {
-			queriesActions.add(this.props.facetName, this.props.name);
-		}
+	handleClick() {
+		this.props.onSelectFacetValue(this.props.facetName, this.props.name, this.props.checked);
+		// if (this.props.checked) {
+		// 	queriesActions.remove(this.props.facetName, this.props.name);
+		// } else {
+		// 	queriesActions.add(this.props.facetName, this.props.name);
+		// }
 
 		this.setState({
 			checked: !this.state.checked
-		})
+		});
 	}
 
 	render() {
@@ -56,10 +57,11 @@ ListFacetListItem.defaultProps = {
 };
 
 ListFacetListItem.propTypes = {
-	count: React.PropTypes.number,
 	checked: React.PropTypes.bool,
+	count: React.PropTypes.number,
 	facetName: React.PropTypes.string,
-	name: React.PropTypes.string
+	name: React.PropTypes.string,
+	onSelectFacetValue: React.PropTypes.func
 };
 
 export default ListFacetListItem;

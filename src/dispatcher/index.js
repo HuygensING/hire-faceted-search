@@ -2,7 +2,7 @@ import {Dispatcher} from "flux";
 
 class AppDispatcher extends Dispatcher {
 	handleViewAction(action) {
-		console.log("VIEW_ACTION", action);
+		// console.log("VIEW_ACTION", action);
 
 		return this.dispatch({
 			source: "VIEW_ACTION",
@@ -11,7 +11,7 @@ class AppDispatcher extends Dispatcher {
 	}
 
 	handleServerAction(action) {
-		console.log("SERVER_ACTION", action);
+		// console.log("SERVER_ACTION", action);
 
 		return this.dispatch({
 			source: "SERVER_ACTION",

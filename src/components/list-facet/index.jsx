@@ -13,7 +13,7 @@ import insertCss from "insert-css";
 let css = fs.readFileSync(__dirname + "/index.css");
 insertCss(css, {prepend: true});
 
-const initSize = 12;
+const INIT_SIZE = 12;
 
 class ListFacet extends React.Component {
 	constructor(props) {
@@ -23,7 +23,7 @@ class ListFacet extends React.Component {
 			currentSort: SortMenu.defaultSort,
 			filterQuery: "",
 			showAll: false
-		}
+		};
 	}
 
 	handleButtonClick() {
@@ -41,55 +41,70 @@ class ListFacet extends React.Component {
 	handleFilterMenuChange(filterQuery) {
 		this.setState({
 			filterQuery: filterQuery
-		})
+		});
+	}
+
+	selectedValues() {
+		let selectedValues = this.props.queries.last.facetValues
+			.filter((values) =>	values.name === this.props.data.name);
+
+		return (selectedValues.length) ?
+			selectedValues[0].values :
+			selectedValues;
 	}
 
 	render() {
 		let filterMenu, sortMenu;
-		let options = this.props.data.get("options");
+		let options = this.props.data.options;
 
 		options = options.sort(SortMenu.sortFunctions[this.state.currentSort]);
 
-		if (this.props.sortMenu) {
+		if (this.props.showSortMenu) {
 			sortMenu = <SortMenu onChange={this.handleSortMenuChange.bind(this)} />;
 		}
 
-		if (this.props.filterMenu) {
+		if (this.props.showFilterMenu) {
 			filterMenu = <FilterMenu onChange={this.handleFilterMenuChange.bind(this)} />;
 
 			if (this.state.filterQuery.length) {
 				let query = this.state.filterQuery.toLowerCase();
 
 				options = options.filter((option) =>
-					option.get("name").toLowerCase().indexOf(query) > -1
+					option.name.toLowerCase().indexOf(query) > -1
 				);
 			}
 		}
 
+
 		let optionsToRender = (this.state.showAll) ?
 			options :
-			options.take(initSize);
+			options.slice(0, INIT_SIZE - 1);
 
+
+		let selectedValues = this.selectedValues();
 		let listItems = optionsToRender.map((option, index) =>
 			<ListItem
-				count={option.get("count")}
-				checked={this.props.selectedValues.contains(option.get("name"))}
-				facetName={this.props.data.get("name")}
+				checked={selectedValues.indexOf(option.name) > -1}
+				count={option.count}
+				facetName={this.props.data.name}
 				key={index}
-				name={option.get("name")} />);
+				name={option.name}
+				onSelectFacetValue={this.props.onSelectFacetValue} />);
 
-		if (!listItems.size) {
-			listItems = <li className="no-options-found">No options found.</li>
+
+		if (!listItems.length) {
+			listItems = <li className="no-options-found">No options found.</li>;
 		}
 
-		let title = this.props.data.get("title");
-		let facetTitle = this.props.i18n.facetTitles.hasOwnProperty(title) ?
-			this.props.i18n.facetTitles[title] :
+
+		let title = this.props.data.title;
+		let facetTitle = this.props.labels.facetTitles.hasOwnProperty(title) ?
+			this.props.labels.facetTitles[title] :
 			title;
 
-		let moreButton = (!this.state.showAll && options.size > initSize) ?
+		let moreButton = (!this.state.showAll && options.length > INIT_SIZE) ?
 			<button onClick={this.handleButtonClick.bind(this)}>
-				{this.props.i18n.hasOwnProperty("Show all") ? this.props.i18n["Show all"] : "Show all"} ({options.size})
+				{this.props.labels.showAll} ({options.length})
 			</button> :
 			null;
 
@@ -115,17 +130,17 @@ class ListFacet extends React.Component {
 }
 
 ListFacet.defaultProps = {
-	filterMenu: true,
-	selectedValues: new Immutable.List(),
-	sortMenu: false
+	showFilterMenu: true,
+	showSortMenu: false
 };
 
 ListFacet.propTypes = {
-	data: React.PropTypes.instanceOf(Immutable.Map),
-	filterMenu: React.PropTypes.bool,
-	i18n: React.PropTypes.object,
-	selectedValues: React.PropTypes.instanceOf(Immutable.List),
-	sortMenu: React.PropTypes.bool
+	data: React.PropTypes.object,
+	labels: React.PropTypes.object,
+	onSelectFacetValue: React.PropTypes.func,
+	queries: React.PropTypes.object,
+	showFilterMenu: React.PropTypes.bool,
+	showSortMenu: React.PropTypes.bool
 };
 
 export default ListFacet;

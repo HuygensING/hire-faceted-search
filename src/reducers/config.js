@@ -1,18 +1,13 @@
-// let initialState = {
-// 	queries: [],
-// 	queryModel: {
-// 		"facetValues": [],
-// 		"searchInAnnotations": true,
-// 		"searchInTranscriptions": true,
-// 		"term": "",
-// 		"textLayers": ["Diplomatic", "Opmerkingen en verwijzingen", "Comments and References", "Transcription", "Transcripción", "Transcriptie", "Vertaling", "Translation", "Traducción", "Comentarios y referencias"]
-// 	}
-// }
+let initialState = {
+	rows: 50
+};
 
 export default function(state={}, action) {
 	switch (action.type) {
 		case "SET_CONFIG_DEFAULTS":
-			return {...state, ...action.config}
+			let initConfig = {...initialState, ...action.config};
+
+			return {...state, ...initConfig};
 		default:
 			return state;
 	}

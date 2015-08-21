@@ -77,23 +77,23 @@ class SortMenu extends React.Component {
 
 SortMenu.sortFunctions = {
 	alphaAsc: (valA, valB) => {
-		if (valA.get("name") > valB.get("name")) return 1;
-		if (valB.get("name") > valA.get("name")) return -1;
+		if (valA.name > valB.name) return 1;
+		if (valB.name > valA.name) return -1;
 		return 0;
 	},
 	alphaDesc: (valA, valB) => {
-		if (valA.get("name") > valB.get("name")) return -1;
-		if (valB.get("name") > valA.get("name")) return 1;
+		if (valA.name > valB.name) return -1;
+		if (valB.name > valA.name) return 1;
 		return 0;
 	},
 	countAsc: (valA, valB) => {
-		if (valA.get("count") > valB.get("count")) return 1;
-		if (valB.get("count") > valA.get("count")) return -1;
+		if (valA.count > valB.count) return 1;
+		if (valB.count > valA.count) return -1;
 		return 0;
 	},
 	countDesc: (valA, valB) => {
-		if (valA.get("count") > valB.get("count")) return -1;
-		if (valB.get("count") > valA.get("count")) return 1;
+		if (valA.count > valB.count) return -1;
+		if (valB.count > valA.count) return 1;
 		return 0;
 	}
 };

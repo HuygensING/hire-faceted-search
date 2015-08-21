@@ -101,7 +101,6 @@ class Queries extends BaseStore {
 
 			this.data = this.data.set("facetValues", facetValues);
 		}
-
 	}
 
 	changeSearchTerm(value) {

@@ -1,22 +1,26 @@
 import React from "react";
-import Immutable from "immutable";
+// import Immutable from "immutable";
 
-import Facets from "./components/faceted-search";
+import Facets from "./components/facets";
 import Results from "./components/results";
 
-import configActions from "./actions/config";
-import configStore from "./stores/config";
-import resultsActions from "./actions/results";
-import resultsStore from "./stores/results";
-import queriesActions from "./actions/queries";
-import queriesStore from "./stores/queries";
+import {fetchResults, fetchResultsFromUrl} from "./actions/results";
+import {createNewQuery} from "./actions/queries";
 
-import {createStore} from "redux";
+import {createStore, applyMiddleware} from "redux";
 import reducers from "./reducers";
+import thunkMiddleware from "redux-thunk";
 
-let store = createStore(reducers);
+const logger = store => next => action => {
+	if (action.hasOwnProperty("type")) {
+		console.log(action.type, action);
+	}
 
-import i18n from "./i18n";
+  return next(action);
+};
+
+let createStoreWithMiddleware = applyMiddleware(logger, thunkMiddleware)(createStore);
+let store = createStoreWithMiddleware(reducers);
 
 let fs = require("fs");
 import insertCss from "insert-css";
@@ -27,118 +31,101 @@ class FacetedSearch extends React.Component {
 	constructor(props) {
 		super(props);
 
-		// configActions.init(this.props.config);
-		// queriesActions.setDefaults(this.props.config);
-
 		store.dispatch({
 			type: "SET_QUERY_DEFAULTS",
 			config: this.props.config
-		})
+		});
 
 		store.dispatch({
 			type: "SET_CONFIG_DEFAULTS",
 			config: this.props.config
 		});
 
-		this.onConfigChange = this.onConfigChange.bind(this)
-		this.onResultsChange = this.onResultsChange.bind(this)
-		this.onQueriesChange = this.onQueriesChange.bind(this)
-
-		this.state = {
-			config: configStore.getState(),
-			i18n: Object.assign(i18n, this.props.i18n),
-			queries: queriesStore.getState(),
-			results: resultsStore.getState()
-		};
+		this.state = store.getState();
 	}
 
 	componentDidMount() {
-		configStore.listen(this.onConfigChange);
-		resultsStore.listen(this.onResultsChange);
-		queriesStore.listen(this.onQueriesChange);
-		resultsActions.getAll();
+		this.unsubscribe = store.subscribe(() =>
+			this.setState(store.getState())
+		);
+
+		store.dispatch(fetchResults());
 	}
 
-	componentWillReceiveProps(nextProps) {
-		let oldI18n = Immutable.fromJS(this.state.i18n);
-		let newI18n = Immutable.fromJS(nextProps.i18n);
+	// componentWillReceiveProps(nextProps) {
+		// let oldI18n = Immutable.fromJS(this.state.i18n);
+		// let newI18n = Immutable.fromJS(nextProps.i18n);
 
-		if (!newI18n.equals(oldI18n)) {
-			this.setState({
-				i18n: Object.assign(i18n, nextProps.i18n)
-			});
-		}
-	}
+		// if (!newI18n.equals(oldI18n)) {
+		// 	this.setState({
+		// 		i18n: Object.assign(i18n, nextProps.i18n)
+		// 	});
+		// }
+	// }
 
 	componentWillUnmount() {
-		configStore.stopListening(this.onConfigChange);
-		resultsStore.stopListening(this.onResultsChange);
-		queriesStore.stopListening(this.onQueriesChange);
-	}
-
-	onQueriesChange() {
-		resultsActions.getResults();
-	}
-
-	onConfigChange() {
-		if (this.state.config.get("rows") !== configStore.getState().get("rows")) {
-			resultsActions.getResults();
-		}
-
-		this.setState({
-			config: configStore.getState()
-		})
-	}
-
-	onResultsChange() {
-		this.setState({
-			queries: queriesStore.getState(),
-			results: resultsStore.getState()
-		});
+		this.unsubscribe();
 	}
 
 	handleResultSelect(result) {
 		this.props.onChange(result.toJS());
 	}
 
+	handleFetchResultsFromUrl(url) {
+		store.dispatch(fetchResultsFromUrl(url));
+	}
+
+	handleSelectFacetValue(facetName, value, remove) {
+		let part1 = {
+			facetName: facetName,
+			value: value
+		};
+
+		let part2 = remove ?
+			{type: "REMOVE_FACET_VALUE"} :
+			{type: "ADD_FACET_VALUE"};
+
+		store.dispatch(createNewQuery(Object.assign(part1, part2)));
+	}
+
+	handleSetSort(field) {
+		store.dispatch(createNewQuery({
+			type: "SET_RESULTS_SORT",
+			field: field
+		}));
+	}
+
 	render() {
-		let facetData = this.state.results.get("queryResults").size ?
-			this.state.results.get("queryResults").last() :
-			this.state.results.get("initResults");
-
-		let facets = this.state.results.get("queryResults").size ?
-			<Facets
-				facetData={facetData}
-				i18n={this.state.i18n}
-				textValue={this.state.queries.get("term")}
-				selectedValues={this.state.queries.get("facetValues")} /> :
-			null;
-
-		let results = (this.state.results.get("queryResults").size > 0) ?
-			<Results
-				rows={this.state.config.get("rows")}
-				facetData={facetData}
-				i18n={this.state.i18n}
-				onSelect={this.handleResultSelect.bind(this)}
-				query={this.state.queries} /> :
-			null;
+		if (this.state.results.all.length === 0) {
+			return (<div>LAODING</div>);
+		}
 
 		return (
 			<div className="hire-faceted-search">
-				{facets}
-				{results}
+				<Facets
+					labels={this.state.labels}
+					onSelectFacetValue={this.handleSelectFacetValue.bind(this)}
+					queries={this.state.queries}
+					results={this.state.results} />
+				<Results
+					config={this.state.config}
+					labels={this.state.labels}
+					onFetchResultsFromUrl={this.handleFetchResultsFromUrl.bind(this)}
+					onSelect={this.handleResultSelect.bind(this)}
+					onSetSort={this.handleSetSort.bind(this)}
+					queries={this.state.queries}
+					results={this.state.results} />
 			</div>
 		);
 	}
 }
 
 FacetedSearch.defaultProps = {
-	i18n: {}
 };
 
 FacetedSearch.propTypes = {
 	config: React.PropTypes.object.isRequired,
-	i18n: React.PropTypes.object,
+	labels: React.PropTypes.object,
 	onChange: React.PropTypes.func.isRequired
 };
 

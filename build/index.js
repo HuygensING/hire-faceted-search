@@ -1,323 +1,4 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.HireFacetedSearch = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
-/**
- * Copyright (c) 2014-2015, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- */
-
-module.exports.Dispatcher = _dereq_('./lib/Dispatcher')
-
-},{"./lib/Dispatcher":2}],2:[function(_dereq_,module,exports){
-/*
- * Copyright (c) 2014, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * @providesModule Dispatcher
- * @typechecks
- */
-
-"use strict";
-
-var invariant = _dereq_('./invariant');
-
-var _lastID = 1;
-var _prefix = 'ID_';
-
-/**
- * Dispatcher is used to broadcast payloads to registered callbacks. This is
- * different from generic pub-sub systems in two ways:
- *
- *   1) Callbacks are not subscribed to particular events. Every payload is
- *      dispatched to every registered callback.
- *   2) Callbacks can be deferred in whole or part until other callbacks have
- *      been executed.
- *
- * For example, consider this hypothetical flight destination form, which
- * selects a default city when a country is selected:
- *
- *   var flightDispatcher = new Dispatcher();
- *
- *   // Keeps track of which country is selected
- *   var CountryStore = {country: null};
- *
- *   // Keeps track of which city is selected
- *   var CityStore = {city: null};
- *
- *   // Keeps track of the base flight price of the selected city
- *   var FlightPriceStore = {price: null}
- *
- * When a user changes the selected city, we dispatch the payload:
- *
- *   flightDispatcher.dispatch({
- *     actionType: 'city-update',
- *     selectedCity: 'paris'
- *   });
- *
- * This payload is digested by `CityStore`:
- *
- *   flightDispatcher.register(function(payload) {
- *     if (payload.actionType === 'city-update') {
- *       CityStore.city = payload.selectedCity;
- *     }
- *   });
- *
- * When the user selects a country, we dispatch the payload:
- *
- *   flightDispatcher.dispatch({
- *     actionType: 'country-update',
- *     selectedCountry: 'australia'
- *   });
- *
- * This payload is digested by both stores:
- *
- *    CountryStore.dispatchToken = flightDispatcher.register(function(payload) {
- *     if (payload.actionType === 'country-update') {
- *       CountryStore.country = payload.selectedCountry;
- *     }
- *   });
- *
- * When the callback to update `CountryStore` is registered, we save a reference
- * to the returned token. Using this token with `waitFor()`, we can guarantee
- * that `CountryStore` is updated before the callback that updates `CityStore`
- * needs to query its data.
- *
- *   CityStore.dispatchToken = flightDispatcher.register(function(payload) {
- *     if (payload.actionType === 'country-update') {
- *       // `CountryStore.country` may not be updated.
- *       flightDispatcher.waitFor([CountryStore.dispatchToken]);
- *       // `CountryStore.country` is now guaranteed to be updated.
- *
- *       // Select the default city for the new country
- *       CityStore.city = getDefaultCityForCountry(CountryStore.country);
- *     }
- *   });
- *
- * The usage of `waitFor()` can be chained, for example:
- *
- *   FlightPriceStore.dispatchToken =
- *     flightDispatcher.register(function(payload) {
- *       switch (payload.actionType) {
- *         case 'country-update':
- *           flightDispatcher.waitFor([CityStore.dispatchToken]);
- *           FlightPriceStore.price =
- *             getFlightPriceStore(CountryStore.country, CityStore.city);
- *           break;
- *
- *         case 'city-update':
- *           FlightPriceStore.price =
- *             FlightPriceStore(CountryStore.country, CityStore.city);
- *           break;
- *     }
- *   });
- *
- * The `country-update` payload will be guaranteed to invoke the stores'
- * registered callbacks in order: `CountryStore`, `CityStore`, then
- * `FlightPriceStore`.
- */
-
-  function Dispatcher() {
-    this.$Dispatcher_callbacks = {};
-    this.$Dispatcher_isPending = {};
-    this.$Dispatcher_isHandled = {};
-    this.$Dispatcher_isDispatching = false;
-    this.$Dispatcher_pendingPayload = null;
-  }
-
-  /**
-   * Registers a callback to be invoked with every dispatched payload. Returns
-   * a token that can be used with `waitFor()`.
-   *
-   * @param {function} callback
-   * @return {string}
-   */
-  Dispatcher.prototype.register=function(callback) {
-    var id = _prefix + _lastID++;
-    this.$Dispatcher_callbacks[id] = callback;
-    return id;
-  };
-
-  /**
-   * Removes a callback based on its token.
-   *
-   * @param {string} id
-   */
-  Dispatcher.prototype.unregister=function(id) {
-    invariant(
-      this.$Dispatcher_callbacks[id],
-      'Dispatcher.unregister(...): `%s` does not map to a registered callback.',
-      id
-    );
-    delete this.$Dispatcher_callbacks[id];
-  };
-
-  /**
-   * Waits for the callbacks specified to be invoked before continuing execution
-   * of the current callback. This method should only be used by a callback in
-   * response to a dispatched payload.
-   *
-   * @param {array<string>} ids
-   */
-  Dispatcher.prototype.waitFor=function(ids) {
-    invariant(
-      this.$Dispatcher_isDispatching,
-      'Dispatcher.waitFor(...): Must be invoked while dispatching.'
-    );
-    for (var ii = 0; ii < ids.length; ii++) {
-      var id = ids[ii];
-      if (this.$Dispatcher_isPending[id]) {
-        invariant(
-          this.$Dispatcher_isHandled[id],
-          'Dispatcher.waitFor(...): Circular dependency detected while ' +
-          'waiting for `%s`.',
-          id
-        );
-        continue;
-      }
-      invariant(
-        this.$Dispatcher_callbacks[id],
-        'Dispatcher.waitFor(...): `%s` does not map to a registered callback.',
-        id
-      );
-      this.$Dispatcher_invokeCallback(id);
-    }
-  };
-
-  /**
-   * Dispatches a payload to all registered callbacks.
-   *
-   * @param {object} payload
-   */
-  Dispatcher.prototype.dispatch=function(payload) {
-    invariant(
-      !this.$Dispatcher_isDispatching,
-      'Dispatch.dispatch(...): Cannot dispatch in the middle of a dispatch.'
-    );
-    this.$Dispatcher_startDispatching(payload);
-    try {
-      for (var id in this.$Dispatcher_callbacks) {
-        if (this.$Dispatcher_isPending[id]) {
-          continue;
-        }
-        this.$Dispatcher_invokeCallback(id);
-      }
-    } finally {
-      this.$Dispatcher_stopDispatching();
-    }
-  };
-
-  /**
-   * Is this Dispatcher currently dispatching.
-   *
-   * @return {boolean}
-   */
-  Dispatcher.prototype.isDispatching=function() {
-    return this.$Dispatcher_isDispatching;
-  };
-
-  /**
-   * Call the callback stored with the given id. Also do some internal
-   * bookkeeping.
-   *
-   * @param {string} id
-   * @internal
-   */
-  Dispatcher.prototype.$Dispatcher_invokeCallback=function(id) {
-    this.$Dispatcher_isPending[id] = true;
-    this.$Dispatcher_callbacks[id](this.$Dispatcher_pendingPayload);
-    this.$Dispatcher_isHandled[id] = true;
-  };
-
-  /**
-   * Set up bookkeeping needed when dispatching.
-   *
-   * @param {object} payload
-   * @internal
-   */
-  Dispatcher.prototype.$Dispatcher_startDispatching=function(payload) {
-    for (var id in this.$Dispatcher_callbacks) {
-      this.$Dispatcher_isPending[id] = false;
-      this.$Dispatcher_isHandled[id] = false;
-    }
-    this.$Dispatcher_pendingPayload = payload;
-    this.$Dispatcher_isDispatching = true;
-  };
-
-  /**
-   * Clear bookkeeping used for dispatching.
-   *
-   * @internal
-   */
-  Dispatcher.prototype.$Dispatcher_stopDispatching=function() {
-    this.$Dispatcher_pendingPayload = null;
-    this.$Dispatcher_isDispatching = false;
-  };
-
-
-module.exports = Dispatcher;
-
-},{"./invariant":3}],3:[function(_dereq_,module,exports){
-/**
- * Copyright (c) 2014, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * @providesModule invariant
- */
-
-"use strict";
-
-/**
- * Use invariant() to assert state which your program assumes to be true.
- *
- * Provide sprintf-style format (only %s is supported) and arguments
- * to provide information about what broke and what you were
- * expecting.
- *
- * The invariant message will be stripped in production, but the invariant
- * will remain to ensure logic does not differ in production.
- */
-
-var invariant = function(condition, format, a, b, c, d, e, f) {
-  if (false) {
-    if (format === undefined) {
-      throw new Error('invariant requires an error message argument');
-    }
-  }
-
-  if (!condition) {
-    var error;
-    if (format === undefined) {
-      error = new Error(
-        'Minified exception occurred; use the non-minified dev environment ' +
-        'for the full error message and additional helpful warnings.'
-      );
-    } else {
-      var args = [a, b, c, d, e, f];
-      var argIndex = 0;
-      error = new Error(
-        'Invariant Violation: ' +
-        format.replace(/%s/g, function() { return args[argIndex++]; })
-      );
-    }
-
-    error.framesToPop = 1; // we don't care about invariant's own frame
-    throw error;
-  }
-};
-
-module.exports = invariant;
-
-},{}],4:[function(_dereq_,module,exports){
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.HireFormsInput = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 "use strict";
 
@@ -474,7 +155,7 @@ module.exports = exports["default"];
 },{"classnames":"classnames","react":"react"}]},{},[1])(1)
 });
 
-},{}],5:[function(_dereq_,module,exports){
+},{}],2:[function(_dereq_,module,exports){
 var inserted = {};
 
 module.exports = function (css, options) {
@@ -498,7 +179,7 @@ module.exports = function (css, options) {
     }
 };
 
-},{}],6:[function(_dereq_,module,exports){
+},{}],3:[function(_dereq_,module,exports){
 /**
  * lodash 3.1.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -734,7 +415,7 @@ function isObject(value) {
 
 module.exports = debounce;
 
-},{"lodash._getnative":7}],7:[function(_dereq_,module,exports){
+},{"lodash._getnative":4}],4:[function(_dereq_,module,exports){
 /**
  * lodash 3.9.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -873,7 +554,25 @@ function isNative(value) {
 
 module.exports = getNative;
 
-},{}],8:[function(_dereq_,module,exports){
+},{}],5:[function(_dereq_,module,exports){
+'use strict';
+
+exports.__esModule = true;
+exports['default'] = thunkMiddleware;
+
+function thunkMiddleware(_ref) {
+  var dispatch = _ref.dispatch;
+  var getState = _ref.getState;
+
+  return function (next) {
+    return function (action) {
+      return typeof action === 'function' ? action(dispatch, getState) : next(action);
+    };
+  };
+}
+
+module.exports = exports['default'];
+},{}],6:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1038,7 +737,7 @@ function createStore(reducer, initialState) {
     replaceReducer: replaceReducer
   };
 }
-},{"./utils/isPlainObject":14}],9:[function(_dereq_,module,exports){
+},{"./utils/isPlainObject":12}],7:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1070,7 +769,7 @@ exports.combineReducers = _utilsCombineReducers2['default'];
 exports.bindActionCreators = _utilsBindActionCreators2['default'];
 exports.applyMiddleware = _utilsApplyMiddleware2['default'];
 exports.compose = _utilsCompose2['default'];
-},{"./createStore":8,"./utils/applyMiddleware":10,"./utils/bindActionCreators":11,"./utils/combineReducers":12,"./utils/compose":13}],10:[function(_dereq_,module,exports){
+},{"./createStore":6,"./utils/applyMiddleware":8,"./utils/bindActionCreators":9,"./utils/combineReducers":10,"./utils/compose":11}],8:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1132,7 +831,7 @@ function applyMiddleware() {
 }
 
 module.exports = exports['default'];
-},{"./compose":13}],11:[function(_dereq_,module,exports){
+},{"./compose":11}],9:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1187,7 +886,7 @@ function bindActionCreators(actionCreators, dispatch) {
 }
 
 module.exports = exports['default'];
-},{"../utils/mapValues":15}],12:[function(_dereq_,module,exports){
+},{"../utils/mapValues":13}],10:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1305,7 +1004,7 @@ function combineReducers(reducers) {
 }
 
 module.exports = exports['default'];
-},{"../createStore":8,"../utils/isPlainObject":14,"../utils/mapValues":15,"../utils/pick":16}],13:[function(_dereq_,module,exports){
+},{"../createStore":6,"../utils/isPlainObject":12,"../utils/mapValues":13,"../utils/pick":14}],11:[function(_dereq_,module,exports){
 /**
  * Composes functions from left to right.
  *
@@ -1330,7 +1029,7 @@ function compose() {
 }
 
 module.exports = exports["default"];
-},{}],14:[function(_dereq_,module,exports){
+},{}],12:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1361,7 +1060,7 @@ function isPlainObject(obj) {
 }
 
 module.exports = exports['default'];
-},{}],15:[function(_dereq_,module,exports){
+},{}],13:[function(_dereq_,module,exports){
 /**
  * Applies a function to every key-value pair inside an object.
  *
@@ -1382,7 +1081,7 @@ function mapValues(obj, fn) {
 }
 
 module.exports = exports["default"];
-},{}],16:[function(_dereq_,module,exports){
+},{}],14:[function(_dereq_,module,exports){
 /**
  * Picks key-value pairs from an object where values satisfy a predicate.
  *
@@ -1405,310 +1104,7 @@ function pick(obj, fn) {
 }
 
 module.exports = exports["default"];
-},{}],17:[function(_dereq_,module,exports){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-function EventEmitter() {
-  this._events = this._events || {};
-  this._maxListeners = this._maxListeners || undefined;
-}
-module.exports = EventEmitter;
-
-// Backwards-compat with node 0.10.x
-EventEmitter.EventEmitter = EventEmitter;
-
-EventEmitter.prototype._events = undefined;
-EventEmitter.prototype._maxListeners = undefined;
-
-// By default EventEmitters will print a warning if more than 10 listeners are
-// added to it. This is a useful default which helps finding memory leaks.
-EventEmitter.defaultMaxListeners = 10;
-
-// Obviously not all Emitters should be limited to 10. This function allows
-// that to be increased. Set to zero for unlimited.
-EventEmitter.prototype.setMaxListeners = function(n) {
-  if (!isNumber(n) || n < 0 || isNaN(n))
-    throw TypeError('n must be a positive number');
-  this._maxListeners = n;
-  return this;
-};
-
-EventEmitter.prototype.emit = function(type) {
-  var er, handler, len, args, i, listeners;
-
-  if (!this._events)
-    this._events = {};
-
-  // If there is no 'error' event listener then throw.
-  if (type === 'error') {
-    if (!this._events.error ||
-        (isObject(this._events.error) && !this._events.error.length)) {
-      er = arguments[1];
-      if (er instanceof Error) {
-        throw er; // Unhandled 'error' event
-      }
-      throw TypeError('Uncaught, unspecified "error" event.');
-    }
-  }
-
-  handler = this._events[type];
-
-  if (isUndefined(handler))
-    return false;
-
-  if (isFunction(handler)) {
-    switch (arguments.length) {
-      // fast cases
-      case 1:
-        handler.call(this);
-        break;
-      case 2:
-        handler.call(this, arguments[1]);
-        break;
-      case 3:
-        handler.call(this, arguments[1], arguments[2]);
-        break;
-      // slower
-      default:
-        len = arguments.length;
-        args = new Array(len - 1);
-        for (i = 1; i < len; i++)
-          args[i - 1] = arguments[i];
-        handler.apply(this, args);
-    }
-  } else if (isObject(handler)) {
-    len = arguments.length;
-    args = new Array(len - 1);
-    for (i = 1; i < len; i++)
-      args[i - 1] = arguments[i];
-
-    listeners = handler.slice();
-    len = listeners.length;
-    for (i = 0; i < len; i++)
-      listeners[i].apply(this, args);
-  }
-
-  return true;
-};
-
-EventEmitter.prototype.addListener = function(type, listener) {
-  var m;
-
-  if (!isFunction(listener))
-    throw TypeError('listener must be a function');
-
-  if (!this._events)
-    this._events = {};
-
-  // To avoid recursion in the case that type === "newListener"! Before
-  // adding it to the listeners, first emit "newListener".
-  if (this._events.newListener)
-    this.emit('newListener', type,
-              isFunction(listener.listener) ?
-              listener.listener : listener);
-
-  if (!this._events[type])
-    // Optimize the case of one listener. Don't need the extra array object.
-    this._events[type] = listener;
-  else if (isObject(this._events[type]))
-    // If we've already got an array, just append.
-    this._events[type].push(listener);
-  else
-    // Adding the second element, need to change to array.
-    this._events[type] = [this._events[type], listener];
-
-  // Check for listener leak
-  if (isObject(this._events[type]) && !this._events[type].warned) {
-    var m;
-    if (!isUndefined(this._maxListeners)) {
-      m = this._maxListeners;
-    } else {
-      m = EventEmitter.defaultMaxListeners;
-    }
-
-    if (m && m > 0 && this._events[type].length > m) {
-      this._events[type].warned = true;
-      console.error('(node) warning: possible EventEmitter memory ' +
-                    'leak detected. %d listeners added. ' +
-                    'Use emitter.setMaxListeners() to increase limit.',
-                    this._events[type].length);
-      if (typeof console.trace === 'function') {
-        // not supported in IE 10
-        console.trace();
-      }
-    }
-  }
-
-  return this;
-};
-
-EventEmitter.prototype.on = EventEmitter.prototype.addListener;
-
-EventEmitter.prototype.once = function(type, listener) {
-  if (!isFunction(listener))
-    throw TypeError('listener must be a function');
-
-  var fired = false;
-
-  function g() {
-    this.removeListener(type, g);
-
-    if (!fired) {
-      fired = true;
-      listener.apply(this, arguments);
-    }
-  }
-
-  g.listener = listener;
-  this.on(type, g);
-
-  return this;
-};
-
-// emits a 'removeListener' event iff the listener was removed
-EventEmitter.prototype.removeListener = function(type, listener) {
-  var list, position, length, i;
-
-  if (!isFunction(listener))
-    throw TypeError('listener must be a function');
-
-  if (!this._events || !this._events[type])
-    return this;
-
-  list = this._events[type];
-  length = list.length;
-  position = -1;
-
-  if (list === listener ||
-      (isFunction(list.listener) && list.listener === listener)) {
-    delete this._events[type];
-    if (this._events.removeListener)
-      this.emit('removeListener', type, listener);
-
-  } else if (isObject(list)) {
-    for (i = length; i-- > 0;) {
-      if (list[i] === listener ||
-          (list[i].listener && list[i].listener === listener)) {
-        position = i;
-        break;
-      }
-    }
-
-    if (position < 0)
-      return this;
-
-    if (list.length === 1) {
-      list.length = 0;
-      delete this._events[type];
-    } else {
-      list.splice(position, 1);
-    }
-
-    if (this._events.removeListener)
-      this.emit('removeListener', type, listener);
-  }
-
-  return this;
-};
-
-EventEmitter.prototype.removeAllListeners = function(type) {
-  var key, listeners;
-
-  if (!this._events)
-    return this;
-
-  // not listening for removeListener, no need to emit
-  if (!this._events.removeListener) {
-    if (arguments.length === 0)
-      this._events = {};
-    else if (this._events[type])
-      delete this._events[type];
-    return this;
-  }
-
-  // emit removeListener for all listeners on all events
-  if (arguments.length === 0) {
-    for (key in this._events) {
-      if (key === 'removeListener') continue;
-      this.removeAllListeners(key);
-    }
-    this.removeAllListeners('removeListener');
-    this._events = {};
-    return this;
-  }
-
-  listeners = this._events[type];
-
-  if (isFunction(listeners)) {
-    this.removeListener(type, listeners);
-  } else {
-    // LIFO order
-    while (listeners.length)
-      this.removeListener(type, listeners[listeners.length - 1]);
-  }
-  delete this._events[type];
-
-  return this;
-};
-
-EventEmitter.prototype.listeners = function(type) {
-  var ret;
-  if (!this._events || !this._events[type])
-    ret = [];
-  else if (isFunction(this._events[type]))
-    ret = [this._events[type]];
-  else
-    ret = this._events[type].slice();
-  return ret;
-};
-
-EventEmitter.listenerCount = function(emitter, type) {
-  var ret;
-  if (!emitter._events || !emitter._events[type])
-    ret = 0;
-  else if (isFunction(emitter._events[type]))
-    ret = 1;
-  else
-    ret = emitter._events[type].length;
-  return ret;
-};
-
-function isFunction(arg) {
-  return typeof arg === 'function';
-}
-
-function isNumber(arg) {
-  return typeof arg === 'number';
-}
-
-function isObject(arg) {
-  return typeof arg === 'object' && arg !== null;
-}
-
-function isUndefined(arg) {
-  return arg === void 0;
-}
-
-},{}],18:[function(_dereq_,module,exports){
+},{}],15:[function(_dereq_,module,exports){
 "use strict";
 var window = _dereq_("global/window")
 var once = _dereq_("once")
@@ -1897,7 +1293,7 @@ function createXHR(options, callback) {
 
 function noop() {}
 
-},{"global/window":19,"once":20,"parse-headers":24}],19:[function(_dereq_,module,exports){
+},{"global/window":16,"once":17,"parse-headers":21}],16:[function(_dereq_,module,exports){
 if (typeof window !== "undefined") {
     module.exports = window;
 } else if (typeof global !== "undefined") {
@@ -1908,7 +1304,7 @@ if (typeof window !== "undefined") {
     module.exports = {};
 }
 
-},{}],20:[function(_dereq_,module,exports){
+},{}],17:[function(_dereq_,module,exports){
 module.exports = once
 
 once.proto = once(function () {
@@ -1929,7 +1325,7 @@ function once (fn) {
   }
 }
 
-},{}],21:[function(_dereq_,module,exports){
+},{}],18:[function(_dereq_,module,exports){
 var isFunction = _dereq_('is-function')
 
 module.exports = forEach
@@ -1977,7 +1373,7 @@ function forEachObject(object, iterator, context) {
     }
 }
 
-},{"is-function":22}],22:[function(_dereq_,module,exports){
+},{"is-function":19}],19:[function(_dereq_,module,exports){
 module.exports = isFunction
 
 var toString = Object.prototype.toString
@@ -1994,7 +1390,7 @@ function isFunction (fn) {
       fn === window.prompt))
 };
 
-},{}],23:[function(_dereq_,module,exports){
+},{}],20:[function(_dereq_,module,exports){
 
 exports = module.exports = trim;
 
@@ -2010,7 +1406,7 @@ exports.right = function(str){
   return str.replace(/\s*$/, '');
 };
 
-},{}],24:[function(_dereq_,module,exports){
+},{}],21:[function(_dereq_,module,exports){
 var trim = _dereq_('trim')
   , forEach = _dereq_('for-each')
   , isArray = function(arg) {
@@ -2042,163 +1438,180 @@ module.exports = function (headers) {
 
   return result
 }
-},{"for-each":21,"trim":23}],25:[function(_dereq_,module,exports){
+},{"for-each":18,"trim":20}],22:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
+exports.createNewQuery = createNewQuery;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+var _results = _dereq_("./results");
 
-var _dispatcher = _dereq_("../dispatcher");
+function createNewQuery(dispatchData) {
+	return function (dispatch) {
+		dispatch(dispatchData);
 
-var _dispatcher2 = _interopRequireDefault(_dispatcher);
+		dispatch((0, _results.fetchResults)());
+	};
+}
 
-var configActions = {
-	init: function init(data) {
-		_dispatcher2["default"].handleViewAction({
-			actionType: "CONFIG_INIT",
-			data: data
-		});
-	},
+// import dispatcher from "../dispatcher";
 
-	set: function set(key, value) {
-		_dispatcher2["default"].handleViewAction({
-			actionType: "CONFIG_SET",
-			key: key,
-			value: value
-		});
-	}
-};
+// let queriesActions = {
+// 	setDefaults(props) {
+// 		dispatcher.handleViewAction({
+// 			actionType: "QUERIES_SET_DEFAULTS",
+// 			props: props
+// 		});
+// 	},
 
-exports["default"] = configActions;
-module.exports = exports["default"];
+// 	setSortParameter(field) {
+// 		dispatcher.handleViewAction({
+// 			actionType: "QUERIES_SET_SORT_PARAMETER",
+// 			field: field
+// 		});
+// 	},
 
-},{"../dispatcher":50}],26:[function(_dereq_,module,exports){
+// 	add(facetName, value) {
+// 		dispatcher.handleViewAction({
+// 			actionType: "QUERIES_ADD",
+// 			facetName: facetName,
+// 			value: value
+// 		});
+// 	},
+
+// 	remove(facetName, value) {
+// 		dispatcher.handleViewAction({
+// 			actionType: "QUERIES_REMOVE",
+// 			facetName: facetName,
+// 			value: value
+// 		});
+// 	},
+
+// 	reset() {
+// 		dispatcher.handleViewAction({
+// 			actionType: "QUERIES_RESET"
+// 		});
+// 	},
+
+// 	changeSearchTerm(value) {
+// 		dispatcher.handleViewAction({
+// 			actionType: "QUERIES_CHANGE_SEARCH_TERM",
+// 			value: value
+// 		});
+// 	}
+// };
+
+// export default queriesActions;
+
+},{"./results":23}],23:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
+exports.fetchResults = fetchResults;
+exports.fetchResultsFromUrl = fetchResultsFromUrl;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-var _dispatcher = _dereq_("../dispatcher");
+var _xhr = _dereq_("xhr");
 
-var _dispatcher2 = _interopRequireDefault(_dispatcher);
+var _xhr2 = _interopRequireDefault(_xhr);
 
-var queriesActions = {
-	setDefaults: function setDefaults(props) {
-		_dispatcher2["default"].handleViewAction({
-			actionType: "QUERIES_SET_DEFAULTS",
-			props: props
-		});
-	},
+var handleError = function handleError() {};
 
-	setSortParameter: function setSortParameter(field) {
-		_dispatcher2["default"].handleViewAction({
-			actionType: "QUERIES_SET_SORT_PARAMETER",
-			field: field
-		});
-	},
+var getResults = function getResults(url, done) {
+	var options = {
+		headers: {
+			"Content-Type": "application/json"
+		},
+		url: url
+	};
 
-	add: function add(facetName, value) {
-		_dispatcher2["default"].handleViewAction({
-			actionType: "QUERIES_ADD",
-			facetName: facetName,
-			value: value
-		});
-	},
+	var cb = function cb(err, resp, body) {
+		if (err) {
+			handleError(err, resp, body);
+		}
 
-	remove: function remove(facetName, value) {
-		_dispatcher2["default"].handleViewAction({
-			actionType: "QUERIES_REMOVE",
-			facetName: facetName,
-			value: value
-		});
-	},
+		done(JSON.parse(body));
+	};
 
-	reset: function reset() {
-		_dispatcher2["default"].handleViewAction({
-			actionType: "QUERIES_RESET"
-		});
-	},
-
-	changeSearchTerm: function changeSearchTerm(value) {
-		_dispatcher2["default"].handleViewAction({
-			actionType: "QUERIES_CHANGE_SEARCH_TERM",
-			value: value
-		});
-	}
+	(0, _xhr2["default"])(options, cb);
 };
 
-exports["default"] = queriesActions;
-module.exports = exports["default"];
+var postResults = function postResults(query, baseUrl, rows, done) {
+	var options = {
+		data: JSON.stringify(query),
+		headers: {
+			"Content-Type": "application/json"
+		},
+		method: "POST",
+		url: baseUrl + "api/search"
+	};
 
-},{"../dispatcher":50}],27:[function(_dereq_,module,exports){
-"use strict";
+	var cb = function cb(err, resp, body) {
+		if (err) {
+			handleError(err, resp, body);
+		}
 
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
+		var url = resp.headers.location + "?rows=" + rows;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+		getResults(url, done);
+	};
 
-var _storesApi = _dereq_("../stores/api");
-
-var _storesApi2 = _interopRequireDefault(_storesApi);
-
-var resultsActions = {
-	getAll: function getAll() {
-		_storesApi2["default"].getAllResults();
-	},
-
-	getResults: function getResults() {
-		_storesApi2["default"].getResults();
-	},
-
-	getResultsFromUrl: function getResultsFromUrl(url) {
-		_storesApi2["default"].getResultsFromUrl(url);
-	}
+	(0, _xhr2["default"])(options, cb);
 };
 
-exports["default"] = resultsActions;
-module.exports = exports["default"];
+function fetchResults() {
+	return function (dispatch, getState) {
+		dispatch({ type: "REQUEST_RESULTS" });
 
-},{"../stores/api":56}],28:[function(_dereq_,module,exports){
-"use strict";
+		var state = getState();
+		var query = state.queries.all.length ? state.queries.all[state.queries.all.length - 1] : state.queries["default"];
 
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-var _dispatcher = _dereq_("../dispatcher");
-
-var _dispatcher2 = _interopRequireDefault(_dispatcher);
-
-var serverActions = {
-	receiveAllResults: function receiveAllResults(data) {
-		_dispatcher2["default"].handleServerAction({
-			actionType: "RESULTS_RECEIVE_ALL",
-			data: data
+		return postResults(query, state.config.baseURL, state.config.rows, function (response) {
+			return dispatch({
+				type: "RECEIVE_RESULTS",
+				response: response
+			});
 		});
-	},
+	};
+}
 
-	receiveResults: function receiveResults(data) {
-		_dispatcher2["default"].handleServerAction({
-			actionType: "RESULTS_RECEIVE",
-			data: data
+function fetchResultsFromUrl(url) {
+	return function (dispatch) {
+		dispatch({ type: "REQUEST_RESULTS" });
+
+		return getResults(url, function (response) {
+			return dispatch({
+				type: "RECEIVE_RESULTS_FROM_URL",
+				response: response
+			});
 		});
-	}
-};
+	};
+}
 
-exports["default"] = serverActions;
-module.exports = exports["default"];
+// import API from "../stores/api";
 
-},{"../dispatcher":50}],29:[function(_dereq_,module,exports){
+// let resultsActions = {
+// 	getAll() {
+// 		API.getAllResults();
+// 	},
+
+// 	getResults() {
+// 		API.getResults();
+// 	},
+
+// 	getResultsFromUrl(url) {
+// 		API.getResultsFromUrl(url);
+// 	}
+// };
+
+// export default resultsActions;
+
+},{"xhr":15}],24:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2219,9 +1632,7 @@ var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
 
-var _immutable = _dereq_("immutable");
-
-var _immutable2 = _interopRequireDefault(_immutable);
+// import Immutable from "immutable";
 
 var _textSearch = _dereq_("./text-search");
 
@@ -2254,20 +1665,13 @@ var Facets = (function (_React$Component) {
 		value: function render() {
 			var _this = this;
 
-			var facets = this.props.facetData.get("facets").map(function (data, index) {
-				var selectedValues = _this.props.selectedValues.find(function (values) {
-					return values.get("name") === data.get("name");
-				});
-
-				if (selectedValues != null) {
-					selectedValues = selectedValues.get("values");
-				}
-
+			var facets = this.props.results.last.facets.map(function (data, index) {
 				return _react2["default"].createElement(_listFacet2["default"], {
 					data: data,
-					i18n: _this.props.i18n,
 					key: index,
-					selectedValues: selectedValues });
+					labels: _this.props.labels,
+					onSelectFacetValue: _this.props.onSelectFacetValue,
+					queries: _this.props.queries });
 			});
 
 			return _react2["default"].createElement(
@@ -2278,7 +1682,7 @@ var Facets = (function (_React$Component) {
 					{ onClick: this.handleButtonClick.bind(this) },
 					"New search"
 				),
-				_react2["default"].createElement(_textSearch2["default"], { value: this.props.textValue }),
+				_react2["default"].createElement(_textSearch2["default"], { value: this.props.queries.last.term }),
 				facets
 			);
 		}
@@ -2287,19 +1691,19 @@ var Facets = (function (_React$Component) {
 	return Facets;
 })(_react2["default"].Component);
 
-Facets.defaultProps = {
-	selectedValues: new _immutable2["default"].List()
-};
+Facets.defaultProps = {};
 
 Facets.propTypes = {
-	i18n: _react2["default"].PropTypes.object,
-	selectedValues: _react2["default"].PropTypes.instanceOf(_immutable2["default"].List)
+	labels: _react2["default"].PropTypes.object,
+	onSelectFacetValue: _react2["default"].PropTypes.func,
+	queries: _react2["default"].PropTypes.object,
+	results: _react2["default"].PropTypes.object
 };
 
 exports["default"] = Facets;
 module.exports = exports["default"];
 
-},{"../actions/queries":26,"./list-facet":40,"./text-search":49,"immutable":"immutable","react":"react"}],30:[function(_dereq_,module,exports){
+},{"../actions/queries":22,"./list-facet":35,"./text-search":43,"react":"react"}],25:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2407,7 +1811,7 @@ FilterMenu.propTypes = {
 exports["default"] = FilterMenu;
 module.exports = exports["default"];
 
-},{"../icons/filter":32,"classnames":"classnames","hire-forms-input":4,"insert-css":5,"react":"react"}],31:[function(_dereq_,module,exports){
+},{"../icons/filter":27,"classnames":"classnames","hire-forms-input":1,"insert-css":2,"react":"react"}],26:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2468,7 +1872,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],32:[function(_dereq_,module,exports){
+},{"react":"react"}],27:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2528,7 +1932,7 @@ FilterIcon.propTypes = {
 exports["default"] = FilterIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],33:[function(_dereq_,module,exports){
+},{"react":"react"}],28:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2711,7 +2115,7 @@ LoaderThreeDots.PropTypes = {
 exports["default"] = LoaderThreeDots;
 module.exports = exports["default"];
 
-},{"react":"react"}],34:[function(_dereq_,module,exports){
+},{"react":"react"}],29:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2771,7 +2175,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],35:[function(_dereq_,module,exports){
+},{"react":"react"}],30:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2842,7 +2246,7 @@ SortAlphabeticallyAscending.propTypes = {
 exports["default"] = SortAlphabeticallyAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],36:[function(_dereq_,module,exports){
+},{"react":"react"}],31:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2913,7 +2317,7 @@ SortAlphabeticallyDescending.propTypes = {
 exports["default"] = SortAlphabeticallyDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],37:[function(_dereq_,module,exports){
+},{"react":"react"}],32:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2982,7 +2386,7 @@ SortCountAscending.propTypes = {
 exports["default"] = SortCountAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],38:[function(_dereq_,module,exports){
+},{"react":"react"}],33:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3051,7 +2455,7 @@ SortCountDescending.propTypes = {
 exports["default"] = SortCountDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],39:[function(_dereq_,module,exports){
+},{"react":"react"}],34:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3110,7 +2514,7 @@ UncheckedIcon.propTypes = {
 exports["default"] = UncheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],40:[function(_dereq_,module,exports){
+},{"react":"react"}],35:[function(_dereq_,module,exports){
 // TODO cap at 50 results if results > 200
 
 "use strict";
@@ -3162,7 +2566,7 @@ var _insertCss2 = _interopRequireDefault(_insertCss);
 var css = Buffer("bGkuaGlyZS1saXN0LWZhY2V0IHsKCWJhY2tncm91bmQtY29sb3I6IHdoaXRlOwoJbWFyZ2luLXRvcDogMjBweDsKCXBhZGRpbmc6IDIwcHggMjBweCAyMHB4IDIwcHg7Cn0KCmxpLmhpcmUtbGlzdC1mYWNldC5zaG93LWFsbCB7CglwYWRkaW5nOiAyMHB4IDAgMCAyMHB4Owp9CgpsaS5oaXJlLWxpc3QtZmFjZXQuc2hvdy1hbGwgPiBoZWFkZXIgewoJcGFkZGluZy1yaWdodDogMjBweDsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gaGVhZGVyID4gaDMsCmxpLmhpcmUtbGlzdC1mYWNldCA+IGhlYWRlciA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLWZpbHRlci1tZW51IHsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCXZlcnRpY2FsLWFsaWduOiB0b3A7Cglib3gtc2l6aW5nOiBib3JkZXItYm94Owp9CgpsaS5oaXJlLWxpc3QtZmFjZXQgPiBoZWFkZXIgPiBoMyB7CgltYXJnaW46IDAgMCAxMnB4IDA7CglwYWRkaW5nOiAwOwoJd2lkdGg6IDYwJTsKfQpsaS5oaXJlLWxpc3QtZmFjZXQgPiBoZWFkZXIgPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1maWx0ZXItbWVudSB7Cgl3aWR0aDogNDAlOwp9CgpsaS5oaXJlLWxpc3QtZmFjZXQgPiB1bCB7CgltYXgtaGVpZ2h0OiAyNjRweDsKfQoKbGkuaGlyZS1saXN0LWZhY2V0LnNob3ctYWxsID4gdWwgewoJLypoZWlnaHQ6IGF1dG87Ki8KCW1heC1oZWlnaHQ6IDMxNnB4OyAvKiAyNjRweCAodWwuaGVpZ2h0KSArIDE2cHggKGJ1dHRvbi5saW5lSGVpZ2h0KSArIDE2cHggKGJ1dHRvbi5wYWRkaW5nVG9wICsgMjBweCAoLmhpcmUtbGlzdC1mYWNldC5wYWRkaW5nQm90dG9tKSAqLwoJb3ZlcmZsb3cteTogc2Nyb2xsOwp9CgpsaS5oaXJlLWxpc3QtZmFjZXQgPiBidXR0b24gewoJYmFja2dyb3VuZDogbm9uZTsKCWJvcmRlcjogbm9uZTsKCWNvbG9yOiAjQUFBOwoJY3Vyc29yOiBwb2ludGVyOwoJZm9udC1zaXplOiAwLjhlbTsKCWZvbnQtc3R5bGU6IGl0YWxpYzsKCWxpbmUtaGVpZ2h0OiAxNnB4OwoJbWFyZ2luOiAwOwoJb3V0bGluZTogbm9uZTsKCXBhZGRpbmc6IDE2cHggMCAwIDA7Cn0KCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkuaGlyZS1saXN0LWZhY2V0LWxpc3QtaXRlbSB7CgljdXJzb3I6IHBvaW50ZXI7Cglwb3NpdGlvbjogcmVsYXRpdmU7Cn0KCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkubm8tb3B0aW9ucy1mb3VuZCB7Cgljb2xvcjogI0FBQTsKCWZvbnQtc2l6ZTogMC44ZW07Cglmb250LXN0eWxlOiBpdGFsaWM7CgltYXJnaW46IDIwcHggMDsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtID4gc3ZnLApsaS5oaXJlLWxpc3QtZmFjZXQgPiB1bCA+IGxpLmhpcmUtbGlzdC1mYWNldC1saXN0LWl0ZW0gPiBsYWJlbCwKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtID4gc3Bhbi5jb3VudCB7Cglib3gtc2l6aW5nOiBib3JkZXItYm94OwoJZGlzcGxheTogaW5saW5lLWJsb2NrOwoJdmVydGljYWwtYWxpZ246IHRvcDsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtIHN2Zy51bmNoZWNrZWQsCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkuaGlyZS1saXN0LWZhY2V0LWxpc3QtaXRlbSBzdmcuY2hlY2tlZCB7CgloZWlnaHQ6IDEycHg7CglmaWxsOiAjQUFBOwoJbWFyZ2luLXRvcDogNXB4OwoJd2lkdGg6IDEycHg7Cn0KCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkuaGlyZS1saXN0LWZhY2V0LWxpc3QtaXRlbSBsYWJlbCB7CgljdXJzb3I6IHBvaW50ZXI7CglvdmVyZmxvdy14OiBoaWRkZW47CglwYWRkaW5nOiAwIDRweDsKCXRleHQtb3ZlcmZsb3c6IGVsbGlwc2lzOwoJd2hpdGUtc3BhY2U6IG5vd3JhcDsKCXdpZHRoOiBjYWxjKDEwMCUgLSA0NHB4KTsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtID4gc3Bhbi5jb3VudCB7Cgl0ZXh0LWFsaWduOiByaWdodDsKCXdpZHRoOiAzMnB4Owp9CgoKLyoJCQlsaQoJCQkJcG9zaXRpb24gcmVsYXRpdmUKCQkJCWN1cnNvciBwb2ludGVyCgoJCQkJJjpob3ZlcgoJCQkJCWJhY2tncm91bmQtY29sb3Igd3dZZWxsb3cKCgkJCQlsYWJlbAoJCQkJCWN1cnNvciBwb2ludGVyCgkJCQkJbWF4LXdpZHRoIGNhbGMoMTAwJSAtIDZweCkKCgkJCQlzcGFuLmNvdW50CgkJCQkJcG9zaXRpb24gYWJzb2x1dGUKCQkJCQlyaWdodCA2cHgqLw==","base64");
 (0, _insertCss2["default"])(css, { prepend: true });
 
-var initSize = 12;
+var INIT_SIZE = 12;
 
 var ListFacet = (function (_React$Component) {
 	_inherits(ListFacet, _React$Component);
@@ -3201,46 +2605,59 @@ var ListFacet = (function (_React$Component) {
 			});
 		}
 	}, {
+		key: "selectedValues",
+		value: function selectedValues() {
+			var _this = this;
+
+			var selectedValues = this.props.queries.last.facetValues.filter(function (values) {
+				return values.name === _this.props.data.name;
+			});
+
+			return selectedValues.length ? selectedValues[0].values : selectedValues;
+		}
+	}, {
 		key: "render",
 		value: function render() {
-			var _this = this;
+			var _this2 = this;
 
 			var filterMenu = undefined,
 			    sortMenu = undefined;
-			var options = this.props.data.get("options");
+			var options = this.props.data.options;
 
 			options = options.sort(_sortMenu2["default"].sortFunctions[this.state.currentSort]);
 
-			if (this.props.sortMenu) {
+			if (this.props.showSortMenu) {
 				sortMenu = _react2["default"].createElement(_sortMenu2["default"], { onChange: this.handleSortMenuChange.bind(this) });
 			}
 
-			if (this.props.filterMenu) {
+			if (this.props.showFilterMenu) {
 				filterMenu = _react2["default"].createElement(_filterMenu2["default"], { onChange: this.handleFilterMenuChange.bind(this) });
 
 				if (this.state.filterQuery.length) {
 					(function () {
-						var query = _this.state.filterQuery.toLowerCase();
+						var query = _this2.state.filterQuery.toLowerCase();
 
 						options = options.filter(function (option) {
-							return option.get("name").toLowerCase().indexOf(query) > -1;
+							return option.name.toLowerCase().indexOf(query) > -1;
 						});
 					})();
 				}
 			}
 
-			var optionsToRender = this.state.showAll ? options : options.take(initSize);
+			var optionsToRender = this.state.showAll ? options : options.slice(0, INIT_SIZE - 1);
 
+			var selectedValues = this.selectedValues();
 			var listItems = optionsToRender.map(function (option, index) {
 				return _react2["default"].createElement(_listItem2["default"], {
-					count: option.get("count"),
-					checked: _this.props.selectedValues.contains(option.get("name")),
-					facetName: _this.props.data.get("name"),
+					checked: selectedValues.indexOf(option.name) > -1,
+					count: option.count,
+					facetName: _this2.props.data.name,
 					key: index,
-					name: option.get("name") });
+					name: option.name,
+					onSelectFacetValue: _this2.props.onSelectFacetValue });
 			});
 
-			if (!listItems.size) {
+			if (!listItems.length) {
 				listItems = _react2["default"].createElement(
 					"li",
 					{ className: "no-options-found" },
@@ -3248,15 +2665,15 @@ var ListFacet = (function (_React$Component) {
 				);
 			}
 
-			var title = this.props.data.get("title");
-			var facetTitle = this.props.i18n.facetTitles.hasOwnProperty(title) ? this.props.i18n.facetTitles[title] : title;
+			var title = this.props.data.title;
+			var facetTitle = this.props.labels.facetTitles.hasOwnProperty(title) ? this.props.labels.facetTitles[title] : title;
 
-			var moreButton = !this.state.showAll && options.size > initSize ? _react2["default"].createElement(
+			var moreButton = !this.state.showAll && options.length > INIT_SIZE ? _react2["default"].createElement(
 				"button",
 				{ onClick: this.handleButtonClick.bind(this) },
-				this.props.i18n.hasOwnProperty("Show all") ? this.props.i18n["Show all"] : "Show all",
+				this.props.labels.showAll,
 				" (",
-				options.size,
+				options.length,
 				")"
 			) : null;
 
@@ -3289,23 +2706,23 @@ var ListFacet = (function (_React$Component) {
 })(_react2["default"].Component);
 
 ListFacet.defaultProps = {
-	filterMenu: true,
-	selectedValues: new _immutable2["default"].List(),
-	sortMenu: false
+	showFilterMenu: true,
+	showSortMenu: false
 };
 
 ListFacet.propTypes = {
-	data: _react2["default"].PropTypes.instanceOf(_immutable2["default"].Map),
-	filterMenu: _react2["default"].PropTypes.bool,
-	i18n: _react2["default"].PropTypes.object,
-	selectedValues: _react2["default"].PropTypes.instanceOf(_immutable2["default"].List),
-	sortMenu: _react2["default"].PropTypes.bool
+	data: _react2["default"].PropTypes.object,
+	labels: _react2["default"].PropTypes.object,
+	onSelectFacetValue: _react2["default"].PropTypes.func,
+	queries: _react2["default"].PropTypes.object,
+	showFilterMenu: _react2["default"].PropTypes.bool,
+	showSortMenu: _react2["default"].PropTypes.bool
 };
 
 exports["default"] = ListFacet;
 module.exports = exports["default"];
 
-},{"../filter-menu":30,"../sort-menu":48,"./list-item":41,"classnames":"classnames","immutable":"immutable","insert-css":5,"react":"react"}],41:[function(_dereq_,module,exports){
+},{"../filter-menu":25,"../sort-menu":42,"./list-item":36,"classnames":"classnames","immutable":"immutable","insert-css":2,"react":"react"}],36:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3360,12 +2777,13 @@ var ListFacetListItem = (function (_React$Component) {
 		}
 	}, {
 		key: "handleClick",
-		value: function handleClick(value) {
-			if (this.props.checked) {
-				_actionsQueries2["default"].remove(this.props.facetName, this.props.name);
-			} else {
-				_actionsQueries2["default"].add(this.props.facetName, this.props.name);
-			}
+		value: function handleClick() {
+			this.props.onSelectFacetValue(this.props.facetName, this.props.name, this.props.checked);
+			// if (this.props.checked) {
+			// 	queriesActions.remove(this.props.facetName, this.props.name);
+			// } else {
+			// 	queriesActions.add(this.props.facetName, this.props.name);
+			// }
 
 			this.setState({
 				checked: !this.state.checked
@@ -3407,16 +2825,17 @@ ListFacetListItem.defaultProps = {
 };
 
 ListFacetListItem.propTypes = {
-	count: _react2["default"].PropTypes.number,
 	checked: _react2["default"].PropTypes.bool,
+	count: _react2["default"].PropTypes.number,
 	facetName: _react2["default"].PropTypes.string,
-	name: _react2["default"].PropTypes.string
+	name: _react2["default"].PropTypes.string,
+	onSelectFacetValue: _react2["default"].PropTypes.func
 };
 
 exports["default"] = ListFacetListItem;
 module.exports = exports["default"];
 
-},{"../../actions/queries":26,"../icons/checked":31,"../icons/unchecked":39,"react":"react"}],42:[function(_dereq_,module,exports){
+},{"../../actions/queries":22,"../icons/checked":26,"../icons/unchecked":34,"react":"react"}],37:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3484,7 +2903,7 @@ FacetValue.propTypes = {
 exports["default"] = FacetValue;
 module.exports = exports["default"];
 
-},{"../../../../actions/queries":26,"react":"react"}],43:[function(_dereq_,module,exports){
+},{"../../../../actions/queries":22,"react":"react"}],38:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3505,7 +2924,7 @@ var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
 
-var _immutable = _dereq_("immutable");
+// import {Map} from "immutable";
 
 var _actionsQueries = _dereq_("../../../actions/queries");
 
@@ -3534,9 +2953,9 @@ var CurrentQuery = (function (_React$Component) {
 	}
 
 	_createClass(CurrentQuery, [{
-		key: "toI18n",
-		value: function toI18n(name) {
-			return this.props.i18n.facetTitles.hasOwnProperty(name) ? this.props.i18n.facetTitles[name] : name;
+		key: "toLabel",
+		value: function toLabel(name) {
+			return this.props.labels.facetTitles.hasOwnProperty(name) ? this.props.labels.facetTitles[name] : name;
 		}
 	}, {
 		key: "handleSearchTermClick",
@@ -3548,9 +2967,9 @@ var CurrentQuery = (function (_React$Component) {
 		value: function render() {
 			var _this = this;
 
-			var query = this.props.values;
+			var query = this.props.queries.last;
 
-			var searchTerm = query.get("term") !== "" ? _react2["default"].createElement(
+			var searchTerm = query.term !== "" ? _react2["default"].createElement(
 				"li",
 				{ className: "search-term" },
 				_react2["default"].createElement(
@@ -3561,18 +2980,25 @@ var CurrentQuery = (function (_React$Component) {
 				_react2["default"].createElement(
 					"span",
 					{ onClick: this.handleSearchTermClick.bind(this) },
-					query.get("term")
+					query.term
 				)
 			) : null;
 
-			var facets = query.get("facetValues").map(function (selectedFacet, index) {
-				var facetTitle = _this.props.facetData.get("facets").find(function (facet) {
-					return facet.get("name") === selectedFacet.get("name");
-				}).get("title");
+			var facets = query.facetValues.map(function (selectedFacet, index) {
+				var facetTitle = undefined;
+				var filteredFacets = _this.props.results.last.facets.filter(function (facet) {
+					return facet.name === selectedFacet.name;
+				});
 
-				var facetValues = selectedFacet.get("values").map(function (value, index2) {
+				if (filteredFacets.length) {
+					facetTitle = filteredFacets[0].title;
+				} else {
+					return new Error("CurrentQuery: facet not found!");
+				}
+
+				var facetValues = selectedFacet.values.map(function (value, index2) {
 					return _react2["default"].createElement(_facetValue2["default"], {
-						facetName: selectedFacet.get("name"),
+						facetName: selectedFacet.name,
 						key: index2,
 						value: value });
 				});
@@ -3583,7 +3009,7 @@ var CurrentQuery = (function (_React$Component) {
 					_react2["default"].createElement(
 						"label",
 						null,
-						_this.toI18n(facetTitle)
+						_this.toLabel(facetTitle)
 					),
 					_react2["default"].createElement(
 						"ul",
@@ -3606,15 +3032,15 @@ var CurrentQuery = (function (_React$Component) {
 })(_react2["default"].Component);
 
 CurrentQuery.propTypes = {
-	facetData: _react2["default"].PropTypes.instanceOf(_immutable.Map),
-	i18n: _react2["default"].PropTypes.object,
-	values: _react2["default"].PropTypes.instanceOf(_immutable.Map)
+	labels: _react2["default"].PropTypes.object,
+	queries: _react2["default"].PropTypes.object,
+	results: _react2["default"].PropTypes.object
 };
 
 exports["default"] = CurrentQuery;
 module.exports = exports["default"];
 
-},{"../../../actions/queries":26,"./facet-value":42,"immutable":"immutable","insert-css":5,"react":"react"}],44:[function(_dereq_,module,exports){
+},{"../../../actions/queries":22,"./facet-value":37,"insert-css":2,"react":"react"}],39:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3635,8 +3061,6 @@ var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
 
-var _immutable = _dereq_("immutable");
-
 var _lodashDebounce = _dereq_("lodash.debounce");
 
 var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
@@ -3649,23 +3073,13 @@ var _sortMenu = _dereq_("./sort-menu");
 
 var _sortMenu2 = _interopRequireDefault(_sortMenu);
 
-var _rows = _dereq_("./rows");
-
-var _rows2 = _interopRequireDefault(_rows);
-
 var _currentQuery = _dereq_("./current-query");
 
 var _currentQuery2 = _interopRequireDefault(_currentQuery);
 
-// import Pagination from "./pagination";
-
 var _iconsLoaderThreeDots = _dereq_("../icons/loader-three-dots");
 
 var _iconsLoaderThreeDots2 = _interopRequireDefault(_iconsLoaderThreeDots);
-
-var _actionsResults = _dereq_("../../actions/results");
-
-var _actionsResults2 = _interopRequireDefault(_actionsResults);
 
 var _insertCss = _dereq_("insert-css");
 
@@ -3693,7 +3107,7 @@ var Results = (function (_React$Component) {
 		this.onScroll = (0, _lodashDebounce2["default"])(this.onScroll, 300).bind(this);
 
 		this.state = {
-			results: this.dataToComponents(this.props.facetData.get("results"))
+			results: this.dataToComponents(this.props.results.last.results)
 		};
 	}
 
@@ -3705,11 +3119,11 @@ var Results = (function (_React$Component) {
 	}, {
 		key: "componentWillReceiveProps",
 		value: function componentWillReceiveProps(nextProps) {
-			var nextPage = this.props.facetData.get("start") + this.props.rows === nextProps.facetData.get("start");
-			var otherQuery = this.props.query !== nextProps.query;
+			var nextPage = this.props.results.last.start + this.props.config.rows === nextProps.results.last.start;
+			var newResults = this.props.results.last !== nextProps.results.last;
 
-			if (nextPage || otherQuery) {
-				var nextResults = this.dataToComponents(nextProps.facetData.get("results"));
+			if (nextPage || newResults) {
+				var nextResults = this.dataToComponents(nextProps.results.last.results);
 
 				if (nextPage) {
 					nextResults = this.state.results.concat(nextResults);
@@ -3729,14 +3143,14 @@ var Results = (function (_React$Component) {
 		}
 	}, {
 		key: "onScroll",
-		value: function onScroll(ev) {
-			var nth = this.state.results.size - this.props.rows + 1;
+		value: function onScroll() {
+			var nth = this.state.results.length - this.props.config.rows + 1;
 
 			var listItem = _react2["default"].findDOMNode(this).querySelector(".hire-faceted-search-result-list > li:nth-child(" + nth + ")");
 
-			if (this.props.facetData.has("_next") && inViewport(listItem)) {
-				var url = this.props.facetData.get("_next").replace("draft//api", "draft/api");
-				_actionsResults2["default"].getResultsFromUrl(url);
+			if (this.props.results.last.hasOwnProperty("_next") && inViewport(listItem)) {
+				var url = this.props.results.last._next.replace("draft//api", "draft/api");
+				this.props.onFetchResultsFromUrl(url);
 
 				window.removeEventListener("scroll", this.onScroll);
 			}
@@ -3749,15 +3163,15 @@ var Results = (function (_React$Component) {
 			return results.map(function (data, index) {
 				return _react2["default"].createElement(_result2["default"], {
 					data: data,
-					i18n: _this.props.i18n,
 					key: index + Math.random(),
+					labels: _this.props.labels,
 					onSelect: _this.props.onSelect });
 			});
 		}
 	}, {
 		key: "render",
 		value: function render() {
-			var loader = this.props.facetData.get("numFound") > this.state.results.size ? _react2["default"].createElement(_iconsLoaderThreeDots2["default"], { className: "loader" }) : null;
+			var loader = this.props.results.last.numFound > this.state.results.length ? _react2["default"].createElement(_iconsLoaderThreeDots2["default"], { className: "loader" }) : null;
 
 			return _react2["default"].createElement(
 				"div",
@@ -3768,17 +3182,18 @@ var Results = (function (_React$Component) {
 					_react2["default"].createElement(
 						"h3",
 						null,
-						this.props.i18n["Results found"],
+						this.props.labels.resultsFound,
 						": ",
-						this.props.facetData.get("numFound")
+						this.props.results.last.numFound
 					),
 					_react2["default"].createElement(_sortMenu2["default"], {
-						i18n: this.props.i18n,
-						values: this.props.query.get("sortParameters") }),
+						labels: this.props.labels,
+						onSetSort: this.props.onSetSort,
+						values: this.props.queries.last.sortParameters }),
 					_react2["default"].createElement(_currentQuery2["default"], {
-						facetData: this.props.facetData,
-						i18n: this.props.i18n,
-						values: this.props.query })
+						labels: this.props.labels,
+						queries: this.props.queries,
+						results: this.props.results })
 				),
 				_react2["default"].createElement(
 					"ul",
@@ -3794,18 +3209,19 @@ var Results = (function (_React$Component) {
 })(_react2["default"].Component);
 
 Results.propTypes = {
-	facetData: _react2["default"].PropTypes.instanceOf(_immutable.Map),
-	i18n: _react2["default"].PropTypes.object,
-	query: _react2["default"].PropTypes.instanceOf(_immutable.Map),
-	rows: _react2["default"].PropTypes.number
+	config: _react2["default"].PropTypes.object,
+	labels: _react2["default"].PropTypes.object,
+	onFetchResultsFromUrl: _react2["default"].PropTypes.func,
+	onSelect: _react2["default"].PropTypes.func,
+	onSetSort: _react2["default"].PropTypes.func,
+	queries: _react2["default"].PropTypes.object,
+	results: _react2["default"].PropTypes.object
 };
 
 exports["default"] = Results;
 module.exports = exports["default"];
-/* <ResultsRows
-rows={this.props.rows} /> */ /* <Pagination facetData={this.props.facetData} /> */
 
-},{"../../actions/results":27,"../icons/loader-three-dots":33,"./current-query":43,"./result":45,"./rows":46,"./sort-menu":47,"immutable":"immutable","insert-css":5,"lodash.debounce":6,"react":"react"}],45:[function(_dereq_,module,exports){
+},{"../icons/loader-three-dots":28,"./current-query":38,"./result":40,"./sort-menu":41,"insert-css":2,"lodash.debounce":3,"react":"react"}],40:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3836,9 +3252,9 @@ var Result = (function (_React$Component) {
 	}
 
 	_createClass(Result, [{
-		key: "toI18n",
-		value: function toI18n(name) {
-			return this.props.i18n.facetTitles.hasOwnProperty(name) ? this.props.i18n.facetTitles[name] : name;
+		key: "toLabel",
+		value: function toLabel(name) {
+			return this.props.labels.facetTitles.hasOwnProperty(name) ? this.props.labels.facetTitles[name] : name;
 		}
 	}, {
 		key: "render",
@@ -3847,24 +3263,24 @@ var Result = (function (_React$Component) {
 
 			var model = this.props.data;
 
-			var metadata = model.get("metadata").entrySeq().map(function (keyValuePair, index) {
+			var metadata = Object.keys(this.props.data.metadata).map(function (key, index) {
 				return _react2["default"].createElement(
 					"li",
 					{ key: index },
 					_react2["default"].createElement(
 						"label",
 						null,
-						_this.toI18n(keyValuePair[0])
+						_this.toLabel(key)
 					),
 					_react2["default"].createElement(
 						"span",
 						null,
-						keyValuePair[1]
+						_this.props.data.metadata[key]
 					)
 				);
 			});
 
-			metadata = metadata.size ? _react2["default"].createElement(
+			metadata = metadata.length ? _react2["default"].createElement(
 				"ul",
 				{ className: "metadata" },
 				metadata
@@ -3876,7 +3292,7 @@ var Result = (function (_React$Component) {
 				_react2["default"].createElement(
 					"label",
 					null,
-					model.get("name")
+					this.props.data.name
 				),
 				metadata
 			);
@@ -3888,12 +3304,14 @@ var Result = (function (_React$Component) {
 
 Result.defaultProps = {};
 
-Result.propTypes = {};
+Result.propTypes = {
+	labels: _react2["default"].PropTypes.object
+};
 
 exports["default"] = Result;
 module.exports = exports["default"];
 
-},{"react":"react"}],46:[function(_dereq_,module,exports){
+},{"react":"react"}],41:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3914,105 +3332,13 @@ var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
 
-var _actionsConfig = _dereq_("../../../actions/config");
-
-var _actionsConfig2 = _interopRequireDefault(_actionsConfig);
-
-var _insertCss = _dereq_("insert-css");
-
-var _insertCss2 = _interopRequireDefault(_insertCss);
-
-
-
-var css = Buffer("c2VsZWN0LmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1yb3dzIHsKCWJhY2tncm91bmQtY29sb3I6ICNEREQ7Cglib3JkZXI6IDFweCBzb2xpZCAjODg4OwoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCWhlaWdodDogMjJweDsKCW91dGxpbmU6IG5vbmU7CglwYWRkaW5nOiAwIDZweDsKfQ==","base64");
-(0, _insertCss2["default"])(css, { prepend: true });
-
-var ResultsRows = (function (_React$Component) {
-	_inherits(ResultsRows, _React$Component);
-
-	function ResultsRows(props) {
-		_classCallCheck(this, ResultsRows);
-
-		_get(Object.getPrototypeOf(ResultsRows.prototype), "constructor", this).call(this, props);
-
-		this.state = {
-			value: this.props.rows
-		};
-	}
-
-	_createClass(ResultsRows, [{
-		key: "handleSelectChange",
-		value: function handleSelectChange(ev) {
-			this.setState({
-				value: ev.target.value
-			});
-
-			_actionsConfig2["default"].set("rows", parseInt(ev.target.value, 10));
-		}
-	}, {
-		key: "render",
-		value: function render() {
-			var options = [10, 20, 50, 100, 1000].map(function (option, index) {
-				return _react2["default"].createElement(
-					"option",
-					{
-						key: index,
-						value: option },
-					option
-				);
-			});
-
-			return _react2["default"].createElement(
-				"select",
-				{
-					className: "hire-faceted-search-results-rows",
-					onChange: this.handleSelectChange.bind(this),
-					value: this.state.value },
-				options
-			);
-		}
-	}]);
-
-	return ResultsRows;
-})(_react2["default"].Component);
-
-ResultsRows.propTypes = {
-	rows: _react2["default"].PropTypes.number
-};
-
-exports["default"] = ResultsRows;
-module.exports = exports["default"];
-
-},{"../../../actions/config":25,"insert-css":5,"react":"react"}],47:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = _dereq_("react");
-
-var _react2 = _interopRequireDefault(_react);
-
-var _immutable = _dereq_("immutable");
+// import {List, Map} from "immutable";
 
 var _classnames = _dereq_("classnames");
 
 var _classnames2 = _interopRequireDefault(_classnames);
 
-var _actionsQueries = _dereq_("../../../actions/queries");
-
-var _actionsQueries2 = _interopRequireDefault(_actionsQueries);
+// import queriesActions from "../../../actions/queries";
 
 var _insertCss = _dereq_("insert-css");
 
@@ -4033,7 +3359,7 @@ var ResultsSortMenu = (function (_React$Component) {
 
 		this.state = {
 			optionsVisible: false,
-			level: this.props.values.first()
+			level: props.values.length ? props.values[0] : null
 		};
 	}
 
@@ -4042,7 +3368,7 @@ var ResultsSortMenu = (function (_React$Component) {
 		value: function componentWillReceiveProps(nextProps) {
 			this.setState({
 				optionsVisible: false,
-				level: nextProps.values.first()
+				level: nextProps.values.length ? nextProps.values[0] : null
 			});
 		}
 	}, {
@@ -4054,8 +3380,9 @@ var ResultsSortMenu = (function (_React$Component) {
 		}
 	}, {
 		key: "handleOptionClick",
-		value: function handleOptionClick(level, ev) {
-			_actionsQueries2["default"].setSortParameter(level.get("fieldname"));
+		value: function handleOptionClick(level) {
+			// queriesActions.setSortParameter(level.fieldname);
+			this.props.onSetSort(level.fieldname);
 
 			this.setState({
 				optionsVisible: false,
@@ -4063,16 +3390,16 @@ var ResultsSortMenu = (function (_React$Component) {
 			});
 		}
 	}, {
-		key: "toI18n",
-		value: function toI18n(name) {
-			return this.props.i18n.facetTitles.hasOwnProperty(name) ? this.props.i18n.facetTitles[name] : name;
+		key: "toLabel",
+		value: function toLabel(name) {
+			return this.props.labels.facetTitles.hasOwnProperty(name) ? this.props.labels.facetTitles[name] : name;
 		}
 	}, {
 		key: "render",
 		value: function render() {
 			var _this = this;
 
-			if (this.props.values.isEmpty()) {
+			if (!this.props.values.length) {
 				return null;
 			}
 
@@ -4082,7 +3409,7 @@ var ResultsSortMenu = (function (_React$Component) {
 					{
 						key: index,
 						onClick: _this.handleOptionClick.bind(_this, level) },
-					_this.toI18n(level.get("fieldname"))
+					_this.toLabel(level.fieldname)
 				);
 			});
 
@@ -4093,9 +3420,9 @@ var ResultsSortMenu = (function (_React$Component) {
 					"button",
 					{
 						onClick: this.handleButtonClick.bind(this) },
-					this.props.i18n["Sort by"],
+					this.props.labels.sortBy,
 					": ",
-					this.toI18n(this.state.level.get("fieldname"))
+					this.toLabel(this.state.level.fieldname)
 				),
 				_react2["default"].createElement(
 					"ul",
@@ -4110,19 +3437,18 @@ var ResultsSortMenu = (function (_React$Component) {
 	return ResultsSortMenu;
 })(_react2["default"].Component);
 
-ResultsSortMenu.defaultProps = {
-	values: new _immutable.List()
-};
+ResultsSortMenu.defaultProps = {};
 
 ResultsSortMenu.propTypes = {
-	i18n: _react2["default"].PropTypes.object,
-	values: _react2["default"].PropTypes.instanceOf(_immutable.List)
+	labels: _react2["default"].PropTypes.object,
+	onSetSort: _react2["default"].PropTypes.func,
+	values: _react2["default"].PropTypes.array
 };
 
 exports["default"] = ResultsSortMenu;
 module.exports = exports["default"];
 
-},{"../../../actions/queries":26,"classnames":"classnames","immutable":"immutable","insert-css":5,"react":"react"}],48:[function(_dereq_,module,exports){
+},{"classnames":"classnames","insert-css":2,"react":"react"}],42:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4246,23 +3572,23 @@ var SortMenu = (function (_React$Component) {
 
 SortMenu.sortFunctions = {
 	alphaAsc: function alphaAsc(valA, valB) {
-		if (valA.get("name") > valB.get("name")) return 1;
-		if (valB.get("name") > valA.get("name")) return -1;
+		if (valA.name > valB.name) return 1;
+		if (valB.name > valA.name) return -1;
 		return 0;
 	},
 	alphaDesc: function alphaDesc(valA, valB) {
-		if (valA.get("name") > valB.get("name")) return -1;
-		if (valB.get("name") > valA.get("name")) return 1;
+		if (valA.name > valB.name) return -1;
+		if (valB.name > valA.name) return 1;
 		return 0;
 	},
 	countAsc: function countAsc(valA, valB) {
-		if (valA.get("count") > valB.get("count")) return 1;
-		if (valB.get("count") > valA.get("count")) return -1;
+		if (valA.count > valB.count) return 1;
+		if (valB.count > valA.count) return -1;
 		return 0;
 	},
 	countDesc: function countDesc(valA, valB) {
-		if (valA.get("count") > valB.get("count")) return -1;
-		if (valB.get("count") > valA.get("count")) return 1;
+		if (valA.count > valB.count) return -1;
+		if (valB.count > valA.count) return 1;
 		return 0;
 	}
 };
@@ -4278,7 +3604,7 @@ SortMenu.propTypes = {
 exports["default"] = SortMenu;
 module.exports = exports["default"];
 
-},{"../icons/sort-alphabetically-ascending":35,"../icons/sort-alphabetically-descending":36,"../icons/sort-count-ascending":37,"../icons/sort-count-descending":38,"classnames":"classnames","insert-css":5,"react":"react"}],49:[function(_dereq_,module,exports){
+},{"../icons/sort-alphabetically-ascending":30,"../icons/sort-alphabetically-descending":31,"../icons/sort-count-ascending":32,"../icons/sort-count-descending":33,"classnames":"classnames","insert-css":2,"react":"react"}],43:[function(_dereq_,module,exports){
 // TODO add searching class to .search-icon when async query is busy
 
 "use strict";
@@ -4404,75 +3730,7 @@ TextSearch.propTypes = {};
 exports["default"] = TextSearch;
 module.exports = exports["default"];
 
-},{"../../actions/queries":26,"../icons/search":34,"classnames":"classnames","insert-css":5,"react":"react"}],50:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _flux = _dereq_("flux");
-
-var AppDispatcher = (function (_Dispatcher) {
-	_inherits(AppDispatcher, _Dispatcher);
-
-	function AppDispatcher() {
-		_classCallCheck(this, AppDispatcher);
-
-		_get(Object.getPrototypeOf(AppDispatcher.prototype), "constructor", this).apply(this, arguments);
-	}
-
-	_createClass(AppDispatcher, [{
-		key: "handleViewAction",
-		value: function handleViewAction(action) {
-			console.log("VIEW_ACTION", action);
-
-			return this.dispatch({
-				source: "VIEW_ACTION",
-				action: action
-			});
-		}
-	}, {
-		key: "handleServerAction",
-		value: function handleServerAction(action) {
-			console.log("SERVER_ACTION", action);
-
-			return this.dispatch({
-				source: "SERVER_ACTION",
-				action: action
-			});
-		}
-	}]);
-
-	return AppDispatcher;
-})(_flux.Dispatcher);
-
-exports["default"] = new AppDispatcher();
-module.exports = exports["default"];
-
-},{"flux":1}],51:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-exports["default"] = {
-	facetTitles: {},
-	"Results found": "Results found",
-	"Show all": "Show all",
-	"Sort by": "Sort by"
-};
-module.exports = exports["default"];
-
-},{}],52:[function(_dereq_,module,exports){
+},{"../../actions/queries":22,"../icons/search":29,"classnames":"classnames","insert-css":2,"react":"react"}],44:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4495,41 +3753,19 @@ var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
 
-var _immutable = _dereq_("immutable");
+// import Immutable from "immutable";
 
-var _immutable2 = _interopRequireDefault(_immutable);
+var _componentsFacets = _dereq_("./components/facets");
 
-var _componentsFacetedSearch = _dereq_("./components/faceted-search");
-
-var _componentsFacetedSearch2 = _interopRequireDefault(_componentsFacetedSearch);
+var _componentsFacets2 = _interopRequireDefault(_componentsFacets);
 
 var _componentsResults = _dereq_("./components/results");
 
 var _componentsResults2 = _interopRequireDefault(_componentsResults);
 
-var _actionsConfig = _dereq_("./actions/config");
-
-var _actionsConfig2 = _interopRequireDefault(_actionsConfig);
-
-var _storesConfig = _dereq_("./stores/config");
-
-var _storesConfig2 = _interopRequireDefault(_storesConfig);
-
 var _actionsResults = _dereq_("./actions/results");
 
-var _actionsResults2 = _interopRequireDefault(_actionsResults);
-
-var _storesResults = _dereq_("./stores/results");
-
-var _storesResults2 = _interopRequireDefault(_storesResults);
-
 var _actionsQueries = _dereq_("./actions/queries");
-
-var _actionsQueries2 = _interopRequireDefault(_actionsQueries);
-
-var _storesQueries = _dereq_("./stores/queries");
-
-var _storesQueries2 = _interopRequireDefault(_storesQueries);
 
 var _redux = _dereq_("redux");
 
@@ -4537,15 +3773,28 @@ var _reducers = _dereq_("./reducers");
 
 var _reducers2 = _interopRequireDefault(_reducers);
 
-var _i18n = _dereq_("./i18n");
+var _reduxThunk = _dereq_("redux-thunk");
 
-var _i18n2 = _interopRequireDefault(_i18n);
+var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 
 var _insertCss = _dereq_("insert-css");
 
 var _insertCss2 = _interopRequireDefault(_insertCss);
 
-var store = (0, _redux.createStore)(_reducers2["default"]);
+var logger = function logger(store) {
+	return function (next) {
+		return function (action) {
+			if (action.hasOwnProperty("type")) {
+				console.log(action.type, action);
+			}
+
+			return next(action);
+		};
+	};
+};
+
+var createStoreWithMiddleware = (0, _redux.applyMiddleware)(logger, _reduxThunk2["default"])(_redux.createStore);
+var store = createStoreWithMiddleware(_reducers2["default"]);
 
 
 
@@ -4560,9 +3809,6 @@ var FacetedSearch = (function (_React$Component) {
 
 		_get(Object.getPrototypeOf(FacetedSearch.prototype), "constructor", this).call(this, props);
 
-		// configActions.init(this.props.config);
-		// queriesActions.setDefaults(this.props.config);
-
 		store.dispatch({
 			type: "SET_QUERY_DEFAULTS",
 			config: this.props.config
@@ -4573,68 +3819,36 @@ var FacetedSearch = (function (_React$Component) {
 			config: this.props.config
 		});
 
-		this.onConfigChange = this.onConfigChange.bind(this);
-		this.onResultsChange = this.onResultsChange.bind(this);
-		this.onQueriesChange = this.onQueriesChange.bind(this);
-
-		this.state = {
-			config: _storesConfig2["default"].getState(),
-			i18n: _extends(_i18n2["default"], this.props.i18n),
-			queries: _storesQueries2["default"].getState(),
-			results: _storesResults2["default"].getState()
-		};
+		this.state = store.getState();
 	}
 
 	_createClass(FacetedSearch, [{
 		key: "componentDidMount",
 		value: function componentDidMount() {
-			_storesConfig2["default"].listen(this.onConfigChange);
-			_storesResults2["default"].listen(this.onResultsChange);
-			_storesQueries2["default"].listen(this.onQueriesChange);
-			_actionsResults2["default"].getAll();
-		}
-	}, {
-		key: "componentWillReceiveProps",
-		value: function componentWillReceiveProps(nextProps) {
-			var oldI18n = _immutable2["default"].fromJS(this.state.i18n);
-			var newI18n = _immutable2["default"].fromJS(nextProps.i18n);
+			var _this = this;
 
-			if (!newI18n.equals(oldI18n)) {
-				this.setState({
-					i18n: _extends(_i18n2["default"], nextProps.i18n)
-				});
-			}
+			this.unsubscribe = store.subscribe(function () {
+				return _this.setState(store.getState());
+			});
+
+			store.dispatch((0, _actionsResults.fetchResults)());
 		}
+
+		// componentWillReceiveProps(nextProps) {
+		// let oldI18n = Immutable.fromJS(this.state.i18n);
+		// let newI18n = Immutable.fromJS(nextProps.i18n);
+
+		// if (!newI18n.equals(oldI18n)) {
+		// 	this.setState({
+		// 		i18n: Object.assign(i18n, nextProps.i18n)
+		// 	});
+		// }
+		// }
+
 	}, {
 		key: "componentWillUnmount",
 		value: function componentWillUnmount() {
-			_storesConfig2["default"].stopListening(this.onConfigChange);
-			_storesResults2["default"].stopListening(this.onResultsChange);
-			_storesQueries2["default"].stopListening(this.onQueriesChange);
-		}
-	}, {
-		key: "onQueriesChange",
-		value: function onQueriesChange() {
-			_actionsResults2["default"].getResults();
-		}
-	}, {
-		key: "onConfigChange",
-		value: function onConfigChange() {
-			if (this.state.config.get("rows") !== _storesConfig2["default"].getState().get("rows")) {
-				_actionsResults2["default"].getResults();
-			}
-
-			this.setState({
-				config: _storesConfig2["default"].getState()
-			});
-		}
-	}, {
-		key: "onResultsChange",
-		value: function onResultsChange() {
-			this.setState({
-				queries: _storesQueries2["default"].getState(),
-				results: _storesResults2["default"].getState()
-			});
+			this.unsubscribe();
 		}
 	}, {
 		key: "handleResultSelect",
@@ -4642,28 +3856,57 @@ var FacetedSearch = (function (_React$Component) {
 			this.props.onChange(result.toJS());
 		}
 	}, {
+		key: "handleFetchResultsFromUrl",
+		value: function handleFetchResultsFromUrl(url) {
+			store.dispatch((0, _actionsResults.fetchResultsFromUrl)(url));
+		}
+	}, {
+		key: "handleSelectFacetValue",
+		value: function handleSelectFacetValue(facetName, value, remove) {
+			var part1 = {
+				facetName: facetName,
+				value: value
+			};
+
+			var part2 = remove ? { type: "REMOVE_FACET_VALUE" } : { type: "ADD_FACET_VALUE" };
+
+			store.dispatch((0, _actionsQueries.createNewQuery)(_extends(part1, part2)));
+		}
+	}, {
+		key: "handleSetSort",
+		value: function handleSetSort(field) {
+			store.dispatch((0, _actionsQueries.createNewQuery)({
+				type: "SET_RESULTS_SORT",
+				field: field
+			}));
+		}
+	}, {
 		key: "render",
 		value: function render() {
-			var facetData = this.state.results.get("queryResults").size ? this.state.results.get("queryResults").last() : this.state.results.get("initResults");
-
-			var facets = this.state.results.get("queryResults").size ? _react2["default"].createElement(_componentsFacetedSearch2["default"], {
-				facetData: facetData,
-				i18n: this.state.i18n,
-				textValue: this.state.queries.get("term"),
-				selectedValues: this.state.queries.get("facetValues") }) : null;
-
-			var results = this.state.results.get("queryResults").size > 0 ? _react2["default"].createElement(_componentsResults2["default"], {
-				rows: this.state.config.get("rows"),
-				facetData: facetData,
-				i18n: this.state.i18n,
-				onSelect: this.handleResultSelect.bind(this),
-				query: this.state.queries }) : null;
+			if (this.state.results.all.length === 0) {
+				return _react2["default"].createElement(
+					"div",
+					null,
+					"LAODING"
+				);
+			}
 
 			return _react2["default"].createElement(
 				"div",
 				{ className: "hire-faceted-search" },
-				facets,
-				results
+				_react2["default"].createElement(_componentsFacets2["default"], {
+					labels: this.state.labels,
+					onSelectFacetValue: this.handleSelectFacetValue.bind(this),
+					queries: this.state.queries,
+					results: this.state.results }),
+				_react2["default"].createElement(_componentsResults2["default"], {
+					config: this.state.config,
+					labels: this.state.labels,
+					onFetchResultsFromUrl: this.handleFetchResultsFromUrl.bind(this),
+					onSelect: this.handleResultSelect.bind(this),
+					onSetSort: this.handleSetSort.bind(this),
+					queries: this.state.queries,
+					results: this.state.results })
 			);
 		}
 	}]);
@@ -4671,29 +3914,18 @@ var FacetedSearch = (function (_React$Component) {
 	return FacetedSearch;
 })(_react2["default"].Component);
 
-FacetedSearch.defaultProps = {
-	i18n: {}
-};
+FacetedSearch.defaultProps = {};
 
 FacetedSearch.propTypes = {
 	config: _react2["default"].PropTypes.object.isRequired,
-	i18n: _react2["default"].PropTypes.object,
+	labels: _react2["default"].PropTypes.object,
 	onChange: _react2["default"].PropTypes.func.isRequired
 };
 
 exports["default"] = FacetedSearch;
 module.exports = exports["default"];
 
-},{"./actions/config":25,"./actions/queries":26,"./actions/results":27,"./components/faceted-search":29,"./components/results":44,"./i18n":51,"./reducers":54,"./stores/config":58,"./stores/queries":59,"./stores/results":60,"immutable":"immutable","insert-css":5,"react":"react","redux":9}],53:[function(_dereq_,module,exports){
-// let initialState = {
-// 	queries: [],
-// 	queryModel: {
-// 		"facetValues": [],
-// 		"searchInAnnotations": true,
-// 		"searchInTranscriptions": true,
-// 		"term": "",
-// 		"textLayers": ["Diplomatic", "Opmerkingen en verwijzingen", "Comments and References", "Transcription", "Transcripción", "Transcriptie", "Vertaling", "Translation", "Traducción", "Comentarios y referencias"]
-// 	}
+},{"./actions/queries":22,"./actions/results":23,"./components/facets":24,"./components/results":39,"./reducers":46,"insert-css":2,"react":"react","redux":7,"redux-thunk":5}],45:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4702,21 +3934,26 @@ Object.defineProperty(exports, "__esModule", {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+var initialState = {
+	rows: 50
+};
+
 exports["default"] = function (state, action) {
 	if (state === undefined) state = {};
 
 	switch (action.type) {
 		case "SET_CONFIG_DEFAULTS":
-			return _extends({}, state, action.config);
+			var initConfig = _extends({}, initialState, action.config);
+
+			return _extends({}, state, initConfig);
 		default:
 			return state;
 	}
 };
 
 module.exports = exports["default"];
-// }
 
-},{}],54:[function(_dereq_,module,exports){
+},{}],46:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4727,21 +3964,61 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 var _redux = _dereq_("redux");
 
-var _queries = _dereq_("./queries");
-
-var _queries2 = _interopRequireDefault(_queries);
-
 var _config = _dereq_("./config");
 
 var _config2 = _interopRequireDefault(_config);
 
+var _labels = _dereq_("./labels");
+
+var _labels2 = _interopRequireDefault(_labels);
+
+var _queries = _dereq_("./queries");
+
+var _queries2 = _interopRequireDefault(_queries);
+
+var _results = _dereq_("./results");
+
+var _results2 = _interopRequireDefault(_results);
+
 exports["default"] = (0, _redux.combineReducers)({
 	config: _config2["default"],
-	queries: _queries2["default"]
+	labels: _labels2["default"],
+	queries: _queries2["default"],
+	results: _results2["default"]
 });
 module.exports = exports["default"];
 
-},{"./config":53,"./queries":55,"redux":9}],55:[function(_dereq_,module,exports){
+},{"./config":45,"./labels":47,"./queries":48,"./results":49,"redux":7}],47:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var initialState = {
+	facetTitles: {},
+	resultsFound: "Results found",
+	showAll: "Show all",
+	sortBy: "Sort by"
+};
+
+exports["default"] = function (state, action) {
+	if (state === undefined) state = initialState;
+
+	switch (action.type) {
+		case "SET_LABELS":
+			return _extends({}, state, action.labels);
+
+		default:
+			return state;
+	}
+};
+
+module.exports = exports["default"];
+
+},{}],48:[function(_dereq_,module,exports){
 // import dispatcher from "../dispatcher";
 
 // let queriesActions = {
@@ -4813,35 +4090,122 @@ Object.defineProperty(exports, "__esModule", {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+
+var removeFacetValue = function removeFacetValue(facetValues, name, value) {
+	var foundFacetValue = facetValues.filter(function (facetValue) {
+		return facetValue.name === name;
+	});
+
+	var otherFacetValues = facetValues.filter(function (facetValue) {
+		return facetValue.name !== name;
+	});
+
+	return foundFacetValue[0].values.length > 1 ? otherFacetValues.concat({
+		name: name,
+		values: foundFacetValue[0].values.filter(function (v) {
+			return v !== value;
+		})
+	}) : otherFacetValues;
+};
+
+var addFacetValue = function addFacetValue(facetValues, name, value) {
+	var foundFacetValue = facetValues.filter(function (facetValue) {
+		return facetValue.name === name;
+	});
+
+	var otherFacetValues = facetValues.filter(function (facetValue) {
+		return facetValue.name !== name;
+	});
+
+	var selectedValues = foundFacetValue.length ? foundFacetValue[0].values.concat([value]) : [value];
+
+	var newFacetValue = {
+		name: name,
+		values: selectedValues
+	};
+
+	return otherFacetValues.concat(newFacetValue);
+};
+
+var addQueryToState = function addQueryToState(state, query) {
+	return _extends({}, state, {
+		all: [].concat(_toConsumableArray(state.all), [query]),
+		last: query
+	});
+};
+
 var initialState = {
-	queries: [],
-	queryModel: {
+	all: [],
+	"default": {
 		"facetValues": [],
 		"searchInAnnotations": true,
 		"searchInTranscriptions": true,
 		"term": "",
 		"textLayers": ["Diplomatic", "Opmerkingen en verwijzingen", "Comments and References", "Transcription", "Transcripción", "Transcriptie", "Vertaling", "Translation", "Traducción", "Comentarios y referencias"]
-	}
+	},
+	last: null
 };
 
 exports["default"] = function (state, action) {
 	if (state === undefined) state = initialState;
 
+	var query = undefined;
+
 	switch (action.type) {
 		case "SET_QUERY_DEFAULTS":
-			var newQueryModel = {
-				queryModel: _extends({}, initialState.queryModel, {
-					sortLevels: action.config.levels,
-					sortParameters: action.config.levels.map(function (level) {
-						return {
-							fieldname: level,
-							direction: "asc"
-						};
-					})
+			var defaultModel = _extends({}, initialState["default"], {
+				resultFields: action.config.levels,
+				sortParameters: action.config.levels.map(function (level) {
+					return {
+						fieldname: level,
+						direction: "asc"
+					};
 				})
-			};
+			});
 
-			return _extends({}, state, newQueryModel);
+			return _extends({}, state, {
+				all: [defaultModel],
+				"default": defaultModel,
+				last: defaultModel
+			});
+
+		case "SET_RESULTS_SORT":
+			var sortParameters = state.last.sortParameters.sort(function (valA, valB) {
+				if (valA.fieldname === action.field) {
+					return -1;
+				}
+				if (valB.fieldname === action.field) {
+					return 1;
+				}
+				if (valA.fieldname < valB.fieldname) {
+					return -1;
+				}
+				if (valA.fieldname > valB.fieldname) {
+					return 1;
+				}
+
+				return 0;
+			});
+
+			query = _extends({}, state.last, { sortParameters: sortParameters });
+
+			return addQueryToState(state, query);
+
+		case "REMOVE_FACET_VALUE":
+			query = _extends({}, state.last, {
+				facetValues: removeFacetValue(state.last.facetValues, action.facetName, action.value)
+			});
+
+			return addQueryToState(state, query);
+
+		case "ADD_FACET_VALUE":
+			query = _extends({}, state.last, {
+				facetValues: addFacetValue(state.last.facetValues, action.facetName, action.value)
+			});
+
+			return addQueryToState(state, query);
+
 		default:
 			return state;
 	}
@@ -4849,522 +4213,90 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}],56:[function(_dereq_,module,exports){
+},{}],49:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _xhr = _dereq_("xhr");
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
 
-var _xhr2 = _interopRequireDefault(_xhr);
+var updateFacetsWithReceivedCounts = function updateFacetsWithReceivedCounts(initFacets, receivedFacets) {
+	receivedFacets = receivedFacets.reduce(function (prev, current) {
+		prev[current.name] = current;
 
-var _actionsServer = _dereq_("../actions/server");
+		return prev;
+	}, {});
 
-var _actionsServer2 = _interopRequireDefault(_actionsServer);
+	return initFacets.map(function (facet) {
+		var options = facet.options.map(function (option) {
+			var count = 0;
 
-var _storesQueries = _dereq_("../stores/queries");
-
-var _storesQueries2 = _interopRequireDefault(_storesQueries);
-
-var _storesConfig = _dereq_("../stores/config");
-
-var _storesConfig2 = _interopRequireDefault(_storesConfig);
-
-var postResults = function postResults(receiveFunc) {
-	var postOptions = {
-		data: JSON.stringify(_storesQueries2["default"].getState()),
-		headers: {
-			"Content-Type": "application/json"
-		},
-		method: "POST",
-		url: _storesConfig2["default"].getState().get("baseURL") + "api/search"
-	};
-
-	var postDone = function postDone(err, resp, body) {
-		if (err) {
-			handleError(err, resp, body);
-		}
-
-		var url = resp.headers.location + "?rows=" + _storesConfig2["default"].getState().get("rows");
-
-		getResults(url, receiveFunc);
-	};
-
-	(0, _xhr2["default"])(postOptions, postDone);
-};
-
-var getResults = function getResults(url, receiveFunc) {
-	var getOptions = {
-		headers: {
-			"Content-Type": "application/json"
-		},
-		url: url
-	};
-
-	var getDone = function getDone(err, resp, body) {
-		if (err) {
-			handleError(err, resp, body);
-		}
-
-		_actionsServer2["default"][receiveFunc](JSON.parse(body));
-	};
-
-	(0, _xhr2["default"])(getOptions, getDone);
-};
-
-exports["default"] = {
-	getAllResults: function getAllResults() {
-		postResults("receiveAllResults");
-	},
-
-	getResults: function getResults() {
-		postResults("receiveResults");
-	},
-
-	getResultsFromUrl: function getResultsFromUrl(url) {
-		getResults(url, "receiveResults");
-	}
-};
-module.exports = exports["default"];
-
-},{"../actions/server":28,"../stores/config":58,"../stores/queries":59,"xhr":18}],57:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _events = _dereq_("events");
-
-var CHANGE_EVENT = "change";
-
-var BaseStore = (function (_EventEmitter) {
-	_inherits(BaseStore, _EventEmitter);
-
-	function BaseStore() {
-		_classCallCheck(this, BaseStore);
-
-		_get(Object.getPrototypeOf(BaseStore.prototype), "constructor", this).apply(this, arguments);
-	}
-
-	_createClass(BaseStore, [{
-		key: "listen",
-		value: function listen(callback) {
-			this.addListener(CHANGE_EVENT, callback);
-		}
-	}, {
-		key: "stopListening",
-		value: function stopListening(callback) {
-			this.removeListener(CHANGE_EVENT, callback);
-		}
-	}]);
-
-	return BaseStore;
-})(_events.EventEmitter);
-
-exports["default"] = BaseStore;
-module.exports = exports["default"];
-
-},{"events":17}],58:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _immutable = _dereq_("immutable");
-
-var _immutable2 = _interopRequireDefault(_immutable);
-
-var _dispatcher = _dereq_("../dispatcher");
-
-var _dispatcher2 = _interopRequireDefault(_dispatcher);
-
-var _base = _dereq_("./base");
-
-var _base2 = _interopRequireDefault(_base);
-
-var CHANGE_EVENT = "change";
-
-var ConfigStore = (function (_BaseStore) {
-	_inherits(ConfigStore, _BaseStore);
-
-	function ConfigStore() {
-		_classCallCheck(this, ConfigStore);
-
-		_get(Object.getPrototypeOf(ConfigStore.prototype), "constructor", this).call(this);
-
-		this.data = new _immutable2["default"].Map({
-			rows: 50
-		});
-	}
-
-	_createClass(ConfigStore, [{
-		key: "getState",
-		value: function getState() {
-			return this.data;
-		}
-	}, {
-		key: "init",
-		value: function init(data) {
-			this.data = this.data.mergeDeep(_immutable2["default"].fromJS(data));
-		}
-	}, {
-		key: "set",
-		value: function set(key, value) {
-			this.data = this.data.set(key, value);
-		}
-	}]);
-
-	return ConfigStore;
-})(_base2["default"]);
-
-var configStore = new ConfigStore();
-
-var dispatcherCallback = function dispatcherCallback(payload) {
-	switch (payload.action.actionType) {
-		case "CONFIG_INIT":
-			configStore.init(payload.action.data);
-			break;
-		case "CONFIG_SET":
-			configStore.set(payload.action.key, payload.action.value);
-			break;
-		default:
-			return;
-	}
-
-	configStore.emit(CHANGE_EVENT);
-};
-
-configStore.dispatcherIndex = _dispatcher2["default"].register(dispatcherCallback);
-
-exports["default"] = configStore;
-module.exports = exports["default"];
-
-},{"../dispatcher":50,"./base":57,"immutable":"immutable"}],59:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _dispatcher = _dereq_("../dispatcher");
-
-var _dispatcher2 = _interopRequireDefault(_dispatcher);
-
-var _base = _dereq_("./base");
-
-var _base2 = _interopRequireDefault(_base);
-
-var _immutable = _dereq_("immutable");
-
-var _immutable2 = _interopRequireDefault(_immutable);
-
-var CHANGE_EVENT = "change";
-
-var Queries = (function (_BaseStore) {
-	_inherits(Queries, _BaseStore);
-
-	function Queries() {
-		_classCallCheck(this, Queries);
-
-		_get(Object.getPrototypeOf(Queries.prototype), "constructor", this).call(this);
-
-		this.model = _immutable2["default"].fromJS({
-			"facetValues": [],
-			"searchInAnnotations": true,
-			"searchInTranscriptions": true,
-			"term": "",
-			"textLayers": ["Diplomatic", "Opmerkingen en verwijzingen", "Comments and References", "Transcription", "Transcripción", "Transcriptie", "Vertaling", "Translation", "Traducción", "Comentarios y referencias"]
-		});
-
-		this.data = this.model;
-	}
-
-	_createClass(Queries, [{
-		key: "getState",
-		value: function getState() {
-			return this.data;
-		}
-	}, {
-		key: "reset",
-		value: function reset() {
-			this.data = this.model;
-		}
-	}, {
-		key: "setDefaults",
-		value: function setDefaults(config) {
-			var sortLevels = _immutable2["default"].fromJS(config.levels);
-			var sortParameters = sortLevels.map(function (fieldName) {
-				return new _immutable2["default"].Map({
-					fieldname: fieldName,
-					direction: "asc"
-				});
-			});
-
-			this.model = this.data.withMutations(function (map) {
-				map.set("sortParameters", sortParameters);
-				map.set("resultFields", sortLevels);
-			});
-
-			this.data = this.model;
-		}
-	}, {
-		key: "setSortParameter",
-		value: function setSortParameter(field) {
-			var sorted = this.data.get("sortParameters").sort(function (valA, valB) {
-				if (valA.get("fieldname") === field) {
-					return -1;
-				}
-
-				if (valB.get("fieldname") === field) {
-					return 1;
-				}
-
-				if (valA.get("fieldname") < valB.get("fieldname")) {
-					return -1;
-				}
-
-				if (valA.get("fieldname") > valB.get("fieldname")) {
-					return 1;
-				}
-
-				return 0;
-			});
-
-			this.data = this.data.set("sortParameters", sorted);
-		}
-	}, {
-		key: "add",
-		value: function add(facetName, value) {
-			var index = this.data.get("facetValues").findIndex(function (facetValue) {
-				return facetValue.get("name") === facetName;
-			});
-
-			var facetValues = undefined;
-
-			if (index > -1) {
-				var newValues = this.data.get("facetValues").get(index).get("values").push(value);
-				facetValues = this.data.get("facetValues").setIn([index, "values"], newValues);
-			} else {
-				facetValues = this.data.get("facetValues").push(_immutable2["default"].fromJS({
-					name: facetName,
-					values: [value]
-				}));
-			}
-
-			this.data = this.data.set("facetValues", facetValues);
-		}
-	}, {
-		key: "remove",
-		value: function remove(facetName, value) {
-			var index = this.data.get("facetValues").findIndex(function (facetValue) {
-				return facetValue.get("name") === facetName;
-			});
-
-			if (index > -1) {
-				var oldValues = this.data.get("facetValues").get(index).get("values");
-
-				var facetValues = oldValues.size === 1 ? this.data.get("facetValues")["delete"](index) : this.data.get("facetValues").deleteIn([index, "values", oldValues.indexOf(value)]);
-
-				this.data = this.data.set("facetValues", facetValues);
-			}
-		}
-	}, {
-		key: "changeSearchTerm",
-		value: function changeSearchTerm(value) {
-			this.data = this.data.set("term", value);
-		}
-	}]);
-
-	return Queries;
-})(_base2["default"]);
-
-var queries = new Queries();
-
-var dispatcherCallback = function dispatcherCallback(payload) {
-	switch (payload.action.actionType) {
-		case "QUERIES_SET_DEFAULTS":
-			queries.setDefaults(payload.action.props);
-			break;
-		case "QUERIES_SET_SORT_PARAMETER":
-			queries.setSortParameter(payload.action.field);
-			break;
-		case "QUERIES_ADD":
-			queries.add(payload.action.facetName, payload.action.value);
-			break;
-		case "QUERIES_REMOVE":
-			queries.remove(payload.action.facetName, payload.action.value);
-			break;
-		case "QUERIES_RESET":
-			queries.reset();
-			break;
-		case "QUERIES_CHANGE_SEARCH_TERM":
-			queries.changeSearchTerm(payload.action.value);
-			break;
-		default:
-			return;
-	}
-
-	queries.emit(CHANGE_EVENT);
-};
-
-queries.dispatcherIndex = _dispatcher2["default"].register(dispatcherCallback);
-
-exports["default"] = queries;
-module.exports = exports["default"];
-
-},{"../dispatcher":50,"./base":57,"immutable":"immutable"}],60:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _immutable = _dereq_("immutable");
-
-var _immutable2 = _interopRequireDefault(_immutable);
-
-var _dispatcher = _dereq_("../dispatcher");
-
-var _dispatcher2 = _interopRequireDefault(_dispatcher);
-
-var _base = _dereq_("./base");
-
-var _base2 = _interopRequireDefault(_base);
-
-var CHANGE_EVENT = "change";
-
-var toObject = function toObject(prev, current) {
-	prev[current.name] = current;
-
-	return prev;
-};
-
-var ResultsStore = (function (_BaseStore) {
-	_inherits(ResultsStore, _BaseStore);
-
-	function ResultsStore() {
-		_classCallCheck(this, ResultsStore);
-
-		_get(Object.getPrototypeOf(ResultsStore.prototype), "constructor", this).call(this);
-
-		this.data = _immutable2["default"].fromJS({
-			initResults: new _immutable2["default"].Map({
-				results: []
-			}),
-			queryResults: new _immutable2["default"].List()
-		});
-	}
-
-	_createClass(ResultsStore, [{
-		key: "getState",
-		value: function getState() {
-			return this.data;
-		}
-	}, {
-		key: "receiveAll",
-		value: function receiveAll(data) {
-			this.data = this.data.set("initResults", _immutable2["default"].fromJS(data));
-			this.data = this.data.set("queryResults", this.data.get("queryResults").push(this.data.get("initResults")));
-		}
-	}, {
-		key: "receive",
-		value: function receive(data) {
-			var receivedData = data.facets.reduce(toObject, {});
-
-			var facets = this.data.get("initResults").get("facets").map(function (facet) {
-				var options = facet.get("options").map(function (option) {
-					var count = 0;
-
-					if (receivedData.hasOwnProperty(facet.get("name"))) {
-						var found = receivedData[facet.get("name")].options.filter(function (opt) {
-							return option.get("name") === opt.name;
-						});
-
-						if (found.length) {
-							count = found[0].count;
-						}
-					}
-
-					return option.set("count", count);
+			if (receivedFacets.hasOwnProperty(facet.name)) {
+				var found = receivedFacets[facet.name].options.filter(function (receivedOption) {
+					return option.name === receivedOption.name;
 				});
 
-				return facet.set("options", options);
-			});
+				if (found.length) {
+					count = found[0].count;
+				}
+			}
 
-			data.facets = facets;
+			option.count = count;
 
-			this.data = this.data.set("queryResults", this.data.get("queryResults").push(_immutable2["default"].fromJS(data)));
-		}
-	}]);
+			return option;
+		});
 
-	return ResultsStore;
-})(_base2["default"]);
-
-var resultsStore = new ResultsStore();
-
-var dispatcherCallback = function dispatcherCallback(payload) {
-	switch (payload.action.actionType) {
-		case "RESULTS_RECEIVE_ALL":
-			resultsStore.receiveAll(payload.action.data);
-			break;
-		case "RESULTS_RECEIVE":
-			resultsStore.receive(payload.action.data);
-			break;
-		default:
-			return;
-	}
-
-	resultsStore.emit(CHANGE_EVENT);
+		return _extends({}, facet, { options: options });
+	});
 };
 
-resultsStore.dispatcherIndex = _dispatcher2["default"].register(dispatcherCallback);
+var addResponseToState = function addResponseToState(state, response) {
+	return _extends({}, state, {
+		all: [].concat(_toConsumableArray(state.all), [response]),
+		last: response,
+		requesting: false
+	});
+};
 
-exports["default"] = resultsStore;
+var initialState = {
+	all: [],
+	facets: {},
+	first: null,
+	last: null,
+	requesting: false
+};
+
+exports["default"] = function (state, action) {
+	if (state === undefined) state = initialState;
+
+	switch (action.type) {
+		case "REQUEST_RESULTS":
+			return _extends({}, state, { requesting: true });
+
+		case "RECEIVE_RESULTS":
+			if (state.last == null) {
+				return _extends({}, addResponseToState(state, action.response), { first: action.response });
+			}
+
+			var response = _extends({}, action.response, {
+				facets: updateFacetsWithReceivedCounts(state.first.facets, action.response.facets)
+			});
+
+			return addResponseToState(state, response);
+
+		case "RECEIVE_RESULTS_FROM_URL":
+			return addResponseToState(state, action.response);
+
+		default:
+			return state;
+	}
+};
+
 module.exports = exports["default"];
 
-},{"../dispatcher":50,"./base":57,"immutable":"immutable"}]},{},[52])(52)
+},{}]},{},[44])(44)
 });
