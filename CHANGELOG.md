@@ -1,3 +1,6 @@
+### v2.0.2	(2015/8/24 15:1)
+* Clean up
+
 ### v2.0.1	(2015/8/24 11:19)
 * Fire change event on init
 * Don't set a list of components as state
