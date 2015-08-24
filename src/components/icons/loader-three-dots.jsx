@@ -1,29 +1,19 @@
 import React from "react";
 
-let getNextState = function(prevState, ratio) {
+let getNextState = function(prevState, progress) {
 	let state = Object.keys(prevState).reduce((obj, currentProp) => {
 		let delta = prevState[currentProp].max - prevState[currentProp].min;
+		let amplitude = delta / 2;
 
-		let direction = prevState[currentProp].forward ?
-			1:
-			-1;
+		let verticalTranslation = prevState[currentProp].min + amplitude
+		let horizontalTranslation = ((prevState[currentProp].start - prevState[currentProp].min) / delta) * Math.PI;
 
-		let begin = prevState[currentProp].forward ?
-			prevState[currentProp].min :
-			prevState[currentProp].max;
+		let period = ((2 * Math.PI) / 1400) * progress;
 
-		let current = begin + (delta * ratio * direction);
-
+		let current = (amplitude * Math.sin(period - horizontalTranslation)) + verticalTranslation;
 
 		let nextState = {
 			current: current,
-		}
-
-		let forwardPassedEnd = (prevState[currentProp].forward && (nextState.current > prevState[currentProp].max));
-		let backwardPassedBegin = (!prevState[currentProp].forward && (nextState.current < prevState[currentProp].min));
-
-		if (forwardPassedEnd || backwardPassedBegin) {
-			nextState.forward = !prevState[currentProp].forward
 		}
 
 		obj[currentProp] = {...prevState[currentProp], ...nextState}
@@ -41,44 +31,36 @@ class LoaderThreeDots extends React.Component {
 		this.start = null;
 
 		let radiusDefaults = {
-			max: 12,
-			forward: true,
-			min: 9
+			max: 15,
+			min: 9,
+			start: 9
 		};
 
 		let opacityDefaults = {
-			forward: true,
 			max: 1,
-			min: 0.3
+			min: 0.4,
+			start: 0.4
 		};
 
 		this.state = {
 			circle1: {
-				opacity: {...opacityDefaults, ...{
-					current: 1,
-					forward: false
-				}},
-				radius: {...radiusDefaults, ...{
-					current: 15,
-					forward: false
-				}}
+				opacity: opacityDefaults,
+				radius: radiusDefaults
 			},
 			circle2: {
 				opacity: {...opacityDefaults, ...{
-					current: 0.3
+					start: 0.6
 				}},
 				radius: {...radiusDefaults, ...{
-					current: 9
+					start: 11
 				}}
 			},
 			circle3: {
 				opacity: {...opacityDefaults, ...{
-					current: 1,
-					forward: false
+					start: 0.8
 				}},
 				radius: {...radiusDefaults, ...{
-					current: 15,
-					forward: false
+					start: 13
 				}}
 			}
 		};
@@ -103,17 +85,12 @@ class LoaderThreeDots extends React.Component {
 		}
 
 		let progress = timestamp - this.start;
-		let ratio = progress/800;
 
 		this.setState({
-			circle1: getNextState(this.state.circle1, ratio),
-			circle2: getNextState(this.state.circle2, ratio),
-			circle3: getNextState(this.state.circle3, ratio)
+			circle1: getNextState(this.state.circle1, progress),
+			circle2: getNextState(this.state.circle2, progress),
+			circle3: getNextState(this.state.circle3, progress)
 		})
-
-		if (ratio > 1) {
-			this.start = null
-		}
 
 		window.requestAnimationFrame(this.step.bind(this));
 	}

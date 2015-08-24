@@ -3,6 +3,7 @@ import isEqual from "lodash.isequal";
 
 import Facets from "./components/facets";
 import Results from "./components/results";
+import Loader from "./components/icons/loader-three-dots";
 
 import {fetchResults, fetchNextResults} from "./actions/results";
 import {createNewQuery} from "./actions/queries";
@@ -123,7 +124,11 @@ class FacetedSearch extends React.Component {
 
 	render() {
 		if (this.state.results.all.length === 0) {
-			return (<div>LAODING</div>);
+			return (
+				<div className="hire-faceted-search">
+					<Loader className="loader" />
+				</div>
+			);
 		}
 
 		return (

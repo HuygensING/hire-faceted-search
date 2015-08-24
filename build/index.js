@@ -3015,26 +3015,21 @@ var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
 
-var getNextState = function getNextState(prevState, ratio) {
+var getNextState = function getNextState(prevState, progress) {
 	var state = Object.keys(prevState).reduce(function (obj, currentProp) {
 		var delta = prevState[currentProp].max - prevState[currentProp].min;
+		var amplitude = delta / 2;
 
-		var direction = prevState[currentProp].forward ? 1 : -1;
+		var verticalTranslation = prevState[currentProp].min + amplitude;
+		var horizontalTranslation = (prevState[currentProp].start - prevState[currentProp].min) / delta * Math.PI;
 
-		var begin = prevState[currentProp].forward ? prevState[currentProp].min : prevState[currentProp].max;
+		var period = 2 * Math.PI / 1400 * progress;
 
-		var current = begin + delta * ratio * direction;
+		var current = amplitude * Math.sin(period - horizontalTranslation) + verticalTranslation;
 
 		var nextState = {
 			current: current
 		};
-
-		var forwardPassedEnd = prevState[currentProp].forward && nextState.current > prevState[currentProp].max;
-		var backwardPassedBegin = !prevState[currentProp].forward && nextState.current < prevState[currentProp].min;
-
-		if (forwardPassedEnd || backwardPassedBegin) {
-			nextState.forward = !prevState[currentProp].forward;
-		}
 
 		obj[currentProp] = _extends({}, prevState[currentProp], nextState);
 
@@ -3055,44 +3050,36 @@ var LoaderThreeDots = (function (_React$Component) {
 		this.start = null;
 
 		var radiusDefaults = {
-			max: 12,
-			forward: true,
-			min: 9
+			max: 15,
+			min: 9,
+			start: 9
 		};
 
 		var opacityDefaults = {
-			forward: true,
 			max: 1,
-			min: 0.3
+			min: 0.4,
+			start: 0.4
 		};
 
 		this.state = {
 			circle1: {
-				opacity: _extends({}, opacityDefaults, {
-					current: 1,
-					forward: false
-				}),
-				radius: _extends({}, radiusDefaults, {
-					current: 15,
-					forward: false
-				})
+				opacity: opacityDefaults,
+				radius: radiusDefaults
 			},
 			circle2: {
 				opacity: _extends({}, opacityDefaults, {
-					current: 0.3
+					start: 0.6
 				}),
 				radius: _extends({}, radiusDefaults, {
-					current: 9
+					start: 11
 				})
 			},
 			circle3: {
 				opacity: _extends({}, opacityDefaults, {
-					current: 1,
-					forward: false
+					start: 0.8
 				}),
 				radius: _extends({}, radiusDefaults, {
-					current: 15,
-					forward: false
+					start: 13
 				})
 			}
 		};
@@ -3121,17 +3108,12 @@ var LoaderThreeDots = (function (_React$Component) {
 			}
 
 			var progress = timestamp - this.start;
-			var ratio = progress / 800;
 
 			this.setState({
-				circle1: getNextState(this.state.circle1, ratio),
-				circle2: getNextState(this.state.circle2, ratio),
-				circle3: getNextState(this.state.circle3, ratio)
+				circle1: getNextState(this.state.circle1, progress),
+				circle2: getNextState(this.state.circle2, progress),
+				circle3: getNextState(this.state.circle3, progress)
 			});
-
-			if (ratio > 1) {
-				this.start = null;
-			}
 
 			window.requestAnimationFrame(this.step.bind(this));
 		}
@@ -4117,7 +4099,7 @@ var _insertCss2 = _interopRequireDefault(_insertCss);
 
 
 
-var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciB7CgltYXJnaW4tYm90dG9tOiAyMHB4OwoJYm9yZGVyLWJvdHRvbTogMXB4IHNvbGlkICNBQUE7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiBoZWFkZXIgPiBoMywKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMtc29ydC1tZW51IHsKCWJveC1zaXppbmc6IGJvcmRlci1ib3g7CglkaXNwbGF5OiBpbmxpbmUtYmxvY2s7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gaGVhZGVyID4gaDMgewoJbWFyZ2luLXRvcDogMDsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciA+IGgzIHsKCXdpZHRoOiA2MCU7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiBoZWFkZXIgPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzLXNvcnQtbWVudSB7Cgl0ZXh0LWFsaWduOiByaWdodDsKCXdpZHRoOiA0MCU7Cn0KCgoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IHVsID4gbGkgewoJY3Vyc29yOiBwb2ludGVyOwoJbWFyZ2luLWJvdHRvbTogMjBweDsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IHVsID4gbGkgPiBsYWJlbCB7CgljdXJzb3I6IHBvaW50ZXI7Cglmb250LXNpemU6IDEuMWVtOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gdWwgPiBsaSA+IHVsLm1ldGFkYXRhIHsKCWNvbG9yOiAjODg4OwoJZm9udC1zaXplOiAwLjdlbTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IHVsID4gbGkgPiB1bC5tZXRhZGF0YSA+IGxpID4gbGFiZWwgewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCXZlcnRpY2FsLWFsaWduOiB0b3A7Cgl3aWR0aDogMTUwcHg7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgc3ZnLmxvYWRlciB7CglwYWRkaW5nOiA2MHB4IDAgNDBweCAwOwoJd2lkdGg6IDEwMCUKfQ==","base64");
+var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciB7Cglib3JkZXItYm90dG9tOiAxcHggc29saWQgI0FBQTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciA+IGgzLAouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gaGVhZGVyID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1zb3J0LW1lbnUgewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCXZlcnRpY2FsLWFsaWduOiB0b3A7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiBoZWFkZXIgPiBoMyB7CgltYXJnaW4tdG9wOiAwOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gaGVhZGVyID4gaDMgewoJd2lkdGg6IDYwJTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMtc29ydC1tZW51IHsKCXRleHQtYWxpZ246IHJpZ2h0OwoJd2lkdGg6IDQwJTsKfQoKCgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gdWwgPiBsaSB7CgljdXJzb3I6IHBvaW50ZXI7CgltYXJnaW4tYm90dG9tOiAyMHB4Owp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gdWwgPiBsaSA+IGxhYmVsIHsKCWN1cnNvcjogcG9pbnRlcjsKCWZvbnQtc2l6ZTogMS4xZW07Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiB1bCA+IGxpID4gdWwubWV0YWRhdGEgewoJY29sb3I6ICM4ODg7Cglmb250LXNpemU6IDAuN2VtOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gdWwgPiBsaSA+IHVsLm1ldGFkYXRhID4gbGkgPiBsYWJlbCB7Cglib3gtc2l6aW5nOiBib3JkZXItYm94OwoJZGlzcGxheTogaW5saW5lLWJsb2NrOwoJdmVydGljYWwtYWxpZ246IHRvcDsKCXdpZHRoOiAxNTBweDsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyBzdmcubG9hZGVyIHsKCXBhZGRpbmc6IDYwcHggMCA0MHB4IDA7Cgl3aWR0aDogMTAwJQp9","base64");
 (0, _insertCss2["default"])(css, { prepend: true });
 
 var inViewport = function inViewport(el) {
@@ -4175,7 +4157,7 @@ var Results = (function (_React$Component) {
 	}, {
 		key: "render",
 		value: function render() {
-			var loader = this.props.results.last.numFound > this.props.results.last.results.length ? _react2["default"].createElement(_iconsLoaderThreeDots2["default"], { className: "loader" }) : null;
+			var loader = this.props.results.requesting ? _react2["default"].createElement(_iconsLoaderThreeDots2["default"], { className: "loader" }) : null;
 
 			return _react2["default"].createElement(
 				"div",
@@ -4771,6 +4753,10 @@ var _componentsResults = _dereq_("./components/results");
 
 var _componentsResults2 = _interopRequireDefault(_componentsResults);
 
+var _componentsIconsLoaderThreeDots = _dereq_("./components/icons/loader-three-dots");
+
+var _componentsIconsLoaderThreeDots2 = _interopRequireDefault(_componentsIconsLoaderThreeDots);
+
 var _actionsResults = _dereq_("./actions/results");
 
 var _actionsQueries = _dereq_("./actions/queries");
@@ -4806,7 +4792,7 @@ var store = createStoreWithMiddleware(_reducers2["default"]);
 
 
 
-var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2ggewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCXBhZGRpbmc6IDUlOwoJd2lkdGg6IDEwMCU7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoIGlucHV0IHsKCS1tb3otYXBwZWFyYW5jZTogbm9uZTsKCS13ZWJraXQtYXBwZWFyYW5jZTogbm9uZTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1mYWNldHMsCi5oaXJlLWZhY2V0ZWQtc2VhcmNoID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyB7Cglib3gtc2l6aW5nOiBib3JkZXItYm94OwoJZGlzcGxheTogaW5saW5lLWJsb2NrOwoJdmVydGljYWwtYWxpZ246IHRvcDsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1mYWNldHMgewoJd2lkdGg6IDM1JTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1mYWNldHMgPiBidXR0b24gewoJYmFja2dyb3VuZDogd2hpdGU7Cglib3JkZXI6IG5vbmU7CgljdXJzb3I6IHBvaW50ZXI7CgloZWlnaHQ6IDQwcHg7CgltYXJnaW4tYm90dG9tOiAyMHB4OwoJb3V0bGluZTogbm9uZTsKCXBhZGRpbmc6IDAgMjBweDsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzIHsKCXBhZGRpbmctbGVmdDogNSU7Cgl3aWR0aDogNjAlOwp9","base64");
+var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2ggewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCXBhZGRpbmc6IDUlOwoJd2lkdGg6IDEwMCU7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoIGlucHV0IHsKCS1tb3otYXBwZWFyYW5jZTogbm9uZTsKCS13ZWJraXQtYXBwZWFyYW5jZTogbm9uZTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1mYWNldHMsCi5oaXJlLWZhY2V0ZWQtc2VhcmNoID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyB7Cglib3gtc2l6aW5nOiBib3JkZXItYm94OwoJZGlzcGxheTogaW5saW5lLWJsb2NrOwoJdmVydGljYWwtYWxpZ246IHRvcDsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1mYWNldHMgewoJd2lkdGg6IDM1JTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1mYWNldHMgPiBidXR0b24gewoJYmFja2dyb3VuZDogd2hpdGU7Cglib3JkZXI6IG5vbmU7CgljdXJzb3I6IHBvaW50ZXI7CgloZWlnaHQ6IDQwcHg7CgltYXJnaW4tYm90dG9tOiAyMHB4OwoJb3V0bGluZTogbm9uZTsKCXBhZGRpbmc6IDAgMjBweDsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzIHsKCXBhZGRpbmc6IDAgMCAxMCUgNSU7Cgl3aWR0aDogNjAlOwp9","base64");
 (0, _insertCss2["default"])(css, { prepend: true });
 
 var FacetedSearch = (function (_React$Component) {
@@ -4921,8 +4907,8 @@ var FacetedSearch = (function (_React$Component) {
 			if (this.state.results.all.length === 0) {
 				return _react2["default"].createElement(
 					"div",
-					null,
-					"LAODING"
+					{ className: "hire-faceted-search" },
+					_react2["default"].createElement(_componentsIconsLoaderThreeDots2["default"], { className: "loader" })
 				);
 			}
 
@@ -4967,7 +4953,7 @@ FacetedSearch.propTypes = {
 exports["default"] = FacetedSearch;
 module.exports = exports["default"];
 
-},{"./actions/queries":30,"./actions/results":31,"./components/facets":32,"./components/results":47,"./reducers":54,"insert-css":2,"lodash.isequal":5,"react":"react","redux":15,"redux-thunk":13}],53:[function(_dereq_,module,exports){
+},{"./actions/queries":30,"./actions/results":31,"./components/facets":32,"./components/icons/loader-three-dots":36,"./components/results":47,"./reducers":54,"insert-css":2,"lodash.isequal":5,"react":"react","redux":15,"redux-thunk":13}],53:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
