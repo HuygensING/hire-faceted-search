@@ -1,3 +1,7 @@
+### v2.0.1	(2015/8/24 11:19)
+* Fire change event on init
+* Don't set a list of components as state
+
 ### v2.0.0	(2015/8/24 9:25)
 * Finish replace flux and immutable with redux
 * Replace flux && immutable with redux
