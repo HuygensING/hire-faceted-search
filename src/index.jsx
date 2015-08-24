@@ -4,7 +4,7 @@ import isEqual from "lodash.isequal";
 import Facets from "./components/facets";
 import Results from "./components/results";
 
-import {fetchResults, fetchResultsFromUrl} from "./actions/results";
+import {fetchResults, fetchNextResults} from "./actions/results";
 import {createNewQuery} from "./actions/queries";
 
 import {createStore, applyMiddleware} from "redux";
@@ -82,8 +82,8 @@ class FacetedSearch extends React.Component {
 		this.props.onSelect(result);
 	}
 
-	handleFetchResultsFromUrl(url) {
-		store.dispatch(fetchResultsFromUrl(url));
+	handleFetchNextResults(url) {
+		store.dispatch(fetchNextResults(url));
 	}
 
 	handleSelectFacetValue(facetName, value, remove) {
@@ -139,7 +139,7 @@ class FacetedSearch extends React.Component {
 					config={this.state.config}
 					labels={this.state.labels}
 					onChangeSearchTerm={this.handleChangeSearchTerm.bind(this)}
-					onFetchResultsFromUrl={this.handleFetchResultsFromUrl.bind(this)}
+					onFetchNextResults={this.handleFetchNextResults.bind(this)}
 					onSelect={this.handleSelect.bind(this)}
 					onSelectFacetValue={this.handleSelectFacetValue.bind(this)}
 					onSetSort={this.handleSetSort.bind(this)}

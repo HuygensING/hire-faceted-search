@@ -64,8 +64,12 @@ export default function(state=initialState, action) {
 
 			return addResponseToState(state, response);
 
-		case "RECEIVE_RESULTS_FROM_URL":
-			return addResponseToState(state, action.response);
+		case "RECEIVE_NEXT_RESULTS":
+			let withConcatResults = {...action.response, ...{
+				results: [...state.last.results, ...action.response.results]
+			}};
+
+			return addResponseToState(state, withConcatResults);
 
 		default:
 			return state;

@@ -79,7 +79,7 @@ export function fetchResults() {
 	};
 }
 
-export function fetchResultsFromUrl(url) {
+export function fetchNextResults(url) {
 	return function (dispatch) {
 		dispatch({type: "REQUEST_RESULTS"});
 		// console.log(cache.hasOwnProperty(url), url, cache);
@@ -90,7 +90,7 @@ export function fetchResultsFromUrl(url) {
 		return getResults(url, (response) => {
 			cache[url] = response;
 
-			return dispatchResponse(dispatch, "RECEIVE_RESULTS_FROM_URL", response);
+			return dispatchResponse(dispatch, "RECEIVE_NEXT_RESULTS", response);
 		});
 	};
 }

@@ -2580,7 +2580,7 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 exports.fetchResults = fetchResults;
-exports.fetchResultsFromUrl = fetchResultsFromUrl;
+exports.fetchNextResults = fetchNextResults;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -2662,7 +2662,7 @@ function fetchResults() {
 	};
 }
 
-function fetchResultsFromUrl(url) {
+function fetchNextResults(url) {
 	return function (dispatch) {
 		dispatch({ type: "REQUEST_RESULTS" });
 		// console.log(cache.hasOwnProperty(url), url, cache);
@@ -2673,7 +2673,7 @@ function fetchResultsFromUrl(url) {
 		return getResults(url, function (response) {
 			cache[url] = response;
 
-			return dispatchResponse(dispatch, "RECEIVE_RESULTS_FROM_URL", response);
+			return dispatchResponse(dispatch, "RECEIVE_NEXT_RESULTS", response);
 		});
 	};
 }
@@ -4135,36 +4135,12 @@ var Results = (function (_React$Component) {
 		_get(Object.getPrototypeOf(Results.prototype), "constructor", this).call(this, props);
 
 		this.onScroll = (0, _lodashDebounce2["default"])(this.onScroll, 300).bind(this);
-
-		this.state = {
-			results: this.props.results.last.results
-		};
 	}
 
 	_createClass(Results, [{
 		key: "componentDidMount",
 		value: function componentDidMount() {
 			window.addEventListener("scroll", this.onScroll);
-		}
-	}, {
-		key: "componentWillReceiveProps",
-		value: function componentWillReceiveProps(nextProps) {
-			var nextPage = this.props.results.last.start + this.props.config.rows === nextProps.results.last.start;
-			var newResults = this.props.results.last !== nextProps.results.last;
-
-			if (nextPage || newResults) {
-				var nextResults = nextProps.results.last.results;
-
-				if (nextPage) {
-					nextResults = this.state.results.concat(nextResults);
-
-					window.addEventListener("scroll", this.onScroll);
-				}
-
-				this.setState({
-					results: nextResults
-				});
-			}
 		}
 	}, {
 		key: "componentWillUnmount",
@@ -4174,15 +4150,13 @@ var Results = (function (_React$Component) {
 	}, {
 		key: "onScroll",
 		value: function onScroll() {
-			var nth = this.state.results.length - this.props.config.rows + 1;
+			var nth = this.props.results.last.results.length - this.props.config.rows + 1;
 
 			var listItem = _react2["default"].findDOMNode(this).querySelector(".hire-faceted-search-result-list > li:nth-child(" + nth + ")");
 
 			if (this.props.results.last.hasOwnProperty("_next") && inViewport(listItem)) {
 				var url = this.props.results.last._next.replace("draft//api", "draft/api");
-				this.props.onFetchResultsFromUrl(url);
-
-				window.removeEventListener("scroll", this.onScroll);
+				this.props.onFetchNextResults(url);
 			}
 		}
 	}, {
@@ -4201,8 +4175,8 @@ var Results = (function (_React$Component) {
 	}, {
 		key: "render",
 		value: function render() {
-			var loader = this.props.results.last.numFound > this.state.results.length ? _react2["default"].createElement(_iconsLoaderThreeDots2["default"], { className: "loader" }) : null;
-			console.log(this.props.labels);
+			var loader = this.props.results.last.numFound > this.props.results.last.results.length ? _react2["default"].createElement(_iconsLoaderThreeDots2["default"], { className: "loader" }) : null;
+
 			return _react2["default"].createElement(
 				"div",
 				{ className: "hire-faceted-search-results" },
@@ -4230,7 +4204,7 @@ var Results = (function (_React$Component) {
 				_react2["default"].createElement(
 					"ul",
 					{ className: "hire-faceted-search-result-list" },
-					this.dataToComponents(this.state.results)
+					this.dataToComponents(this.props.results.last.results)
 				),
 				loader
 			);
@@ -4244,7 +4218,7 @@ Results.propTypes = {
 	config: _react2["default"].PropTypes.object,
 	labels: _react2["default"].PropTypes.object,
 	onChangeSearchTerm: _react2["default"].PropTypes.func,
-	onFetchResultsFromUrl: _react2["default"].PropTypes.func,
+	onFetchNextResults: _react2["default"].PropTypes.func,
 	onSelect: _react2["default"].PropTypes.func,
 	onSelectFacetValue: _react2["default"].PropTypes.func,
 	onSetSort: _react2["default"].PropTypes.func,
@@ -4902,9 +4876,9 @@ var FacetedSearch = (function (_React$Component) {
 			this.props.onSelect(result);
 		}
 	}, {
-		key: "handleFetchResultsFromUrl",
-		value: function handleFetchResultsFromUrl(url) {
-			store.dispatch((0, _actionsResults.fetchResultsFromUrl)(url));
+		key: "handleFetchNextResults",
+		value: function handleFetchNextResults(url) {
+			store.dispatch((0, _actionsResults.fetchNextResults)(url));
 		}
 	}, {
 		key: "handleSelectFacetValue",
@@ -4966,7 +4940,7 @@ var FacetedSearch = (function (_React$Component) {
 					config: this.state.config,
 					labels: this.state.labels,
 					onChangeSearchTerm: this.handleChangeSearchTerm.bind(this),
-					onFetchResultsFromUrl: this.handleFetchResultsFromUrl.bind(this),
+					onFetchNextResults: this.handleFetchNextResults.bind(this),
 					onSelect: this.handleSelect.bind(this),
 					onSelectFacetValue: this.handleSelectFacetValue.bind(this),
 					onSetSort: this.handleSetSort.bind(this),
@@ -5302,8 +5276,12 @@ exports["default"] = function (state, action) {
 
 			return addResponseToState(state, response);
 
-		case "RECEIVE_RESULTS_FROM_URL":
-			return addResponseToState(state, action.response);
+		case "RECEIVE_NEXT_RESULTS":
+			var withConcatResults = _extends({}, action.response, {
+				results: [].concat(_toConsumableArray(state.last.results), _toConsumableArray(action.response.results))
+			});
+
+			return addResponseToState(state, withConcatResults);
 
 		default:
 			return state;
