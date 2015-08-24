@@ -1,3 +1,10 @@
+### v2.0.0	(2015/8/24 9:25)
+* Finish replace flux and immutable with redux
+* Replace flux && immutable with redux
+* WiP
+* Replace prop value function with string
+* Add new search button
+
 ### v1.6.2	(2015/8/19 15:5)
 * Fix results receive props bug
 

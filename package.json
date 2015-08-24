@@ -1,6 +1,6 @@
 {
   "name": "hire-faceted-search",
-  "version": "1.6.2",
+  "version": "2.0.0",
   "description": "",
   "main": "build/index.js",
   "scripts": {
