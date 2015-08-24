@@ -1,3 +1,6 @@
+### v2.0.4	(2015/8/24 17:13)
+* Improve svg.loader algo
+
 ### v2.0.3	(2015/8/24 15:17)
 * Return current list of results in onChange
 
