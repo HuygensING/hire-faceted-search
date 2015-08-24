@@ -1,3 +1,6 @@
+### v2.0.3	(2015/8/24 15:17)
+* Return current list of results in onChange
+
 ### v2.0.2	(2015/8/24 15:1)
 * Clean up
 
