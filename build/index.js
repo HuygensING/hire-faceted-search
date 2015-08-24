@@ -4072,6 +4072,10 @@ var _lodashDebounce = _dereq_("lodash.debounce");
 
 var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
 
+var _lodashIsequal = _dereq_("lodash.isequal");
+
+var _lodashIsequal2 = _interopRequireDefault(_lodashIsequal);
+
 var _result = _dereq_("./result");
 
 var _result2 = _interopRequireDefault(_result);
@@ -4114,7 +4118,7 @@ var Results = (function (_React$Component) {
 		this.onScroll = (0, _lodashDebounce2["default"])(this.onScroll, 300).bind(this);
 
 		this.state = {
-			results: this.dataToComponents(this.props.results.last.results)
+			results: this.props.results.last.results
 		};
 	}
 
@@ -4130,7 +4134,7 @@ var Results = (function (_React$Component) {
 			var newResults = this.props.results.last !== nextProps.results.last;
 
 			if (nextPage || newResults) {
-				var nextResults = this.dataToComponents(nextProps.results.last.results);
+				var nextResults = nextProps.results.last.results;
 
 				if (nextPage) {
 					nextResults = this.state.results.concat(nextResults);
@@ -4207,7 +4211,7 @@ var Results = (function (_React$Component) {
 				_react2["default"].createElement(
 					"ul",
 					{ className: "hire-faceted-search-result-list" },
-					this.state.results
+					this.dataToComponents(this.state.results)
 				),
 				loader
 			);
@@ -4232,7 +4236,7 @@ Results.propTypes = {
 exports["default"] = Results;
 module.exports = exports["default"];
 
-},{"../icons/loader-three-dots":36,"./current-query":46,"./result":48,"./sort-menu":49,"insert-css":2,"lodash.debounce":3,"react":"react"}],48:[function(_dereq_,module,exports){
+},{"../icons/loader-three-dots":36,"./current-query":46,"./result":48,"./sort-menu":49,"insert-css":2,"lodash.debounce":3,"lodash.isequal":5,"react":"react"}],48:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4858,10 +4862,9 @@ var FacetedSearch = (function (_React$Component) {
 	}, {
 		key: "componentWillUpdate",
 		value: function componentWillUpdate(nextProps, nextState) {
-			var resultsNotNull = this.state.results.last != null && nextState.results.last != null;
 			var resultsChanged = this.state.results.last !== nextState.results.last;
 
-			if (resultsNotNull && resultsChanged) {
+			if (resultsChanged) {
 				this.props.onChange(nextState.results.last, nextState.queries.last);
 			}
 		}
