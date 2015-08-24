@@ -1,5 +1,6 @@
 import React from "react";
 import debounce from "lodash.debounce";
+import isEqual from "lodash.isequal";
 
 import Result from "./result";
 import ResultsSortMenu from "./sort-menu";
@@ -25,7 +26,7 @@ class Results extends React.Component {
 		this.onScroll = debounce(this.onScroll, 300).bind(this);
 
 		this.state = {
-			results: this.dataToComponents(this.props.results.last.results)
+			results: this.props.results.last.results
 		};
 	}
 
@@ -38,7 +39,7 @@ class Results extends React.Component {
 		let newResults = this.props.results.last !== nextProps.results.last;
 
 		if (nextPage || newResults) {
-			let nextResults = this.dataToComponents(nextProps.results.last.results);
+			let nextResults = nextProps.results.last.results;
 
 			if (nextPage) {
 				nextResults = this.state.results.concat(nextResults);
@@ -101,7 +102,7 @@ class Results extends React.Component {
 						results={this.props.results} />
 				</header>
 				<ul className="hire-faceted-search-result-list">
-					{this.state.results}
+					{this.dataToComponents(this.state.results)}
 				</ul>
 				{loader}
 			</div>
