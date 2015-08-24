@@ -555,6 +555,1123 @@ function isNative(value) {
 module.exports = getNative;
 
 },{}],5:[function(_dereq_,module,exports){
+/**
+ * lodash 3.0.4 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modern modularize exports="npm" -o ./`
+ * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+var baseIsEqual = _dereq_('lodash._baseisequal'),
+    bindCallback = _dereq_('lodash._bindcallback');
+
+/**
+ * Performs a deep comparison between two values to determine if they are
+ * equivalent. If `customizer` is provided it is invoked to compare values.
+ * If `customizer` returns `undefined` comparisons are handled by the method
+ * instead. The `customizer` is bound to `thisArg` and invoked with three
+ * arguments: (value, other [, index|key]).
+ *
+ * **Note:** This method supports comparing arrays, booleans, `Date` objects,
+ * numbers, `Object` objects, regexes, and strings. Objects are compared by
+ * their own, not inherited, enumerable properties. Functions and DOM nodes
+ * are **not** supported. Provide a customizer function to extend support
+ * for comparing other values.
+ *
+ * @static
+ * @memberOf _
+ * @alias eq
+ * @category Lang
+ * @param {*} value The value to compare.
+ * @param {*} other The other value to compare.
+ * @param {Function} [customizer] The function to customize value comparisons.
+ * @param {*} [thisArg] The `this` binding of `customizer`.
+ * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
+ * @example
+ *
+ * var object = { 'user': 'fred' };
+ * var other = { 'user': 'fred' };
+ *
+ * object == other;
+ * // => false
+ *
+ * _.isEqual(object, other);
+ * // => true
+ *
+ * // using a customizer callback
+ * var array = ['hello', 'goodbye'];
+ * var other = ['hi', 'goodbye'];
+ *
+ * _.isEqual(array, other, function(value, other) {
+ *   if (_.every([value, other], RegExp.prototype.test, /^h(?:i|ello)$/)) {
+ *     return true;
+ *   }
+ * });
+ * // => true
+ */
+function isEqual(value, other, customizer, thisArg) {
+  customizer = typeof customizer == 'function' ? bindCallback(customizer, thisArg, 3) : undefined;
+  var result = customizer ? customizer(value, other) : undefined;
+  return  result === undefined ? baseIsEqual(value, other, customizer) : !!result;
+}
+
+module.exports = isEqual;
+
+},{"lodash._baseisequal":6,"lodash._bindcallback":12}],6:[function(_dereq_,module,exports){
+/**
+ * lodash 3.0.7 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modern modularize exports="npm" -o ./`
+ * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+var isArray = _dereq_('lodash.isarray'),
+    isTypedArray = _dereq_('lodash.istypedarray'),
+    keys = _dereq_('lodash.keys');
+
+/** `Object#toString` result references. */
+var argsTag = '[object Arguments]',
+    arrayTag = '[object Array]',
+    boolTag = '[object Boolean]',
+    dateTag = '[object Date]',
+    errorTag = '[object Error]',
+    numberTag = '[object Number]',
+    objectTag = '[object Object]',
+    regexpTag = '[object RegExp]',
+    stringTag = '[object String]';
+
+/**
+ * Checks if `value` is object-like.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/** Used for native method references. */
+var objectProto = Object.prototype;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
+/**
+ * Used to resolve the [`toStringTag`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-object.prototype.tostring)
+ * of values.
+ */
+var objToString = objectProto.toString;
+
+/**
+ * A specialized version of `_.some` for arrays without support for callback
+ * shorthands and `this` binding.
+ *
+ * @private
+ * @param {Array} array The array to iterate over.
+ * @param {Function} predicate The function invoked per iteration.
+ * @returns {boolean} Returns `true` if any element passes the predicate check,
+ *  else `false`.
+ */
+function arraySome(array, predicate) {
+  var index = -1,
+      length = array.length;
+
+  while (++index < length) {
+    if (predicate(array[index], index, array)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * The base implementation of `_.isEqual` without support for `this` binding
+ * `customizer` functions.
+ *
+ * @private
+ * @param {*} value The value to compare.
+ * @param {*} other The other value to compare.
+ * @param {Function} [customizer] The function to customize comparing values.
+ * @param {boolean} [isLoose] Specify performing partial comparisons.
+ * @param {Array} [stackA] Tracks traversed `value` objects.
+ * @param {Array} [stackB] Tracks traversed `other` objects.
+ * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
+ */
+function baseIsEqual(value, other, customizer, isLoose, stackA, stackB) {
+  if (value === other) {
+    return true;
+  }
+  if (value == null || other == null || (!isObject(value) && !isObjectLike(other))) {
+    return value !== value && other !== other;
+  }
+  return baseIsEqualDeep(value, other, baseIsEqual, customizer, isLoose, stackA, stackB);
+}
+
+/**
+ * A specialized version of `baseIsEqual` for arrays and objects which performs
+ * deep comparisons and tracks traversed objects enabling objects with circular
+ * references to be compared.
+ *
+ * @private
+ * @param {Object} object The object to compare.
+ * @param {Object} other The other object to compare.
+ * @param {Function} equalFunc The function to determine equivalents of values.
+ * @param {Function} [customizer] The function to customize comparing objects.
+ * @param {boolean} [isLoose] Specify performing partial comparisons.
+ * @param {Array} [stackA=[]] Tracks traversed `value` objects.
+ * @param {Array} [stackB=[]] Tracks traversed `other` objects.
+ * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
+ */
+function baseIsEqualDeep(object, other, equalFunc, customizer, isLoose, stackA, stackB) {
+  var objIsArr = isArray(object),
+      othIsArr = isArray(other),
+      objTag = arrayTag,
+      othTag = arrayTag;
+
+  if (!objIsArr) {
+    objTag = objToString.call(object);
+    if (objTag == argsTag) {
+      objTag = objectTag;
+    } else if (objTag != objectTag) {
+      objIsArr = isTypedArray(object);
+    }
+  }
+  if (!othIsArr) {
+    othTag = objToString.call(other);
+    if (othTag == argsTag) {
+      othTag = objectTag;
+    } else if (othTag != objectTag) {
+      othIsArr = isTypedArray(other);
+    }
+  }
+  var objIsObj = objTag == objectTag,
+      othIsObj = othTag == objectTag,
+      isSameTag = objTag == othTag;
+
+  if (isSameTag && !(objIsArr || objIsObj)) {
+    return equalByTag(object, other, objTag);
+  }
+  if (!isLoose) {
+    var objIsWrapped = objIsObj && hasOwnProperty.call(object, '__wrapped__'),
+        othIsWrapped = othIsObj && hasOwnProperty.call(other, '__wrapped__');
+
+    if (objIsWrapped || othIsWrapped) {
+      return equalFunc(objIsWrapped ? object.value() : object, othIsWrapped ? other.value() : other, customizer, isLoose, stackA, stackB);
+    }
+  }
+  if (!isSameTag) {
+    return false;
+  }
+  // Assume cyclic values are equal.
+  // For more information on detecting circular references see https://es5.github.io/#JO.
+  stackA || (stackA = []);
+  stackB || (stackB = []);
+
+  var length = stackA.length;
+  while (length--) {
+    if (stackA[length] == object) {
+      return stackB[length] == other;
+    }
+  }
+  // Add `object` and `other` to the stack of traversed objects.
+  stackA.push(object);
+  stackB.push(other);
+
+  var result = (objIsArr ? equalArrays : equalObjects)(object, other, equalFunc, customizer, isLoose, stackA, stackB);
+
+  stackA.pop();
+  stackB.pop();
+
+  return result;
+}
+
+/**
+ * A specialized version of `baseIsEqualDeep` for arrays with support for
+ * partial deep comparisons.
+ *
+ * @private
+ * @param {Array} array The array to compare.
+ * @param {Array} other The other array to compare.
+ * @param {Function} equalFunc The function to determine equivalents of values.
+ * @param {Function} [customizer] The function to customize comparing arrays.
+ * @param {boolean} [isLoose] Specify performing partial comparisons.
+ * @param {Array} [stackA] Tracks traversed `value` objects.
+ * @param {Array} [stackB] Tracks traversed `other` objects.
+ * @returns {boolean} Returns `true` if the arrays are equivalent, else `false`.
+ */
+function equalArrays(array, other, equalFunc, customizer, isLoose, stackA, stackB) {
+  var index = -1,
+      arrLength = array.length,
+      othLength = other.length;
+
+  if (arrLength != othLength && !(isLoose && othLength > arrLength)) {
+    return false;
+  }
+  // Ignore non-index properties.
+  while (++index < arrLength) {
+    var arrValue = array[index],
+        othValue = other[index],
+        result = customizer ? customizer(isLoose ? othValue : arrValue, isLoose ? arrValue : othValue, index) : undefined;
+
+    if (result !== undefined) {
+      if (result) {
+        continue;
+      }
+      return false;
+    }
+    // Recursively compare arrays (susceptible to call stack limits).
+    if (isLoose) {
+      if (!arraySome(other, function(othValue) {
+            return arrValue === othValue || equalFunc(arrValue, othValue, customizer, isLoose, stackA, stackB);
+          })) {
+        return false;
+      }
+    } else if (!(arrValue === othValue || equalFunc(arrValue, othValue, customizer, isLoose, stackA, stackB))) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * A specialized version of `baseIsEqualDeep` for comparing objects of
+ * the same `toStringTag`.
+ *
+ * **Note:** This function only supports comparing values with tags of
+ * `Boolean`, `Date`, `Error`, `Number`, `RegExp`, or `String`.
+ *
+ * @private
+ * @param {Object} value The object to compare.
+ * @param {Object} other The other object to compare.
+ * @param {string} tag The `toStringTag` of the objects to compare.
+ * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
+ */
+function equalByTag(object, other, tag) {
+  switch (tag) {
+    case boolTag:
+    case dateTag:
+      // Coerce dates and booleans to numbers, dates to milliseconds and booleans
+      // to `1` or `0` treating invalid dates coerced to `NaN` as not equal.
+      return +object == +other;
+
+    case errorTag:
+      return object.name == other.name && object.message == other.message;
+
+    case numberTag:
+      // Treat `NaN` vs. `NaN` as equal.
+      return (object != +object)
+        ? other != +other
+        : object == +other;
+
+    case regexpTag:
+    case stringTag:
+      // Coerce regexes to strings and treat strings primitives and string
+      // objects as equal. See https://es5.github.io/#x15.10.6.4 for more details.
+      return object == (other + '');
+  }
+  return false;
+}
+
+/**
+ * A specialized version of `baseIsEqualDeep` for objects with support for
+ * partial deep comparisons.
+ *
+ * @private
+ * @param {Object} object The object to compare.
+ * @param {Object} other The other object to compare.
+ * @param {Function} equalFunc The function to determine equivalents of values.
+ * @param {Function} [customizer] The function to customize comparing values.
+ * @param {boolean} [isLoose] Specify performing partial comparisons.
+ * @param {Array} [stackA] Tracks traversed `value` objects.
+ * @param {Array} [stackB] Tracks traversed `other` objects.
+ * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
+ */
+function equalObjects(object, other, equalFunc, customizer, isLoose, stackA, stackB) {
+  var objProps = keys(object),
+      objLength = objProps.length,
+      othProps = keys(other),
+      othLength = othProps.length;
+
+  if (objLength != othLength && !isLoose) {
+    return false;
+  }
+  var index = objLength;
+  while (index--) {
+    var key = objProps[index];
+    if (!(isLoose ? key in other : hasOwnProperty.call(other, key))) {
+      return false;
+    }
+  }
+  var skipCtor = isLoose;
+  while (++index < objLength) {
+    key = objProps[index];
+    var objValue = object[key],
+        othValue = other[key],
+        result = customizer ? customizer(isLoose ? othValue : objValue, isLoose? objValue : othValue, key) : undefined;
+
+    // Recursively compare objects (susceptible to call stack limits).
+    if (!(result === undefined ? equalFunc(objValue, othValue, customizer, isLoose, stackA, stackB) : result)) {
+      return false;
+    }
+    skipCtor || (skipCtor = key == 'constructor');
+  }
+  if (!skipCtor) {
+    var objCtor = object.constructor,
+        othCtor = other.constructor;
+
+    // Non `Object` object instances with different constructors are not equal.
+    if (objCtor != othCtor &&
+        ('constructor' in object && 'constructor' in other) &&
+        !(typeof objCtor == 'function' && objCtor instanceof objCtor &&
+          typeof othCtor == 'function' && othCtor instanceof othCtor)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
+ * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(1);
+ * // => false
+ */
+function isObject(value) {
+  // Avoid a V8 JIT bug in Chrome 19-20.
+  // See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+module.exports = baseIsEqual;
+
+},{"lodash.isarray":7,"lodash.istypedarray":8,"lodash.keys":9}],7:[function(_dereq_,module,exports){
+/**
+ * lodash 3.0.4 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modern modularize exports="npm" -o ./`
+ * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+
+/** `Object#toString` result references. */
+var arrayTag = '[object Array]',
+    funcTag = '[object Function]';
+
+/** Used to detect host constructors (Safari > 5). */
+var reIsHostCtor = /^\[object .+?Constructor\]$/;
+
+/**
+ * Checks if `value` is object-like.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/** Used for native method references. */
+var objectProto = Object.prototype;
+
+/** Used to resolve the decompiled source of functions. */
+var fnToString = Function.prototype.toString;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
+/**
+ * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objToString = objectProto.toString;
+
+/** Used to detect if a method is native. */
+var reIsNative = RegExp('^' +
+  fnToString.call(hasOwnProperty).replace(/[\\^$.*+?()[\]{}|]/g, '\\$&')
+  .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
+);
+
+/* Native method references for those with the same name as other `lodash` methods. */
+var nativeIsArray = getNative(Array, 'isArray');
+
+/**
+ * Used as the [maximum length](http://ecma-international.org/ecma-262/6.0/#sec-number.max_safe_integer)
+ * of an array-like value.
+ */
+var MAX_SAFE_INTEGER = 9007199254740991;
+
+/**
+ * Gets the native function at `key` of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {string} key The key of the method to get.
+ * @returns {*} Returns the function if it's native, else `undefined`.
+ */
+function getNative(object, key) {
+  var value = object == null ? undefined : object[key];
+  return isNative(value) ? value : undefined;
+}
+
+/**
+ * Checks if `value` is a valid array-like length.
+ *
+ * **Note:** This function is based on [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+ */
+function isLength(value) {
+  return typeof value == 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+}
+
+/**
+ * Checks if `value` is classified as an `Array` object.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+ * @example
+ *
+ * _.isArray([1, 2, 3]);
+ * // => true
+ *
+ * _.isArray(function() { return arguments; }());
+ * // => false
+ */
+var isArray = nativeIsArray || function(value) {
+  return isObjectLike(value) && isLength(value.length) && objToString.call(value) == arrayTag;
+};
+
+/**
+ * Checks if `value` is classified as a `Function` object.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+ * @example
+ *
+ * _.isFunction(_);
+ * // => true
+ *
+ * _.isFunction(/abc/);
+ * // => false
+ */
+function isFunction(value) {
+  // The use of `Object#toString` avoids issues with the `typeof` operator
+  // in older versions of Chrome and Safari which return 'function' for regexes
+  // and Safari 8 equivalents which return 'object' for typed array constructors.
+  return isObject(value) && objToString.call(value) == funcTag;
+}
+
+/**
+ * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
+ * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(1);
+ * // => false
+ */
+function isObject(value) {
+  // Avoid a V8 JIT bug in Chrome 19-20.
+  // See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+/**
+ * Checks if `value` is a native function.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a native function, else `false`.
+ * @example
+ *
+ * _.isNative(Array.prototype.push);
+ * // => true
+ *
+ * _.isNative(_);
+ * // => false
+ */
+function isNative(value) {
+  if (value == null) {
+    return false;
+  }
+  if (isFunction(value)) {
+    return reIsNative.test(fnToString.call(value));
+  }
+  return isObjectLike(value) && reIsHostCtor.test(value);
+}
+
+module.exports = isArray;
+
+},{}],8:[function(_dereq_,module,exports){
+/**
+ * lodash 3.0.2 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modern modularize exports="npm" -o ./`
+ * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+
+/** `Object#toString` result references. */
+var argsTag = '[object Arguments]',
+    arrayTag = '[object Array]',
+    boolTag = '[object Boolean]',
+    dateTag = '[object Date]',
+    errorTag = '[object Error]',
+    funcTag = '[object Function]',
+    mapTag = '[object Map]',
+    numberTag = '[object Number]',
+    objectTag = '[object Object]',
+    regexpTag = '[object RegExp]',
+    setTag = '[object Set]',
+    stringTag = '[object String]',
+    weakMapTag = '[object WeakMap]';
+
+var arrayBufferTag = '[object ArrayBuffer]',
+    float32Tag = '[object Float32Array]',
+    float64Tag = '[object Float64Array]',
+    int8Tag = '[object Int8Array]',
+    int16Tag = '[object Int16Array]',
+    int32Tag = '[object Int32Array]',
+    uint8Tag = '[object Uint8Array]',
+    uint8ClampedTag = '[object Uint8ClampedArray]',
+    uint16Tag = '[object Uint16Array]',
+    uint32Tag = '[object Uint32Array]';
+
+/** Used to identify `toStringTag` values of typed arrays. */
+var typedArrayTags = {};
+typedArrayTags[float32Tag] = typedArrayTags[float64Tag] =
+typedArrayTags[int8Tag] = typedArrayTags[int16Tag] =
+typedArrayTags[int32Tag] = typedArrayTags[uint8Tag] =
+typedArrayTags[uint8ClampedTag] = typedArrayTags[uint16Tag] =
+typedArrayTags[uint32Tag] = true;
+typedArrayTags[argsTag] = typedArrayTags[arrayTag] =
+typedArrayTags[arrayBufferTag] = typedArrayTags[boolTag] =
+typedArrayTags[dateTag] = typedArrayTags[errorTag] =
+typedArrayTags[funcTag] = typedArrayTags[mapTag] =
+typedArrayTags[numberTag] = typedArrayTags[objectTag] =
+typedArrayTags[regexpTag] = typedArrayTags[setTag] =
+typedArrayTags[stringTag] = typedArrayTags[weakMapTag] = false;
+
+/**
+ * Checks if `value` is object-like.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/** Used for native method references. */
+var objectProto = Object.prototype;
+
+/**
+ * Used to resolve the [`toStringTag`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-object.prototype.tostring)
+ * of values.
+ */
+var objToString = objectProto.toString;
+
+/**
+ * Used as the [maximum length](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-number.max_safe_integer)
+ * of an array-like value.
+ */
+var MAX_SAFE_INTEGER = 9007199254740991;
+
+/**
+ * Checks if `value` is a valid array-like length.
+ *
+ * **Note:** This function is based on [`ToLength`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength).
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+ */
+function isLength(value) {
+  return typeof value == 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+}
+
+/**
+ * Checks if `value` is classified as a typed array.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+ * @example
+ *
+ * _.isTypedArray(new Uint8Array);
+ * // => true
+ *
+ * _.isTypedArray([]);
+ * // => false
+ */
+function isTypedArray(value) {
+  return isObjectLike(value) && isLength(value.length) && !!typedArrayTags[objToString.call(value)];
+}
+
+module.exports = isTypedArray;
+
+},{}],9:[function(_dereq_,module,exports){
+/**
+ * lodash 3.1.2 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modern modularize exports="npm" -o ./`
+ * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+var getNative = _dereq_('lodash._getnative'),
+    isArguments = _dereq_('lodash.isarguments'),
+    isArray = _dereq_('lodash.isarray');
+
+/** Used to detect unsigned integer values. */
+var reIsUint = /^\d+$/;
+
+/** Used for native method references. */
+var objectProto = Object.prototype;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
+/* Native method references for those with the same name as other `lodash` methods. */
+var nativeKeys = getNative(Object, 'keys');
+
+/**
+ * Used as the [maximum length](http://ecma-international.org/ecma-262/6.0/#sec-number.max_safe_integer)
+ * of an array-like value.
+ */
+var MAX_SAFE_INTEGER = 9007199254740991;
+
+/**
+ * The base implementation of `_.property` without support for deep paths.
+ *
+ * @private
+ * @param {string} key The key of the property to get.
+ * @returns {Function} Returns the new function.
+ */
+function baseProperty(key) {
+  return function(object) {
+    return object == null ? undefined : object[key];
+  };
+}
+
+/**
+ * Gets the "length" property value of `object`.
+ *
+ * **Note:** This function is used to avoid a [JIT bug](https://bugs.webkit.org/show_bug.cgi?id=142792)
+ * that affects Safari on at least iOS 8.1-8.3 ARM64.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {*} Returns the "length" value.
+ */
+var getLength = baseProperty('length');
+
+/**
+ * Checks if `value` is array-like.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
+ */
+function isArrayLike(value) {
+  return value != null && isLength(getLength(value));
+}
+
+/**
+ * Checks if `value` is a valid array-like index.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
+ * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
+ */
+function isIndex(value, length) {
+  value = (typeof value == 'number' || reIsUint.test(value)) ? +value : -1;
+  length = length == null ? MAX_SAFE_INTEGER : length;
+  return value > -1 && value % 1 == 0 && value < length;
+}
+
+/**
+ * Checks if `value` is a valid array-like length.
+ *
+ * **Note:** This function is based on [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+ */
+function isLength(value) {
+  return typeof value == 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+}
+
+/**
+ * A fallback implementation of `Object.keys` which creates an array of the
+ * own enumerable property names of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names.
+ */
+function shimKeys(object) {
+  var props = keysIn(object),
+      propsLength = props.length,
+      length = propsLength && object.length;
+
+  var allowIndexes = !!length && isLength(length) &&
+    (isArray(object) || isArguments(object));
+
+  var index = -1,
+      result = [];
+
+  while (++index < propsLength) {
+    var key = props[index];
+    if ((allowIndexes && isIndex(key, length)) || hasOwnProperty.call(object, key)) {
+      result.push(key);
+    }
+  }
+  return result;
+}
+
+/**
+ * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
+ * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(1);
+ * // => false
+ */
+function isObject(value) {
+  // Avoid a V8 JIT bug in Chrome 19-20.
+  // See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+/**
+ * Creates an array of the own enumerable property names of `object`.
+ *
+ * **Note:** Non-object values are coerced to objects. See the
+ * [ES spec](http://ecma-international.org/ecma-262/6.0/#sec-object.keys)
+ * for more details.
+ *
+ * @static
+ * @memberOf _
+ * @category Object
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names.
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ *   this.b = 2;
+ * }
+ *
+ * Foo.prototype.c = 3;
+ *
+ * _.keys(new Foo);
+ * // => ['a', 'b'] (iteration order is not guaranteed)
+ *
+ * _.keys('hi');
+ * // => ['0', '1']
+ */
+var keys = !nativeKeys ? shimKeys : function(object) {
+  var Ctor = object == null ? undefined : object.constructor;
+  if ((typeof Ctor == 'function' && Ctor.prototype === object) ||
+      (typeof object != 'function' && isArrayLike(object))) {
+    return shimKeys(object);
+  }
+  return isObject(object) ? nativeKeys(object) : [];
+};
+
+/**
+ * Creates an array of the own and inherited enumerable property names of `object`.
+ *
+ * **Note:** Non-object values are coerced to objects.
+ *
+ * @static
+ * @memberOf _
+ * @category Object
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names.
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ *   this.b = 2;
+ * }
+ *
+ * Foo.prototype.c = 3;
+ *
+ * _.keysIn(new Foo);
+ * // => ['a', 'b', 'c'] (iteration order is not guaranteed)
+ */
+function keysIn(object) {
+  if (object == null) {
+    return [];
+  }
+  if (!isObject(object)) {
+    object = Object(object);
+  }
+  var length = object.length;
+  length = (length && isLength(length) &&
+    (isArray(object) || isArguments(object)) && length) || 0;
+
+  var Ctor = object.constructor,
+      index = -1,
+      isProto = typeof Ctor == 'function' && Ctor.prototype === object,
+      result = Array(length),
+      skipIndexes = length > 0;
+
+  while (++index < length) {
+    result[index] = (index + '');
+  }
+  for (var key in object) {
+    if (!(skipIndexes && isIndex(key, length)) &&
+        !(key == 'constructor' && (isProto || !hasOwnProperty.call(object, key)))) {
+      result.push(key);
+    }
+  }
+  return result;
+}
+
+module.exports = keys;
+
+},{"lodash._getnative":10,"lodash.isarguments":11,"lodash.isarray":7}],10:[function(_dereq_,module,exports){
+arguments[4][4][0].apply(exports,arguments)
+},{"dup":4}],11:[function(_dereq_,module,exports){
+/**
+ * lodash 3.0.4 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modern modularize exports="npm" -o ./`
+ * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+
+/**
+ * Checks if `value` is object-like.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/** Used for native method references. */
+var objectProto = Object.prototype;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
+/** Native method references. */
+var propertyIsEnumerable = objectProto.propertyIsEnumerable;
+
+/**
+ * Used as the [maximum length](http://ecma-international.org/ecma-262/6.0/#sec-number.max_safe_integer)
+ * of an array-like value.
+ */
+var MAX_SAFE_INTEGER = 9007199254740991;
+
+/**
+ * The base implementation of `_.property` without support for deep paths.
+ *
+ * @private
+ * @param {string} key The key of the property to get.
+ * @returns {Function} Returns the new function.
+ */
+function baseProperty(key) {
+  return function(object) {
+    return object == null ? undefined : object[key];
+  };
+}
+
+/**
+ * Gets the "length" property value of `object`.
+ *
+ * **Note:** This function is used to avoid a [JIT bug](https://bugs.webkit.org/show_bug.cgi?id=142792)
+ * that affects Safari on at least iOS 8.1-8.3 ARM64.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {*} Returns the "length" value.
+ */
+var getLength = baseProperty('length');
+
+/**
+ * Checks if `value` is array-like.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
+ */
+function isArrayLike(value) {
+  return value != null && isLength(getLength(value));
+}
+
+/**
+ * Checks if `value` is a valid array-like length.
+ *
+ * **Note:** This function is based on [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+ */
+function isLength(value) {
+  return typeof value == 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+}
+
+/**
+ * Checks if `value` is classified as an `arguments` object.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+ * @example
+ *
+ * _.isArguments(function() { return arguments; }());
+ * // => true
+ *
+ * _.isArguments([1, 2, 3]);
+ * // => false
+ */
+function isArguments(value) {
+  return isObjectLike(value) && isArrayLike(value) &&
+    hasOwnProperty.call(value, 'callee') && !propertyIsEnumerable.call(value, 'callee');
+}
+
+module.exports = isArguments;
+
+},{}],12:[function(_dereq_,module,exports){
+/**
+ * lodash 3.0.1 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modern modularize exports="npm" -o ./`
+ * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
+ */
+
+/**
+ * A specialized version of `baseCallback` which only supports `this` binding
+ * and specifying the number of arguments to provide to `func`.
+ *
+ * @private
+ * @param {Function} func The function to bind.
+ * @param {*} thisArg The `this` binding of `func`.
+ * @param {number} [argCount] The number of arguments to provide to `func`.
+ * @returns {Function} Returns the callback.
+ */
+function bindCallback(func, thisArg, argCount) {
+  if (typeof func != 'function') {
+    return identity;
+  }
+  if (thisArg === undefined) {
+    return func;
+  }
+  switch (argCount) {
+    case 1: return function(value) {
+      return func.call(thisArg, value);
+    };
+    case 3: return function(value, index, collection) {
+      return func.call(thisArg, value, index, collection);
+    };
+    case 4: return function(accumulator, value, index, collection) {
+      return func.call(thisArg, accumulator, value, index, collection);
+    };
+    case 5: return function(value, other, key, object, source) {
+      return func.call(thisArg, value, other, key, object, source);
+    };
+  }
+  return function() {
+    return func.apply(thisArg, arguments);
+  };
+}
+
+/**
+ * This method returns the first argument provided to it.
+ *
+ * @static
+ * @memberOf _
+ * @category Utility
+ * @param {*} value Any value.
+ * @returns {*} Returns `value`.
+ * @example
+ *
+ * var object = { 'user': 'fred' };
+ *
+ * _.identity(object) === object;
+ * // => true
+ */
+function identity(value) {
+  return value;
+}
+
+module.exports = bindCallback;
+
+},{}],13:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -572,7 +1689,7 @@ function thunkMiddleware(_ref) {
 }
 
 module.exports = exports['default'];
-},{}],6:[function(_dereq_,module,exports){
+},{}],14:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -737,7 +1854,7 @@ function createStore(reducer, initialState) {
     replaceReducer: replaceReducer
   };
 }
-},{"./utils/isPlainObject":12}],7:[function(_dereq_,module,exports){
+},{"./utils/isPlainObject":20}],15:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -769,7 +1886,7 @@ exports.combineReducers = _utilsCombineReducers2['default'];
 exports.bindActionCreators = _utilsBindActionCreators2['default'];
 exports.applyMiddleware = _utilsApplyMiddleware2['default'];
 exports.compose = _utilsCompose2['default'];
-},{"./createStore":6,"./utils/applyMiddleware":8,"./utils/bindActionCreators":9,"./utils/combineReducers":10,"./utils/compose":11}],8:[function(_dereq_,module,exports){
+},{"./createStore":14,"./utils/applyMiddleware":16,"./utils/bindActionCreators":17,"./utils/combineReducers":18,"./utils/compose":19}],16:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -831,7 +1948,7 @@ function applyMiddleware() {
 }
 
 module.exports = exports['default'];
-},{"./compose":11}],9:[function(_dereq_,module,exports){
+},{"./compose":19}],17:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -886,7 +2003,7 @@ function bindActionCreators(actionCreators, dispatch) {
 }
 
 module.exports = exports['default'];
-},{"../utils/mapValues":13}],10:[function(_dereq_,module,exports){
+},{"../utils/mapValues":21}],18:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1004,7 +2121,7 @@ function combineReducers(reducers) {
 }
 
 module.exports = exports['default'];
-},{"../createStore":6,"../utils/isPlainObject":12,"../utils/mapValues":13,"../utils/pick":14}],11:[function(_dereq_,module,exports){
+},{"../createStore":14,"../utils/isPlainObject":20,"../utils/mapValues":21,"../utils/pick":22}],19:[function(_dereq_,module,exports){
 /**
  * Composes functions from left to right.
  *
@@ -1029,7 +2146,7 @@ function compose() {
 }
 
 module.exports = exports["default"];
-},{}],12:[function(_dereq_,module,exports){
+},{}],20:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1060,7 +2177,7 @@ function isPlainObject(obj) {
 }
 
 module.exports = exports['default'];
-},{}],13:[function(_dereq_,module,exports){
+},{}],21:[function(_dereq_,module,exports){
 /**
  * Applies a function to every key-value pair inside an object.
  *
@@ -1081,7 +2198,7 @@ function mapValues(obj, fn) {
 }
 
 module.exports = exports["default"];
-},{}],14:[function(_dereq_,module,exports){
+},{}],22:[function(_dereq_,module,exports){
 /**
  * Picks key-value pairs from an object where values satisfy a predicate.
  *
@@ -1104,7 +2221,7 @@ function pick(obj, fn) {
 }
 
 module.exports = exports["default"];
-},{}],15:[function(_dereq_,module,exports){
+},{}],23:[function(_dereq_,module,exports){
 "use strict";
 var window = _dereq_("global/window")
 var once = _dereq_("once")
@@ -1293,7 +2410,7 @@ function createXHR(options, callback) {
 
 function noop() {}
 
-},{"global/window":16,"once":17,"parse-headers":21}],16:[function(_dereq_,module,exports){
+},{"global/window":24,"once":25,"parse-headers":29}],24:[function(_dereq_,module,exports){
 if (typeof window !== "undefined") {
     module.exports = window;
 } else if (typeof global !== "undefined") {
@@ -1304,7 +2421,7 @@ if (typeof window !== "undefined") {
     module.exports = {};
 }
 
-},{}],17:[function(_dereq_,module,exports){
+},{}],25:[function(_dereq_,module,exports){
 module.exports = once
 
 once.proto = once(function () {
@@ -1325,7 +2442,7 @@ function once (fn) {
   }
 }
 
-},{}],18:[function(_dereq_,module,exports){
+},{}],26:[function(_dereq_,module,exports){
 var isFunction = _dereq_('is-function')
 
 module.exports = forEach
@@ -1373,7 +2490,7 @@ function forEachObject(object, iterator, context) {
     }
 }
 
-},{"is-function":19}],19:[function(_dereq_,module,exports){
+},{"is-function":27}],27:[function(_dereq_,module,exports){
 module.exports = isFunction
 
 var toString = Object.prototype.toString
@@ -1390,7 +2507,7 @@ function isFunction (fn) {
       fn === window.prompt))
 };
 
-},{}],20:[function(_dereq_,module,exports){
+},{}],28:[function(_dereq_,module,exports){
 
 exports = module.exports = trim;
 
@@ -1406,7 +2523,7 @@ exports.right = function(str){
   return str.replace(/\s*$/, '');
 };
 
-},{}],21:[function(_dereq_,module,exports){
+},{}],29:[function(_dereq_,module,exports){
 var trim = _dereq_('trim')
   , forEach = _dereq_('for-each')
   , isArray = function(arg) {
@@ -1438,7 +2555,7 @@ module.exports = function (headers) {
 
   return result
 }
-},{"for-each":18,"trim":20}],22:[function(_dereq_,module,exports){
+},{"for-each":26,"trim":28}],30:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1456,56 +2573,7 @@ function createNewQuery(dispatchData) {
 	};
 }
 
-// import dispatcher from "../dispatcher";
-
-// let queriesActions = {
-// 	setDefaults(props) {
-// 		dispatcher.handleViewAction({
-// 			actionType: "QUERIES_SET_DEFAULTS",
-// 			props: props
-// 		});
-// 	},
-
-// 	setSortParameter(field) {
-// 		dispatcher.handleViewAction({
-// 			actionType: "QUERIES_SET_SORT_PARAMETER",
-// 			field: field
-// 		});
-// 	},
-
-// 	add(facetName, value) {
-// 		dispatcher.handleViewAction({
-// 			actionType: "QUERIES_ADD",
-// 			facetName: facetName,
-// 			value: value
-// 		});
-// 	},
-
-// 	remove(facetName, value) {
-// 		dispatcher.handleViewAction({
-// 			actionType: "QUERIES_REMOVE",
-// 			facetName: facetName,
-// 			value: value
-// 		});
-// 	},
-
-// 	reset() {
-// 		dispatcher.handleViewAction({
-// 			actionType: "QUERIES_RESET"
-// 		});
-// 	},
-
-// 	changeSearchTerm(value) {
-// 		dispatcher.handleViewAction({
-// 			actionType: "QUERIES_CHANGE_SEARCH_TERM",
-// 			value: value
-// 		});
-// 	}
-// };
-
-// export default queriesActions;
-
-},{"./results":23}],23:[function(_dereq_,module,exports){
+},{"./results":31}],31:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1593,25 +2661,7 @@ function fetchResultsFromUrl(url) {
 	};
 }
 
-// import API from "../stores/api";
-
-// let resultsActions = {
-// 	getAll() {
-// 		API.getAllResults();
-// 	},
-
-// 	getResults() {
-// 		API.getResults();
-// 	},
-
-// 	getResultsFromUrl(url) {
-// 		API.getResultsFromUrl(url);
-// 	}
-// };
-
-// export default resultsActions;
-
-},{"xhr":15}],24:[function(_dereq_,module,exports){
+},{"xhr":23}],32:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1632,8 +2682,6 @@ var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
 
-// import Immutable from "immutable";
-
 var _textSearch = _dereq_("./text-search");
 
 var _textSearch2 = _interopRequireDefault(_textSearch);
@@ -1641,10 +2689,6 @@ var _textSearch2 = _interopRequireDefault(_textSearch);
 var _listFacet = _dereq_("./list-facet");
 
 var _listFacet2 = _interopRequireDefault(_listFacet);
-
-var _actionsQueries = _dereq_("../actions/queries");
-
-var _actionsQueries2 = _interopRequireDefault(_actionsQueries);
 
 var Facets = (function (_React$Component) {
 	_inherits(Facets, _React$Component);
@@ -1656,11 +2700,6 @@ var Facets = (function (_React$Component) {
 	}
 
 	_createClass(Facets, [{
-		key: "handleButtonClick",
-		value: function handleButtonClick() {
-			_actionsQueries2["default"].reset();
-		}
-	}, {
 		key: "render",
 		value: function render() {
 			var _this = this;
@@ -1679,10 +2718,12 @@ var Facets = (function (_React$Component) {
 				{ className: "hire-faceted-search-facets" },
 				_react2["default"].createElement(
 					"button",
-					{ onClick: this.handleButtonClick.bind(this) },
+					{ onClick: this.props.onReset },
 					"New search"
 				),
-				_react2["default"].createElement(_textSearch2["default"], { value: this.props.queries.last.term }),
+				_react2["default"].createElement(_textSearch2["default"], {
+					onChangeSearchTerm: this.props.onChangeSearchTerm,
+					value: this.props.queries.last.term }),
 				facets
 			);
 		}
@@ -1695,6 +2736,8 @@ Facets.defaultProps = {};
 
 Facets.propTypes = {
 	labels: _react2["default"].PropTypes.object,
+	onChangeSearchTerm: _react2["default"].PropTypes.func,
+	onReset: _react2["default"].PropTypes.func,
 	onSelectFacetValue: _react2["default"].PropTypes.func,
 	queries: _react2["default"].PropTypes.object,
 	results: _react2["default"].PropTypes.object
@@ -1703,7 +2746,7 @@ Facets.propTypes = {
 exports["default"] = Facets;
 module.exports = exports["default"];
 
-},{"../actions/queries":22,"./list-facet":35,"./text-search":43,"react":"react"}],25:[function(_dereq_,module,exports){
+},{"./list-facet":43,"./text-search":51,"react":"react"}],33:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1811,7 +2854,7 @@ FilterMenu.propTypes = {
 exports["default"] = FilterMenu;
 module.exports = exports["default"];
 
-},{"../icons/filter":27,"classnames":"classnames","hire-forms-input":1,"insert-css":2,"react":"react"}],26:[function(_dereq_,module,exports){
+},{"../icons/filter":35,"classnames":"classnames","hire-forms-input":1,"insert-css":2,"react":"react"}],34:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1872,7 +2915,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],27:[function(_dereq_,module,exports){
+},{"react":"react"}],35:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1932,7 +2975,7 @@ FilterIcon.propTypes = {
 exports["default"] = FilterIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],28:[function(_dereq_,module,exports){
+},{"react":"react"}],36:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2115,7 +3158,7 @@ LoaderThreeDots.PropTypes = {
 exports["default"] = LoaderThreeDots;
 module.exports = exports["default"];
 
-},{"react":"react"}],29:[function(_dereq_,module,exports){
+},{"react":"react"}],37:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2175,7 +3218,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],30:[function(_dereq_,module,exports){
+},{"react":"react"}],38:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2246,7 +3289,7 @@ SortAlphabeticallyAscending.propTypes = {
 exports["default"] = SortAlphabeticallyAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],31:[function(_dereq_,module,exports){
+},{"react":"react"}],39:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2317,7 +3360,7 @@ SortAlphabeticallyDescending.propTypes = {
 exports["default"] = SortAlphabeticallyDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],32:[function(_dereq_,module,exports){
+},{"react":"react"}],40:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2386,7 +3429,7 @@ SortCountAscending.propTypes = {
 exports["default"] = SortCountAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],33:[function(_dereq_,module,exports){
+},{"react":"react"}],41:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2455,7 +3498,7 @@ SortCountDescending.propTypes = {
 exports["default"] = SortCountDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],34:[function(_dereq_,module,exports){
+},{"react":"react"}],42:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2514,9 +3557,7 @@ UncheckedIcon.propTypes = {
 exports["default"] = UncheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],35:[function(_dereq_,module,exports){
-// TODO cap at 50 results if results > 200
-
+},{"react":"react"}],43:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2536,10 +3577,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
-
-var _immutable = _dereq_("immutable");
-
-var _immutable2 = _interopRequireDefault(_immutable);
 
 var _classnames = _dereq_("classnames");
 
@@ -2722,7 +3759,7 @@ ListFacet.propTypes = {
 exports["default"] = ListFacet;
 module.exports = exports["default"];
 
-},{"../filter-menu":25,"../sort-menu":42,"./list-item":36,"classnames":"classnames","immutable":"immutable","insert-css":2,"react":"react"}],36:[function(_dereq_,module,exports){
+},{"../filter-menu":33,"../sort-menu":50,"./list-item":44,"classnames":"classnames","insert-css":2,"react":"react"}],44:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2742,10 +3779,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
-
-var _actionsQueries = _dereq_("../../actions/queries");
-
-var _actionsQueries2 = _interopRequireDefault(_actionsQueries);
 
 var _iconsChecked = _dereq_("../icons/checked");
 
@@ -2779,11 +3812,6 @@ var ListFacetListItem = (function (_React$Component) {
 		key: "handleClick",
 		value: function handleClick() {
 			this.props.onSelectFacetValue(this.props.facetName, this.props.name, this.props.checked);
-			// if (this.props.checked) {
-			// 	queriesActions.remove(this.props.facetName, this.props.name);
-			// } else {
-			// 	queriesActions.add(this.props.facetName, this.props.name);
-			// }
 
 			this.setState({
 				checked: !this.state.checked
@@ -2835,7 +3863,7 @@ ListFacetListItem.propTypes = {
 exports["default"] = ListFacetListItem;
 module.exports = exports["default"];
 
-},{"../../actions/queries":22,"../icons/checked":26,"../icons/unchecked":34,"react":"react"}],37:[function(_dereq_,module,exports){
+},{"../icons/checked":34,"../icons/unchecked":42,"react":"react"}],45:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2855,15 +3883,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
-
-var _actionsQueries = _dereq_("../../../../actions/queries");
-
-var _actionsQueries2 = _interopRequireDefault(_actionsQueries);
-
-// let fs = require("fs");
-// import insertCss from "insert-css";
-// let css = fs.readFileSync(__dirname + "/index.css");
-// insertCss(css, {prepend: true});
 
 var FacetValue = (function (_React$Component) {
 	_inherits(FacetValue, _React$Component);
@@ -2875,18 +3894,13 @@ var FacetValue = (function (_React$Component) {
 	}
 
 	_createClass(FacetValue, [{
-		key: "handleFacetValueClick",
-		value: function handleFacetValueClick() {
-			_actionsQueries2["default"].remove(this.props.facetName, this.props.value);
-		}
-	}, {
 		key: "render",
 		value: function render() {
 			return _react2["default"].createElement(
 				"li",
 				{
 					className: "hire-faceted-search-selected-facet-value",
-					onClick: this.handleFacetValueClick.bind(this) },
+					onClick: this.props.onSelectFacetValue.bind(this, this.props.facetName, this.props.value, true) },
 				this.props.value
 			);
 		}
@@ -2897,13 +3911,14 @@ var FacetValue = (function (_React$Component) {
 
 FacetValue.propTypes = {
 	facetName: _react2["default"].PropTypes.string,
+	onSelectFacetValue: _react2["default"].PropTypes.func,
 	value: _react2["default"].PropTypes.string
 };
 
 exports["default"] = FacetValue;
 module.exports = exports["default"];
 
-},{"../../../../actions/queries":22,"react":"react"}],38:[function(_dereq_,module,exports){
+},{"react":"react"}],46:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2923,12 +3938,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
-
-// import {Map} from "immutable";
-
-var _actionsQueries = _dereq_("../../../actions/queries");
-
-var _actionsQueries2 = _interopRequireDefault(_actionsQueries);
 
 var _facetValue = _dereq_("./facet-value");
 
@@ -2958,11 +3967,6 @@ var CurrentQuery = (function (_React$Component) {
 			return this.props.labels.facetTitles.hasOwnProperty(name) ? this.props.labels.facetTitles[name] : name;
 		}
 	}, {
-		key: "handleSearchTermClick",
-		value: function handleSearchTermClick() {
-			_actionsQueries2["default"].changeSearchTerm("");
-		}
-	}, {
 		key: "render",
 		value: function render() {
 			var _this = this;
@@ -2979,7 +3983,7 @@ var CurrentQuery = (function (_React$Component) {
 				),
 				_react2["default"].createElement(
 					"span",
-					{ onClick: this.handleSearchTermClick.bind(this) },
+					{ onClick: this.props.onChangeSearchTerm.bind(this, "") },
 					query.term
 				)
 			) : null;
@@ -3000,6 +4004,7 @@ var CurrentQuery = (function (_React$Component) {
 					return _react2["default"].createElement(_facetValue2["default"], {
 						facetName: selectedFacet.name,
 						key: index2,
+						onSelectFacetValue: _this.props.onSelectFacetValue,
 						value: value });
 				});
 
@@ -3033,6 +4038,8 @@ var CurrentQuery = (function (_React$Component) {
 
 CurrentQuery.propTypes = {
 	labels: _react2["default"].PropTypes.object,
+	onChangeSearchTerm: _react2["default"].PropTypes.func,
+	onSelectFacetValue: _react2["default"].PropTypes.func,
 	queries: _react2["default"].PropTypes.object,
 	results: _react2["default"].PropTypes.object
 };
@@ -3040,7 +4047,7 @@ CurrentQuery.propTypes = {
 exports["default"] = CurrentQuery;
 module.exports = exports["default"];
 
-},{"../../../actions/queries":22,"./facet-value":37,"insert-css":2,"react":"react"}],39:[function(_dereq_,module,exports){
+},{"./facet-value":45,"insert-css":2,"react":"react"}],47:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3192,6 +4199,8 @@ var Results = (function (_React$Component) {
 						values: this.props.queries.last.sortParameters }),
 					_react2["default"].createElement(_currentQuery2["default"], {
 						labels: this.props.labels,
+						onChangeSearchTerm: this.props.onChangeSearchTerm,
+						onSelectFacetValue: this.props.onSelectFacetValue,
 						queries: this.props.queries,
 						results: this.props.results })
 				),
@@ -3211,8 +4220,10 @@ var Results = (function (_React$Component) {
 Results.propTypes = {
 	config: _react2["default"].PropTypes.object,
 	labels: _react2["default"].PropTypes.object,
+	onChangeSearchTerm: _react2["default"].PropTypes.func,
 	onFetchResultsFromUrl: _react2["default"].PropTypes.func,
 	onSelect: _react2["default"].PropTypes.func,
+	onSelectFacetValue: _react2["default"].PropTypes.func,
 	onSetSort: _react2["default"].PropTypes.func,
 	queries: _react2["default"].PropTypes.object,
 	results: _react2["default"].PropTypes.object
@@ -3221,7 +4232,7 @@ Results.propTypes = {
 exports["default"] = Results;
 module.exports = exports["default"];
 
-},{"../icons/loader-three-dots":28,"./current-query":38,"./result":40,"./sort-menu":41,"insert-css":2,"lodash.debounce":3,"react":"react"}],40:[function(_dereq_,module,exports){
+},{"../icons/loader-three-dots":36,"./current-query":46,"./result":48,"./sort-menu":49,"insert-css":2,"lodash.debounce":3,"react":"react"}],48:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3311,7 +4322,7 @@ Result.propTypes = {
 exports["default"] = Result;
 module.exports = exports["default"];
 
-},{"react":"react"}],41:[function(_dereq_,module,exports){
+},{"react":"react"}],49:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3332,13 +4343,9 @@ var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
 
-// import {List, Map} from "immutable";
-
 var _classnames = _dereq_("classnames");
 
 var _classnames2 = _interopRequireDefault(_classnames);
-
-// import queriesActions from "../../../actions/queries";
 
 var _insertCss = _dereq_("insert-css");
 
@@ -3448,7 +4455,7 @@ ResultsSortMenu.propTypes = {
 exports["default"] = ResultsSortMenu;
 module.exports = exports["default"];
 
-},{"classnames":"classnames","insert-css":2,"react":"react"}],42:[function(_dereq_,module,exports){
+},{"classnames":"classnames","insert-css":2,"react":"react"}],50:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3604,7 +4611,7 @@ SortMenu.propTypes = {
 exports["default"] = SortMenu;
 module.exports = exports["default"];
 
-},{"../icons/sort-alphabetically-ascending":30,"../icons/sort-alphabetically-descending":31,"../icons/sort-count-ascending":32,"../icons/sort-count-descending":33,"classnames":"classnames","insert-css":2,"react":"react"}],43:[function(_dereq_,module,exports){
+},{"../icons/sort-alphabetically-ascending":38,"../icons/sort-alphabetically-descending":39,"../icons/sort-count-ascending":40,"../icons/sort-count-descending":41,"classnames":"classnames","insert-css":2,"react":"react"}],51:[function(_dereq_,module,exports){
 // TODO add searching class to .search-icon when async query is busy
 
 "use strict";
@@ -3630,10 +4637,6 @@ var _react2 = _interopRequireDefault(_react);
 var _classnames = _dereq_("classnames");
 
 var _classnames2 = _interopRequireDefault(_classnames);
-
-var _actionsQueries = _dereq_("../../actions/queries");
-
-var _actionsQueries2 = _interopRequireDefault(_actionsQueries);
 
 var _iconsSearch = _dereq_("../icons/search");
 
@@ -3691,7 +4694,7 @@ var TextSearch = (function (_React$Component) {
 				searching: true
 			});
 
-			_actionsQueries2["default"].changeSearchTerm(this.state.value);
+			this.props.onChangeSearchTerm(this.state.value);
 		}
 	}, {
 		key: "render",
@@ -3725,12 +4728,14 @@ var TextSearch = (function (_React$Component) {
 
 TextSearch.defaultProps = {};
 
-TextSearch.propTypes = {};
+TextSearch.propTypes = {
+	onChangeSearchTerm: _react2["default"].PropTypes.func
+};
 
 exports["default"] = TextSearch;
 module.exports = exports["default"];
 
-},{"../../actions/queries":22,"../icons/search":29,"classnames":"classnames","insert-css":2,"react":"react"}],44:[function(_dereq_,module,exports){
+},{"../icons/search":37,"classnames":"classnames","insert-css":2,"react":"react"}],52:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3753,7 +4758,9 @@ var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
 
-// import Immutable from "immutable";
+var _lodashIsequal = _dereq_("lodash.isequal");
+
+var _lodashIsequal2 = _interopRequireDefault(_lodashIsequal);
 
 var _componentsFacets = _dereq_("./components/facets");
 
@@ -3819,6 +4826,11 @@ var FacetedSearch = (function (_React$Component) {
 			config: this.props.config
 		});
 
+		store.dispatch({
+			type: "SET_LABELS",
+			labels: this.props.labels
+		});
+
 		this.state = store.getState();
 	}
 
@@ -3833,27 +4845,35 @@ var FacetedSearch = (function (_React$Component) {
 
 			store.dispatch((0, _actionsResults.fetchResults)());
 		}
+	}, {
+		key: "componentWillReceiveProps",
+		value: function componentWillReceiveProps(nextProps) {
+			if (!(0, _lodashIsequal2["default"])(this.state.labels, nextProps.labels)) {
+				store.dispatch({
+					type: "SET_LABELS",
+					labels: nextProps.labels
+				});
+			}
+		}
+	}, {
+		key: "componentWillUpdate",
+		value: function componentWillUpdate(nextProps, nextState) {
+			var resultsNotNull = this.state.results.last != null && nextState.results.last != null;
+			var resultsChanged = this.state.results.last !== nextState.results.last;
 
-		// componentWillReceiveProps(nextProps) {
-		// let oldI18n = Immutable.fromJS(this.state.i18n);
-		// let newI18n = Immutable.fromJS(nextProps.i18n);
-
-		// if (!newI18n.equals(oldI18n)) {
-		// 	this.setState({
-		// 		i18n: Object.assign(i18n, nextProps.i18n)
-		// 	});
-		// }
-		// }
-
+			if (resultsNotNull && resultsChanged) {
+				this.props.onChange(nextState.results.last, nextState.queries.last);
+			}
+		}
 	}, {
 		key: "componentWillUnmount",
 		value: function componentWillUnmount() {
 			this.unsubscribe();
 		}
 	}, {
-		key: "handleResultSelect",
-		value: function handleResultSelect(result) {
-			this.props.onChange(result.toJS());
+		key: "handleSelect",
+		value: function handleSelect(result) {
+			this.props.onSelect(result);
 		}
 	}, {
 		key: "handleFetchResultsFromUrl",
@@ -3881,6 +4901,21 @@ var FacetedSearch = (function (_React$Component) {
 			}));
 		}
 	}, {
+		key: "handleChangeSearchTerm",
+		value: function handleChangeSearchTerm(value) {
+			store.dispatch((0, _actionsQueries.createNewQuery)({
+				type: "CHANGE_SEARCH_TERM",
+				value: value
+			}));
+		}
+	}, {
+		key: "handleReset",
+		value: function handleReset() {
+			store.dispatch((0, _actionsQueries.createNewQuery)({
+				type: "RESET"
+			}));
+		}
+	}, {
 		key: "render",
 		value: function render() {
 			if (this.state.results.all.length === 0) {
@@ -3896,14 +4931,18 @@ var FacetedSearch = (function (_React$Component) {
 				{ className: "hire-faceted-search" },
 				_react2["default"].createElement(_componentsFacets2["default"], {
 					labels: this.state.labels,
+					onChangeSearchTerm: this.handleChangeSearchTerm.bind(this),
+					onReset: this.handleReset.bind(this),
 					onSelectFacetValue: this.handleSelectFacetValue.bind(this),
 					queries: this.state.queries,
 					results: this.state.results }),
 				_react2["default"].createElement(_componentsResults2["default"], {
 					config: this.state.config,
 					labels: this.state.labels,
+					onChangeSearchTerm: this.handleChangeSearchTerm.bind(this),
 					onFetchResultsFromUrl: this.handleFetchResultsFromUrl.bind(this),
-					onSelect: this.handleResultSelect.bind(this),
+					onSelect: this.handleSelect.bind(this),
+					onSelectFacetValue: this.handleSelectFacetValue.bind(this),
 					onSetSort: this.handleSetSort.bind(this),
 					queries: this.state.queries,
 					results: this.state.results })
@@ -3914,18 +4953,21 @@ var FacetedSearch = (function (_React$Component) {
 	return FacetedSearch;
 })(_react2["default"].Component);
 
-FacetedSearch.defaultProps = {};
+FacetedSearch.defaultProps = {
+	labels: {}
+};
 
 FacetedSearch.propTypes = {
 	config: _react2["default"].PropTypes.object.isRequired,
 	labels: _react2["default"].PropTypes.object,
-	onChange: _react2["default"].PropTypes.func.isRequired
+	onChange: _react2["default"].PropTypes.func,
+	onSelect: _react2["default"].PropTypes.func
 };
 
 exports["default"] = FacetedSearch;
 module.exports = exports["default"];
 
-},{"./actions/queries":22,"./actions/results":23,"./components/facets":24,"./components/results":39,"./reducers":46,"insert-css":2,"react":"react","redux":7,"redux-thunk":5}],45:[function(_dereq_,module,exports){
+},{"./actions/queries":30,"./actions/results":31,"./components/facets":32,"./components/results":47,"./reducers":54,"insert-css":2,"lodash.isequal":5,"react":"react","redux":15,"redux-thunk":13}],53:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3953,7 +4995,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}],46:[function(_dereq_,module,exports){
+},{}],54:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3988,7 +5030,7 @@ exports["default"] = (0, _redux.combineReducers)({
 });
 module.exports = exports["default"];
 
-},{"./config":45,"./labels":47,"./queries":48,"./results":49,"redux":7}],47:[function(_dereq_,module,exports){
+},{"./config":53,"./labels":55,"./queries":56,"./results":57,"redux":15}],55:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4018,70 +5060,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}],48:[function(_dereq_,module,exports){
-// import dispatcher from "../dispatcher";
-
-// let queriesActions = {
-// 	setDefaults(props) {
-// 		dispatcher.handleViewAction({
-// 			actionType: "QUERIES_SET_DEFAULTS",
-// 			props: props,
-// 		});
-// 	},
-
-// 	setSortParameter(field) {
-// 		dispatcher.handleViewAction({
-// 			actionType: "QUERIES_SET_SORT_PARAMETER",
-// 			field: field,
-// 		});
-// 	},
-
-// 	add(facetName, value) {
-// 		dispatcher.handleViewAction({
-// 			actionType: "QUERIES_ADD",
-// 			facetName: facetName,
-// 			value: value
-// 		});
-// 	},
-
-// 	remove(facetName, value) {
-// 		dispatcher.handleViewAction({
-// 			actionType: "QUERIES_REMOVE",
-// 			facetName: facetName,
-// 			value: value
-// 		});
-// 	},
-
-// 	reset() {
-// 		dispatcher.handleViewAction({
-// 			actionType: "QUERIES_RESET"
-// 		});
-// 	},
-
-// 	changeSearchTerm(value) {
-// 		dispatcher.handleViewAction({
-// 			actionType: "QUERIES_CHANGE_SEARCH_TERM",
-// 			value: value
-// 		});
-// 	}
-// };
-
-// setDefaults(config) {
-// 		let sortLevels = Immutable.fromJS(config.levels);
-// 		let sortParameters = sortLevels.map((fieldName) =>
-// 			new Immutable.Map({
-// 				fieldname: fieldName,
-// 				direction: "asc"
-// 			}));
-
-// 		this.model = this.data.withMutations((map) => {
-// 			map.set("sortParameters", sortParameters);
-// 			map.set("resultFields", sortLevels);
-// 		});
-
-// 		this.data = this.model;
-// 	}
-
+},{}],56:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4206,6 +5185,14 @@ exports["default"] = function (state, action) {
 
 			return addQueryToState(state, query);
 
+		case "CHANGE_SEARCH_TERM":
+			query = _extends({}, state.last, { term: action.value });
+
+			return addQueryToState(state, query);
+
+		case "RESET":
+			return addQueryToState(state, state["default"]);
+
 		default:
 			return state;
 	}
@@ -4213,7 +5200,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}],49:[function(_dereq_,module,exports){
+},{}],57:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4298,5 +5285,5 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}]},{},[44])(44)
+},{}]},{},[52])(52)
 });

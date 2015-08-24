@@ -1,7 +1,5 @@
 import React from "react";
-// import {Map} from "immutable";
 
-import queriesActions from "../../../actions/queries";
 import FacetValue from "./facet-value";
 
 let fs = require("fs");
@@ -16,17 +14,13 @@ class CurrentQuery extends React.Component {
 			name;
 	}
 
-	handleSearchTermClick() {
-		queriesActions.changeSearchTerm("");
-	}
-
 	render() {
 		let query = this.props.queries.last;
 
 		let searchTerm = (query.term !== "") ?
 			<li className="search-term">
 				<label>Search term</label>
-				<span onClick={this.handleSearchTermClick.bind(this)}>{query.term}</span>
+				<span onClick={this.props.onChangeSearchTerm.bind(this, "")}>{query.term}</span>
 			</li> :
 			null;
 
@@ -48,6 +42,7 @@ class CurrentQuery extends React.Component {
 						<FacetValue
 							facetName={selectedFacet.name}
 							key={index2}
+							onSelectFacetValue={this.props.onSelectFacetValue}
 							value={value} />);
 
 				return (
@@ -71,6 +66,8 @@ class CurrentQuery extends React.Component {
 
 CurrentQuery.propTypes = {
 	labels: React.PropTypes.object,
+	onChangeSearchTerm: React.PropTypes.func,
+	onSelectFacetValue: React.PropTypes.func,
 	queries: React.PropTypes.object,
 	results: React.PropTypes.object
 };

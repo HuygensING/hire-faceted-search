@@ -1,66 +1,3 @@
-// import dispatcher from "../dispatcher";
-
-// let queriesActions = {
-// 	setDefaults(props) {
-// 		dispatcher.handleViewAction({
-// 			actionType: "QUERIES_SET_DEFAULTS",
-// 			props: props,
-// 		});
-// 	},
-
-// 	setSortParameter(field) {
-// 		dispatcher.handleViewAction({
-// 			actionType: "QUERIES_SET_SORT_PARAMETER",
-// 			field: field,
-// 		});
-// 	},
-
-// 	add(facetName, value) {
-// 		dispatcher.handleViewAction({
-// 			actionType: "QUERIES_ADD",
-// 			facetName: facetName,
-// 			value: value
-// 		});
-// 	},
-
-// 	remove(facetName, value) {
-// 		dispatcher.handleViewAction({
-// 			actionType: "QUERIES_REMOVE",
-// 			facetName: facetName,
-// 			value: value
-// 		});
-// 	},
-
-// 	reset() {
-// 		dispatcher.handleViewAction({
-// 			actionType: "QUERIES_RESET"
-// 		});
-// 	},
-
-// 	changeSearchTerm(value) {
-// 		dispatcher.handleViewAction({
-// 			actionType: "QUERIES_CHANGE_SEARCH_TERM",
-// 			value: value
-// 		});
-// 	}
-// };
-
-// setDefaults(config) {
-// 		let sortLevels = Immutable.fromJS(config.levels);
-// 		let sortParameters = sortLevels.map((fieldName) =>
-// 			new Immutable.Map({
-// 				fieldname: fieldName,
-// 				direction: "asc"
-// 			}));
-
-// 		this.model = this.data.withMutations((map) => {
-// 			map.set("sortParameters", sortParameters);
-// 			map.set("resultFields", sortLevels);
-// 		});
-
-// 		this.data = this.model;
-// 	}
-
 let removeFacetValue = function(facetValues, name, value) {
 	let foundFacetValue = facetValues.filter((facetValue) =>
 		facetValue.name === name
@@ -167,6 +104,14 @@ export default function(state=initialState, action) {
 			}};
 
 			return addQueryToState(state, query);
+
+		case "CHANGE_SEARCH_TERM":
+			query = {...state.last, ...{term: action.value}};
+
+			return addQueryToState(state, query);
+
+		case "RESET":
+			return addQueryToState(state, state.default);
 
 		default:
 			return state;

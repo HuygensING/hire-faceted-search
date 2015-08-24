@@ -1,8 +1,5 @@
 import React from "react";
-// import {List, Map} from "immutable";
 import cx from "classnames";
-
-// import queriesActions from "../../../actions/queries";
 
 let fs = require("fs");
 import insertCss from "insert-css";

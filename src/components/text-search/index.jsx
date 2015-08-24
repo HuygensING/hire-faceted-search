@@ -3,8 +3,6 @@
 import React from "react";
 import cx from "classnames";
 
-import queriesActions from "../../actions/queries";
-
 import SearchIcon from "../icons/search";
 
 let fs = require("fs");
@@ -32,7 +30,7 @@ class TextSearch extends React.Component {
 	handleInputChange(ev) {
 		this.setState({
 			value: ev.target.value
-		})
+		});
 	}
 
 	handleInputKeyDown(ev) {
@@ -46,7 +44,7 @@ class TextSearch extends React.Component {
 			searching: true
 		});
 
-		queriesActions.changeSearchTerm(this.state.value);
+		this.props.onChangeSearchTerm(this.state.value);
 	}
 
 	render() {
@@ -76,7 +74,7 @@ TextSearch.defaultProps = {
 };
 
 TextSearch.propTypes = {
-
+	onChangeSearchTerm: React.PropTypes.func
 };
 
 export default TextSearch;

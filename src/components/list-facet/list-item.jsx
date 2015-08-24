@@ -1,5 +1,4 @@
 import React from "react";
-import queriesActions from "../../actions/queries";
 
 import CheckedIcon from "../icons/checked";
 import UncheckedIcon from "../icons/unchecked";
@@ -21,11 +20,6 @@ class ListFacetListItem extends React.Component {
 
 	handleClick() {
 		this.props.onSelectFacetValue(this.props.facetName, this.props.name, this.props.checked);
-		// if (this.props.checked) {
-		// 	queriesActions.remove(this.props.facetName, this.props.name);
-		// } else {
-		// 	queriesActions.add(this.props.facetName, this.props.name);
-		// }
 
 		this.setState({
 			checked: !this.state.checked

@@ -1,5 +1,5 @@
 import React from "react";
-// import Immutable from "immutable";
+import isEqual from "lodash.isequal";
 
 import Facets from "./components/facets";
 import Results from "./components/results";
@@ -41,6 +41,11 @@ class FacetedSearch extends React.Component {
 			config: this.props.config
 		});
 
+		store.dispatch({
+			type: "SET_LABELS",
+			labels: this.props.labels
+		});
+
 		this.state = store.getState();
 	}
 
@@ -52,23 +57,30 @@ class FacetedSearch extends React.Component {
 		store.dispatch(fetchResults());
 	}
 
-	// componentWillReceiveProps(nextProps) {
-		// let oldI18n = Immutable.fromJS(this.state.i18n);
-		// let newI18n = Immutable.fromJS(nextProps.i18n);
+	componentWillReceiveProps(nextProps) {
+		if (!isEqual(this.state.labels, nextProps.labels)) {
+			store.dispatch({
+				type: "SET_LABELS",
+				labels: nextProps.labels
+			});
+		}
+	}
 
-		// if (!newI18n.equals(oldI18n)) {
-		// 	this.setState({
-		// 		i18n: Object.assign(i18n, nextProps.i18n)
-		// 	});
-		// }
-	// }
+	componentWillUpdate(nextProps, nextState) {
+		let resultsNotNull = this.state.results.last != null && nextState.results.last != null;
+		let resultsChanged = this.state.results.last !== nextState.results.last;
+
+		if (resultsNotNull && resultsChanged) {
+			this.props.onChange(nextState.results.last, nextState.queries.last);
+		}
+	}
 
 	componentWillUnmount() {
 		this.unsubscribe();
 	}
 
-	handleResultSelect(result) {
-		this.props.onChange(result.toJS());
+	handleSelect(result) {
+		this.props.onSelect(result);
 	}
 
 	handleFetchResultsFromUrl(url) {
@@ -85,13 +97,28 @@ class FacetedSearch extends React.Component {
 			{type: "REMOVE_FACET_VALUE"} :
 			{type: "ADD_FACET_VALUE"};
 
-		store.dispatch(createNewQuery(Object.assign(part1, part2)));
+		store.dispatch(createNewQuery(
+			Object.assign(part1, part2)
+		));
 	}
 
 	handleSetSort(field) {
 		store.dispatch(createNewQuery({
 			type: "SET_RESULTS_SORT",
 			field: field
+		}));
+	}
+
+	handleChangeSearchTerm(value) {
+		store.dispatch(createNewQuery({
+			type: "CHANGE_SEARCH_TERM",
+			value: value
+		}));
+	}
+
+	handleReset() {
+		store.dispatch(createNewQuery({
+			type: "RESET"
 		}));
 	}
 
@@ -104,14 +131,18 @@ class FacetedSearch extends React.Component {
 			<div className="hire-faceted-search">
 				<Facets
 					labels={this.state.labels}
+					onChangeSearchTerm={this.handleChangeSearchTerm.bind(this)}
+					onReset={this.handleReset.bind(this)}
 					onSelectFacetValue={this.handleSelectFacetValue.bind(this)}
 					queries={this.state.queries}
 					results={this.state.results} />
 				<Results
 					config={this.state.config}
 					labels={this.state.labels}
+					onChangeSearchTerm={this.handleChangeSearchTerm.bind(this)}
 					onFetchResultsFromUrl={this.handleFetchResultsFromUrl.bind(this)}
-					onSelect={this.handleResultSelect.bind(this)}
+					onSelect={this.handleSelect.bind(this)}
+					onSelectFacetValue={this.handleSelectFacetValue.bind(this)}
 					onSetSort={this.handleSetSort.bind(this)}
 					queries={this.state.queries}
 					results={this.state.results} />
@@ -121,12 +152,14 @@ class FacetedSearch extends React.Component {
 }
 
 FacetedSearch.defaultProps = {
+	labels: {}
 };
 
 FacetedSearch.propTypes = {
 	config: React.PropTypes.object.isRequired,
 	labels: React.PropTypes.object,
-	onChange: React.PropTypes.func.isRequired
+	onChange: React.PropTypes.func,
+	onSelect: React.PropTypes.func
 };
 
 export default FacetedSearch;

@@ -95,6 +95,8 @@ class Results extends React.Component {
 						values={this.props.queries.last.sortParameters} />
 					<CurrentQuery
 						labels={this.props.labels}
+						onChangeSearchTerm={this.props.onChangeSearchTerm}
+						onSelectFacetValue={this.props.onSelectFacetValue}
 						queries={this.props.queries}
 						results={this.props.results} />
 				</header>
@@ -110,8 +112,10 @@ class Results extends React.Component {
 Results.propTypes = {
 	config: React.PropTypes.object,
 	labels: React.PropTypes.object,
+	onChangeSearchTerm: React.PropTypes.func,
 	onFetchResultsFromUrl: React.PropTypes.func,
 	onSelect: React.PropTypes.func,
+	onSelectFacetValue: React.PropTypes.func,
 	onSetSort: React.PropTypes.func,
 	queries: React.PropTypes.object,
 	results: React.PropTypes.object

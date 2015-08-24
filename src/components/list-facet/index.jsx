@@ -1,7 +1,4 @@
-// TODO cap at 50 results if results > 200
-
 import React from "react";
-import Immutable from "immutable";
 import cx from "classnames";
 
 import SortMenu from "../sort-menu";
