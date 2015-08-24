@@ -4,8 +4,7 @@
 }
 
 .hire-faceted-search-results > header > h3,
-.hire-faceted-search-results > header > .hire-faceted-search-results-sort-menu,
-.hire-faceted-search-results > header > .hire-faceted-search-results-rows {
+.hire-faceted-search-results > header > .hire-faceted-search-results-sort-menu {
 	box-sizing: border-box;
 	display: inline-block;
 	vertical-align: top;
@@ -15,9 +14,13 @@
 	margin-top: 0;
 }
 
-.hire-faceted-search-results > header > .hire-faceted-search-results-sort-menu,
-.hire-faceted-search-results > header > .hire-faceted-search-results-rows {
-	margin-left: 20px;
+.hire-faceted-search-results > header > h3 {
+	width: 60%;
+}
+
+.hire-faceted-search-results > header > .hire-faceted-search-results-sort-menu {
+	text-align: right;
+	width: 40%;
 }
 
 

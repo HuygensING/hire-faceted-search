@@ -5,12 +5,10 @@
 .hire-faceted-search-filter-menu svg {
 	fill: #EEE;
 	height: 12px;
-	margin-top: 1px;
 	position: absolute;
-	top: 5px;
+	top: 7px;
 	transition: fill 350ms;
 	right: 4px;
-	vertical-align: top;
 	width: 12px;
 }
 

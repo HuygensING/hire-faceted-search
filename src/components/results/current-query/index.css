@@ -15,23 +15,22 @@ ul.hire-faceted-search-current-query > li > label {
 	width: 150px;
 }
 
+ul.hire-faceted-search-current-query > li > ul {
+	width: calc(100% - 150px);
+}
 
 ul.hire-faceted-search-current-query li.hire-faceted-search-selected-facet-value,
 ul.hire-faceted-search-current-query li.search-term span {
-	cursor: pointer;
-}
-
-ul.hire-faceted-search-current-query li.hire-faceted-search-selected-facet-value:hover,
-ul.hire-faceted-search-current-query li.search-term span:hover {
-	color: red;
-}
-
-ul.hire-faceted-search-current-query li.hire-faceted-search-selected-facet-value:hover:after,
-ul.hire-faceted-search-current-query li.search-term span:hover:after {
-	color: white;
-	content: "Remove";
-	background: #888;
-	margin-left: 8px;
+	background-color: #DDD;
 	border-radius: 4px;
-	padding: 0 6px 2px 6px;
+	cursor: pointer;
+	display: inline-block;
+	margin: 0 4px 4px 0;
+	padding: 0 6px;
+}
+
+ul.hire-faceted-search-current-query li.hire-faceted-search-selected-facet-value:after,
+ul.hire-faceted-search-current-query li.search-term span:after {
+	content: "✖";
+	padding-left: 8px;
 }

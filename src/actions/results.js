@@ -23,7 +23,7 @@ let getResults = function(url, done) {
 
 let postResults = function(query, baseUrl, rows, done) {
 	let options = {
-		data: JSON.stringify(query),
+		data: query,
 		headers: {
 			"Content-Type": "application/json"
 		},
@@ -42,6 +42,14 @@ let postResults = function(query, baseUrl, rows, done) {
 	xhr(options, cb);
 };
 
+let dispatchResponse = (dispatch, type, response) =>
+	dispatch({
+		type: type,
+		response: response
+	})
+
+let cache = {};
+
 export function fetchResults() {
 	return function (dispatch, getState) {
 		dispatch({type: "REQUEST_RESULTS"});
@@ -51,14 +59,22 @@ export function fetchResults() {
 			state.queries.all[state.queries.all.length - 1] :
 			state.queries.default;
 
+		let stringifiedQuery = JSON.stringify(query);
+
+
+		// if (cache.hasOwnProperty(stringifiedQuery)) {
+		// 	return dispatchResponse(dispatch, "RECEIVE_RESULTS", cache[stringifiedQuery]);
+		// }
+
 		return postResults(
-			query,
+			stringifiedQuery,
 			state.config.baseURL,
 			state.config.rows,
-			(response) => dispatch({
-				type: "RECEIVE_RESULTS",
-				response: response
-			})
+			(response) => {
+				cache[stringifiedQuery] = response;
+
+				return dispatchResponse(dispatch, "RECEIVE_RESULTS", response);
+			}
 		);
 	};
 }
@@ -66,12 +82,15 @@ export function fetchResults() {
 export function fetchResultsFromUrl(url) {
 	return function (dispatch) {
 		dispatch({type: "REQUEST_RESULTS"});
+		// console.log(cache.hasOwnProperty(url), url, cache);
+		// if (cache.hasOwnProperty(url)) {
+		// 	return dispatchResponse(dispatch, "RECEIVE_RESULTS_FROM_URL", cache[url]);
+		// }
 
-		return getResults(url,
-			(response) => dispatch({
-				type: "RECEIVE_RESULTS_FROM_URL",
-				response: response
-			})
-		);
+		return getResults(url, (response) => {
+			cache[url] = response;
+
+			return dispatchResponse(dispatch, "RECEIVE_RESULTS_FROM_URL", response);
+		});
 	};
 }

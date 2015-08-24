@@ -46,7 +46,9 @@ class CurrentQuery extends React.Component {
 							value={value} />);
 
 				return (
-					<li key={index}>
+					<li
+						className="hire-faceted-search-selected-facet"
+						key={index}>
 						<label>{this.toLabel(facetTitle)}</label>
 						<ul>
 							{facetValues}

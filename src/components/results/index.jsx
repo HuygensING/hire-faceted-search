@@ -85,11 +85,11 @@ class Results extends React.Component {
 		let loader = (this.props.results.last.numFound) > this.state.results.length ?
 			<Loader className="loader" /> :
 			null;
-
+		console.log(this.props.labels);
 		return (
 			<div className="hire-faceted-search-results">
 				<header>
-					<h3>{this.props.labels.resultsFound}: {this.props.results.last.numFound}</h3>
+					<h3>{this.props.results.last.numFound} {this.props.labels.resultsFound}</h3>
 					<ResultsSortMenu
 						labels={this.props.labels}
 						onSetSort={this.props.onSetSort}

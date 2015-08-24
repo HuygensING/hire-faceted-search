@@ -66,7 +66,9 @@ li.hire-faceted-search-text-search .search-icon.searching svg {
 li.hire-faceted-search-text-search .search-icon .center-vertical {
 	height: 100%;
 	display: flex;
+	display: -webkit-flex;
 	align-items: center;
+	-webkit-align-items: center;
 }
 
 li.hire-faceted-search-text-search .search-icon .center-vertical svg {

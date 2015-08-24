@@ -1,6 +1,7 @@
 let initialState = {
 	facetTitles: {},
-	resultsFound: "Results found",
+	newSearch: "New search",
+	resultsFound: "results",
 	showAll: "Show all",
 	sortBy: "Sort by"
 };

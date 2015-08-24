@@ -4,6 +4,11 @@
 	width: 100%;
 }
 
+.hire-faceted-search input {
+	-moz-appearance: none;
+	-webkit-appearance: none;
+}
+
 .hire-faceted-search > .hire-faceted-search-facets,
 .hire-faceted-search > .hire-faceted-search-results {
 	box-sizing: border-box;
