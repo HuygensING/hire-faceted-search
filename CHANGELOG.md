@@ -1,3 +1,6 @@
+### v2.0.5	(2015/8/25 9:37)
+* Use facetList prop for rendering facets
+
 ### v2.0.4	(2015/8/24 17:13)
 * Improve svg.loader algo
 
