@@ -1,3 +1,6 @@
+### v2.0.6	(2015/8/25 13:23)
+* Move action callback handlers to actions file
+
 ### v2.0.5	(2015/8/25 9:37)
 * Use facetList prop for rendering facets
 
