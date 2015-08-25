@@ -55,7 +55,7 @@ export default function(state=initialState, action) {
 
 		case "RECEIVE_RESULTS":
 			if (state.first == null) {
-				return {...addResponseToState(state, action.response), ...{first: action.response};
+				return {...addResponseToState(state, action.response), ...{first: action.response}};
 			}
 
 			let response = {...action.response, ...{
