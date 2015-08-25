@@ -1,3 +1,6 @@
+### v2.0.7	(2015/8/25 13:32)
+* Fix typo
+
 ### v2.0.6	(2015/8/25 13:23)
 * Move action callback handlers to actions file
 
