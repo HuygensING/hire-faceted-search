@@ -2721,7 +2721,19 @@ var Facets = (function (_React$Component) {
 		value: function render() {
 			var _this = this;
 
-			var facets = this.props.results.last.facets.map(function (data, index) {
+			var facetList = this.props.facetList.length ? this.props.facetList.map(function (facetName) {
+				var found = _this.props.results.last.facets.filter(function (facet) {
+					return facet.title === facetName;
+				});
+
+				if (found.length) {
+					return found[0];
+				} else {
+					throw new Error("Unknown facet name: " + facetName);
+				}
+			}) : this.props.results.last.facets;
+
+			var facets = facetList.map(function (data, index) {
 				return _react2["default"].createElement(_listFacet2["default"], {
 					data: data,
 					key: index,
@@ -2752,6 +2764,7 @@ var Facets = (function (_React$Component) {
 Facets.defaultProps = {};
 
 Facets.propTypes = {
+	facetList: _react2["default"].PropTypes.array,
 	labels: _react2["default"].PropTypes.object,
 	onChangeSearchTerm: _react2["default"].PropTypes.func,
 	onReset: _react2["default"].PropTypes.func,
@@ -4916,6 +4929,7 @@ var FacetedSearch = (function (_React$Component) {
 				"div",
 				{ className: "hire-faceted-search" },
 				_react2["default"].createElement(_componentsFacets2["default"], {
+					facetList: this.props.facetList,
 					labels: this.state.labels,
 					onChangeSearchTerm: this.handleChangeSearchTerm.bind(this),
 					onReset: this.handleReset.bind(this),
@@ -4940,11 +4954,13 @@ var FacetedSearch = (function (_React$Component) {
 })(_react2["default"].Component);
 
 FacetedSearch.defaultProps = {
+	facetList: [],
 	labels: {}
 };
 
 FacetedSearch.propTypes = {
 	config: _react2["default"].PropTypes.object.isRequired,
+	facetList: _react2["default"].PropTypes.array,
 	labels: _react2["default"].PropTypes.object,
 	onChange: _react2["default"].PropTypes.func,
 	onSelect: _react2["default"].PropTypes.func

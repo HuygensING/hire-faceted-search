@@ -5,7 +5,21 @@ import ListFacet from "./list-facet";
 
 class Facets extends React.Component {
 	render() {
-		let facets = this.props.results.last.facets.map((data, index) => {
+		let facetList = (this.props.facetList.length) ?
+			this.props.facetList.map((facetName) => {
+				let found = this.props.results.last.facets.filter((facet) =>
+					facet.title === facetName
+				);
+
+				if (found.length) {
+					return found[0];
+				} else {
+					throw new Error(`Unknown facet name: ${facetName}`);
+				}
+			}) :
+			this.props.results.last.facets;
+
+		let facets = facetList.map((data, index) => {
 			return (
 				<ListFacet
 					data={data}
@@ -32,6 +46,7 @@ Facets.defaultProps = {
 };
 
 Facets.propTypes = {
+	facetList: React.PropTypes.array,
 	labels: React.PropTypes.object,
 	onChangeSearchTerm: React.PropTypes.func,
 	onReset: React.PropTypes.func,
