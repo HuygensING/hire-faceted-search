@@ -1,3 +1,5 @@
+// TODO Fix caching
+
 import xhr from "xhr";
 
 let handleError = function() {
@@ -46,7 +48,7 @@ let dispatchResponse = (dispatch, type, response) =>
 	dispatch({
 		type: type,
 		response: response
-	})
+	});
 
 let cache = {};
 
@@ -60,7 +62,6 @@ export function fetchResults() {
 			state.queries.default;
 
 		let stringifiedQuery = JSON.stringify(query);
-
 
 		// if (cache.hasOwnProperty(stringifiedQuery)) {
 		// 	return dispatchResponse(dispatch, "RECEIVE_RESULTS", cache[stringifiedQuery]);
@@ -82,7 +83,7 @@ export function fetchResults() {
 export function fetchNextResults(url) {
 	return function (dispatch) {
 		dispatch({type: "REQUEST_RESULTS"});
-		// console.log(cache.hasOwnProperty(url), url, cache);
+
 		// if (cache.hasOwnProperty(url)) {
 		// 	return dispatchResponse(dispatch, "RECEIVE_RESULTS_FROM_URL", cache[url]);
 		// }

@@ -23,6 +23,9 @@
 }
 
 
+.hire-faceted-search-results > ul.hire-faceted-search-result-list {
+	padding-top: 20px;
+}
 
 .hire-faceted-search-results > ul > li {
 	cursor: pointer;

@@ -110,7 +110,7 @@ export default function(state=initialState, action) {
 
 			return addQueryToState(state, query);
 
-		case "RESET":
+		case "NEW_SEARCH":
 			return addQueryToState(state, state.default);
 
 		default:

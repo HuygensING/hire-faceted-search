@@ -30,11 +30,14 @@ let updateFacetsWithReceivedCounts = function(initFacets, receivedFacets) {
 };
 
 let addResponseToState = function(state, response) {
-	return {...state, ...{
+	let s = {...state, ...{
 		all: [...state.all, response],
 		last: response,
 		requesting: false
 	}};
+
+
+	return s;
 };
 
 let initialState = {
@@ -51,8 +54,8 @@ export default function(state=initialState, action) {
 			return {...state, ...{requesting: true}};
 
 		case "RECEIVE_RESULTS":
-			if (state.last == null) {
-				return {...addResponseToState(state, action.response), ...{first: action.response}};
+			if (state.first == null) {
+				return {...addResponseToState(state, action.response), ...{first: action.response};
 			}
 
 			let response = {...action.response, ...{

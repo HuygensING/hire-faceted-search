@@ -31,7 +31,7 @@ class Facets extends React.Component {
 
 		return (
 			<ul className="hire-faceted-search-facets">
-				<button onClick={this.props.onReset}>New search</button>
+				<button onClick={this.props.onNewSearch}>New search</button>
 				<TextSearch
 					onChangeSearchTerm={this.props.onChangeSearchTerm}
 					value={this.props.queries.last.term} />
@@ -49,7 +49,7 @@ Facets.propTypes = {
 	facetList: React.PropTypes.array,
 	labels: React.PropTypes.object,
 	onChangeSearchTerm: React.PropTypes.func,
-	onReset: React.PropTypes.func,
+	onNewSearch: React.PropTypes.func,
 	onSelectFacetValue: React.PropTypes.func,
 	queries: React.PropTypes.object,
 	results: React.PropTypes.object

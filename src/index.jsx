@@ -6,7 +6,7 @@ import Results from "./components/results";
 import Loader from "./components/icons/loader-three-dots";
 
 import {fetchResults, fetchNextResults} from "./actions/results";
-import {createNewQuery} from "./actions/queries";
+import {selectFacetValue, newSearch, setSort, changeSearchTerm} from "./actions/queries";
 
 import {createStore, applyMiddleware} from "redux";
 import reducers from "./reducers";
@@ -79,47 +79,12 @@ class FacetedSearch extends React.Component {
 		this.unsubscribe();
 	}
 
-	handleSelect(result) {
-		this.props.onSelect(result);
-	}
-
 	handleFetchNextResults(url) {
 		store.dispatch(fetchNextResults(url));
 	}
 
 	handleSelectFacetValue(facetName, value, remove) {
-		let part1 = {
-			facetName: facetName,
-			value: value
-		};
-
-		let part2 = remove ?
-			{type: "REMOVE_FACET_VALUE"} :
-			{type: "ADD_FACET_VALUE"};
-
-		store.dispatch(createNewQuery(
-			Object.assign(part1, part2)
-		));
-	}
-
-	handleSetSort(field) {
-		store.dispatch(createNewQuery({
-			type: "SET_RESULTS_SORT",
-			field: field
-		}));
-	}
-
-	handleChangeSearchTerm(value) {
-		store.dispatch(createNewQuery({
-			type: "CHANGE_SEARCH_TERM",
-			value: value
-		}));
-	}
-
-	handleReset() {
-		store.dispatch(createNewQuery({
-			type: "RESET"
-		}));
+		store.dispatch(selectFacetValue(facetName, value, remove));
 	}
 
 	render() {
@@ -136,19 +101,35 @@ class FacetedSearch extends React.Component {
 				<Facets
 					facetList={this.props.facetList}
 					labels={this.state.labels}
-					onChangeSearchTerm={this.handleChangeSearchTerm.bind(this)}
-					onReset={this.handleReset.bind(this)}
-					onSelectFacetValue={this.handleSelectFacetValue.bind(this)}
+					onChangeSearchTerm={(value) =>
+						store.dispatch(changeSearchTerm(value))
+					}
+					onNewSearch={() =>
+						store.dispatch(newSearch())
+					}
+					onSelectFacetValue={(...args) =>
+						store.dispatch(selectFacetValue(...args))
+					}
 					queries={this.state.queries}
 					results={this.state.results} />
 				<Results
 					config={this.state.config}
 					labels={this.state.labels}
-					onChangeSearchTerm={this.handleChangeSearchTerm.bind(this)}
-					onFetchNextResults={this.handleFetchNextResults.bind(this)}
-					onSelect={this.handleSelect.bind(this)}
-					onSelectFacetValue={this.handleSelectFacetValue.bind(this)}
-					onSetSort={this.handleSetSort.bind(this)}
+					onChangeSearchTerm={(value) =>
+						store.dispatch(changeSearchTerm(value))
+					}
+					onFetchNextResults={(url) =>
+						store.dispatch(fetchNextResults(url))
+					}
+					onSelect={(item) =>
+						this.props.onSelect(item)
+					}
+					onSelectFacetValue={(...args) =>
+						store.dispatch(selectFacetValue(...args))
+					}
+					onSetSort={(field) =>
+						store.dispatch(setSort(field))
+					}
 					queries={this.state.queries}
 					results={this.state.results} />
 			</div>
