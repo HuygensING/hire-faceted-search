@@ -32,7 +32,7 @@ class CurrentQuery extends React.Component {
 				));
 
 				if (filteredFacets.length) {
-					facetTitle = filteredFacets[0].title;
+					facetTitle = filteredFacets[0].name;
 				} else {
 					return new Error("CurrentQuery: facet not found!");
 				}

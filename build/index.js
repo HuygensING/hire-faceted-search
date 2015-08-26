@@ -4048,7 +4048,7 @@ var CurrentQuery = (function (_React$Component) {
 				});
 
 				if (filteredFacets.length) {
-					facetTitle = filteredFacets[0].title;
+					facetTitle = filteredFacets[0].name;
 				} else {
 					return new Error("CurrentQuery: facet not found!");
 				}
@@ -5254,6 +5254,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
 
 var updateFacetsWithReceivedCounts = function updateFacetsWithReceivedCounts(initFacets, receivedFacets) {
+	receivedFacets = receivedFacets || [];
 	receivedFacets = receivedFacets.reduce(function (prev, current) {
 		prev[current.name] = current;
 
