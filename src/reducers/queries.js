@@ -58,14 +58,7 @@ export default function(state=initialState, action) {
 
 	switch (action.type) {
 		case "SET_QUERY_DEFAULTS":
-			let defaultModel =  {...initialState.default, ...{
-				sortParameters: action.config.levels.map((level) => {
-					return {
-						fieldname: level,
-						direction: "asc"
-					};
-				})
-			}};
+			let defaultModel = {...initialState.default, ...{sortParameters: []}};
 
 			return {...state, ...{
 				all: [defaultModel],
@@ -85,6 +78,16 @@ export default function(state=initialState, action) {
 
 			query = {...state.last, ...{sortParameters: sortParameters}};
 
+			return addQueryToState(state, query);
+
+		case "INIT_SORT_PARAMS":
+			if(state.last.sortParameters.length === 0) {
+				query = {...state.last, ...{
+					sortParameters: action.sortableFields.map((fieldname) =>  ({ fieldname: fieldname, direction: "asc"}))
+				}};
+			} else {
+				query = state.last;
+			}
 			return addQueryToState(state, query);
 
 		case "REMOVE_FACET_VALUE":

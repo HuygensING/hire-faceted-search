@@ -60,14 +60,20 @@ class Results extends React.Component {
 			<Loader className="loader" /> :
 			null;
 
+		let sortValues = this.props.queries.last.sortParameters.length > 0 ?
+			this.props.queries.last.sortParameters :
+			this.props.results.last.sortableFields.map(f => ({fieldname: f}));
+
 		return (
 			<div className="hire-faceted-search-results">
 				<header>
 					<h3>{this.props.results.last.numFound} {this.props.labels.resultsFound}</h3>
+
 					<ResultsSortMenu
 						labels={this.props.labels}
 						onSetSort={this.props.onSetSort}
-						values={this.props.queries.last.sortParameters} />
+						values={sortValues} />
+
 					<CurrentQuery
 						labels={this.props.labels}
 						onChangeSearchTerm={this.props.onChangeSearchTerm}

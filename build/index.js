@@ -4212,6 +4212,10 @@ var Results = (function (_React$Component) {
 		value: function render() {
 			var loader = this.props.results.requesting ? _react2["default"].createElement(_iconsLoaderThreeDots2["default"], { className: "loader" }) : null;
 
+			var sortValues = this.props.queries.last.sortParameters.length > 0 ? this.props.queries.last.sortParameters : this.props.results.last.sortableFields.map(function (f) {
+				return { fieldname: f };
+			});
+
 			return _react2["default"].createElement(
 				"div",
 				{ className: "hire-faceted-search-results" },
@@ -4228,7 +4232,7 @@ var Results = (function (_React$Component) {
 					_react2["default"].createElement(_sortMenu2["default"], {
 						labels: this.props.labels,
 						onSetSort: this.props.onSetSort,
-						values: this.props.queries.last.sortParameters }),
+						values: sortValues }),
 					_react2["default"].createElement(_currentQuery2["default"], {
 						labels: this.props.labels,
 						onChangeSearchTerm: this.props.onChangeSearchTerm,
@@ -4462,7 +4466,6 @@ var ResultsSortMenu = (function (_React$Component) {
 					_this.toLabel(level.fieldname)
 				);
 			});
-
 			return _react2["default"].createElement(
 				"div",
 				{ className: "hire-faceted-search-results-sort-menu" },
@@ -4911,6 +4914,12 @@ var FacetedSearch = (function (_React$Component) {
 
 			if (resultsChanged) {
 				this.props.onChange(nextState.results.last, nextState.queries.last);
+				if (this.state.queries.last.sortParameters.length === 0) {
+					store.dispatch({
+						type: "INIT_SORT_PARAMS",
+						sortableFields: nextState.results.last.sortableFields
+					});
+				}
 			}
 		}
 	}, {
@@ -5176,14 +5185,7 @@ exports["default"] = function (state, action) {
 
 	switch (action.type) {
 		case "SET_QUERY_DEFAULTS":
-			var defaultModel = _extends({}, initialState["default"], {
-				sortParameters: action.config.levels.map(function (level) {
-					return {
-						fieldname: level,
-						direction: "asc"
-					};
-				})
-			});
+			var defaultModel = _extends({}, initialState["default"], { sortParameters: [] });
 
 			return _extends({}, state, {
 				all: [defaultModel],
@@ -5211,6 +5213,18 @@ exports["default"] = function (state, action) {
 
 			query = _extends({}, state.last, { sortParameters: sortParameters });
 
+			return addQueryToState(state, query);
+
+		case "INIT_SORT_PARAMS":
+			if (state.last.sortParameters.length === 0) {
+				query = _extends({}, state.last, {
+					sortParameters: action.sortableFields.map(function (fieldname) {
+						return { fieldname: fieldname, direction: "asc" };
+					})
+				});
+			} else {
+				query = state.last;
+			}
 			return addQueryToState(state, query);
 
 		case "REMOVE_FACET_VALUE":

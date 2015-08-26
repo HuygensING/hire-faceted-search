@@ -58,7 +58,6 @@ class ResultsSortMenu extends React.Component {
 				{this.toLabel(level.fieldname)}
 			</li>
 		);
-
 		return (
 			<div className="hire-faceted-search-results-sort-menu">
 				<button
