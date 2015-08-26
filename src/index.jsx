@@ -115,6 +115,7 @@ class FacetedSearch extends React.Component {
 				<Results
 					config={this.state.config}
 					labels={this.state.labels}
+					metadataList={this.props.metadataList}
 					onChangeSearchTerm={(value) =>
 						store.dispatch(changeSearchTerm(value))
 					}
@@ -139,6 +140,7 @@ class FacetedSearch extends React.Component {
 
 FacetedSearch.defaultProps = {
 	facetList: [],
+	metadataList: [],
 	labels: {}
 };
 
@@ -146,6 +148,7 @@ FacetedSearch.propTypes = {
 	config: React.PropTypes.object.isRequired,
 	facetList: React.PropTypes.array,
 	labels: React.PropTypes.object,
+	metadataList: React.PropTypes.array,
 	onChange: React.PropTypes.func,
 	onSelect: React.PropTypes.func
 };

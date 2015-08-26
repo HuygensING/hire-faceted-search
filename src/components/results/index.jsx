@@ -35,12 +35,10 @@ class Results extends React.Component {
 	}
 
 	onScroll() {
-		let nth = (this.props.results.last.results.length - this.props.config.rows) + 1;
-
+		let nth = (this.props.results.last.results.length - parseInt(Math.floor(this.props.config.rows / 2))) + 1;
 		let listItem = React.findDOMNode(this).querySelector(`.hire-faceted-search-result-list > li:nth-child(${nth})`);
-
 		if (this.props.results.last.hasOwnProperty("_next") && inViewport(listItem)) {
-			let url = this.props.results.last._next.replace("draft//api", "draft/api");
+			let url = this.props.results.last._next;
 			this.props.onFetchNextResults(url);
 		}
 
@@ -52,6 +50,7 @@ class Results extends React.Component {
 				data={data}
 				key={index + Math.random()}
 				labels={this.props.labels}
+				metadataList={this.props.metadataList}
 				onSelect={this.props.onSelect} />
 		);
 	}
@@ -77,7 +76,7 @@ class Results extends React.Component {
 						results={this.props.results} />
 				</header>
 				<ul className="hire-faceted-search-result-list">
-					{this.dataToComponents(this.props.results.last.results)}
+					{this.dataToComponents(this.props.results.last.refs) /** API V2.x uses refs as result key, back to results in API 3 */ }
 				</ul>
 				{loader}
 			</div>
@@ -88,6 +87,7 @@ class Results extends React.Component {
 Results.propTypes = {
 	config: React.PropTypes.object,
 	labels: React.PropTypes.object,
+	metadataList: React.PropTypes.array,
 	onChangeSearchTerm: React.PropTypes.func,
 	onFetchNextResults: React.PropTypes.func,
 	onSelect: React.PropTypes.func,

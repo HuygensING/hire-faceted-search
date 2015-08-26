@@ -94,7 +94,7 @@ class ListFacet extends React.Component {
 		}
 
 
-		let title = this.props.data.title;
+		let title = this.props.data.name;
 		let facetTitle = this.props.labels.facetTitles.hasOwnProperty(title) ?
 			this.props.labels.facetTitles[title] :
 			title;

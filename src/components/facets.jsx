@@ -8,9 +8,8 @@ class Facets extends React.Component {
 		let facetList = (this.props.facetList.length) ?
 			this.props.facetList.map((facetName) => {
 				let found = this.props.results.last.facets.filter((facet) =>
-					facet.title === facetName
+					facet.name === facetName
 				);
-
 				if (found.length) {
 					return found[0];
 				} else {

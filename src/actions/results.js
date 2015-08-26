@@ -23,22 +23,22 @@ let getResults = function(url, done) {
 	xhr(options, cb);
 };
 
-let postResults = function(query, baseUrl, rows, done) {
+let postResults = function(query, headers, url, rows, done) {
 	let options = {
 		data: query,
-		headers: {
+		headers: Object.assign(headers, {
 			"Content-Type": "application/json"
-		},
+		}),
 		method: "POST",
-		url: `${baseUrl}api/search`
+		url: url
 	};
 
 	let cb = function(err, resp, body) {
 		if (err) { handleError(err, resp, body); }
 
-		let url = `${resp.headers.location}?rows=${rows}`;
+		let cbUrl = `${resp.headers.location}?rows=${rows}`;
 
-		getResults(url, done);
+		getResults(cbUrl, done);
 	};
 
 	xhr(options, cb);
@@ -69,7 +69,8 @@ export function fetchResults() {
 
 		return postResults(
 			stringifiedQuery,
-			state.config.baseURL,
+			state.config.headers || {},
+			state.config.baseURL + state.config.searchPath,
 			state.config.rows,
 			(response) => {
 				cache[stringifiedQuery] = response;

@@ -2266,7 +2266,7 @@ function createXHR(options, callback) {
 
         return body
     }
-    
+
     var failureResponse = {
                 body: undefined,
                 headers: {},
@@ -2275,7 +2275,7 @@ function createXHR(options, callback) {
                 url: uri,
                 rawRequest: xhr
             }
-    
+
     function errorFunc(evt) {
         clearTimeout(timeoutTimer)
         if(!(evt instanceof Error)){
@@ -2298,7 +2298,7 @@ function createXHR(options, callback) {
         }
         var response = failureResponse
         var err = null
-        
+
         if (status !== 0){
             response = {
                 body: getBody(),
@@ -2315,9 +2315,9 @@ function createXHR(options, callback) {
             err = new Error("Internal XMLHttpRequest Error")
         }
         callback(err, response, response.body)
-        
+
     }
-    
+
     if (typeof options === "string") {
         options = { uri: options }
     }
@@ -2352,7 +2352,7 @@ function createXHR(options, callback) {
         isJson = true
         headers["accept"] || headers["Accept"] || (headers["Accept"] = "application/json") //Don't override existing accept header declared by user
         if (method !== "GET" && method !== "HEAD") {
-            headers["Content-Type"] = "application/json"
+            headers["content-type"] || headers["Content-Type"] || (headers["Content-Type"] = "application/json") //Don't override existing accept header declared by user
             body = JSON.stringify(options.json)
         }
     }
@@ -2394,8 +2394,8 @@ function createXHR(options, callback) {
     if ("responseType" in options) {
         xhr.responseType = options.responseType
     }
-    
-    if ("beforeSend" in options && 
+
+    if ("beforeSend" in options &&
         typeof options.beforeSend === "function"
     ) {
         options.beforeSend(xhr)
@@ -2618,6 +2618,9 @@ function setSort(field) {
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 exports.fetchResults = fetchResults;
 exports.fetchNextResults = fetchNextResults;
 
@@ -2648,14 +2651,14 @@ var getResults = function getResults(url, done) {
 	(0, _xhr2["default"])(options, cb);
 };
 
-var postResults = function postResults(query, baseUrl, rows, done) {
+var postResults = function postResults(query, headers, url, rows, done) {
 	var options = {
 		data: query,
-		headers: {
+		headers: _extends(headers, {
 			"Content-Type": "application/json"
-		},
+		}),
 		method: "POST",
-		url: baseUrl + "api/search"
+		url: url
 	};
 
 	var cb = function cb(err, resp, body) {
@@ -2663,9 +2666,9 @@ var postResults = function postResults(query, baseUrl, rows, done) {
 			handleError(err, resp, body);
 		}
 
-		var url = resp.headers.location + "?rows=" + rows;
+		var cbUrl = resp.headers.location + "?rows=" + rows;
 
-		getResults(url, done);
+		getResults(cbUrl, done);
 	};
 
 	(0, _xhr2["default"])(options, cb);
@@ -2693,7 +2696,7 @@ function fetchResults() {
 		// 	return dispatchResponse(dispatch, "RECEIVE_RESULTS", cache[stringifiedQuery]);
 		// }
 
-		return postResults(stringifiedQuery, state.config.baseURL, state.config.rows, function (response) {
+		return postResults(stringifiedQuery, state.config.headers || {}, state.config.baseURL + state.config.searchPath, state.config.rows, function (response) {
 			cache[stringifiedQuery] = response;
 
 			return dispatchResponse(dispatch, "RECEIVE_RESULTS", response);
@@ -2762,9 +2765,8 @@ var Facets = (function (_React$Component) {
 
 			var facetList = this.props.facetList.length ? this.props.facetList.map(function (facetName) {
 				var found = _this.props.results.last.facets.filter(function (facet) {
-					return facet.title === facetName;
+					return facet.name === facetName;
 				});
-
 				if (found.length) {
 					return found[0];
 				} else {
@@ -3753,7 +3755,7 @@ var ListFacet = (function (_React$Component) {
 				);
 			}
 
-			var title = this.props.data.title;
+			var title = this.props.data.name;
 			var facetTitle = this.props.labels.facetTitles.hasOwnProperty(title) ? this.props.labels.facetTitles[title] : title;
 
 			var moreButton = !this.state.showAll && options.length > INIT_SIZE ? _react2["default"].createElement(
@@ -4184,12 +4186,10 @@ var Results = (function (_React$Component) {
 	}, {
 		key: "onScroll",
 		value: function onScroll() {
-			var nth = this.props.results.last.results.length - this.props.config.rows + 1;
-
+			var nth = this.props.results.last.results.length - parseInt(Math.floor(this.props.config.rows / 2)) + 1;
 			var listItem = _react2["default"].findDOMNode(this).querySelector(".hire-faceted-search-result-list > li:nth-child(" + nth + ")");
-
 			if (this.props.results.last.hasOwnProperty("_next") && inViewport(listItem)) {
-				var url = this.props.results.last._next.replace("draft//api", "draft/api");
+				var url = this.props.results.last._next;
 				this.props.onFetchNextResults(url);
 			}
 		}
@@ -4203,6 +4203,7 @@ var Results = (function (_React$Component) {
 					data: data,
 					key: index + Math.random(),
 					labels: _this.props.labels,
+					metadataList: _this.props.metadataList,
 					onSelect: _this.props.onSelect });
 			});
 		}
@@ -4238,7 +4239,7 @@ var Results = (function (_React$Component) {
 				_react2["default"].createElement(
 					"ul",
 					{ className: "hire-faceted-search-result-list" },
-					this.dataToComponents(this.props.results.last.results)
+					this.dataToComponents(this.props.results.last.refs) /** API V2.x uses refs as result key, back to results in API 3 */
 				),
 				loader
 			);
@@ -4251,6 +4252,7 @@ var Results = (function (_React$Component) {
 Results.propTypes = {
 	config: _react2["default"].PropTypes.object,
 	labels: _react2["default"].PropTypes.object,
+	metadataList: _react2["default"].PropTypes.array,
 	onChangeSearchTerm: _react2["default"].PropTypes.func,
 	onFetchNextResults: _react2["default"].PropTypes.func,
 	onSelect: _react2["default"].PropTypes.func,
@@ -4304,8 +4306,15 @@ var Result = (function (_React$Component) {
 			var _this = this;
 
 			var model = this.props.data;
-
-			var metadata = Object.keys(this.props.data.metadata).map(function (key, index) {
+			var metadataList = this.props.metadataList;
+			if (metadataList.length === 0) {
+				metadataList = Object.keys(this.props.data.data);
+			}
+			var metadata = Object.keys(this.props.data.data).filter(function (key) {
+				return _this.props.data.data[key] !== "" && metadataList.indexOf(key) > -1;
+			}).sort(function (a, b) {
+				return metadataList.indexOf(a) > metadataList.indexOf(b);
+			}).map(function (key, index) {
 				return _react2["default"].createElement(
 					"li",
 					{ key: index },
@@ -4317,7 +4326,7 @@ var Result = (function (_React$Component) {
 					_react2["default"].createElement(
 						"span",
 						null,
-						_this.props.data.metadata[key]
+						_this.props.data.data[key]
 					)
 				);
 			});
@@ -4334,7 +4343,7 @@ var Result = (function (_React$Component) {
 				_react2["default"].createElement(
 					"label",
 					null,
-					this.props.data.name
+					this.props.data.displayName
 				),
 				metadata
 			);
@@ -4347,7 +4356,10 @@ var Result = (function (_React$Component) {
 Result.defaultProps = {};
 
 Result.propTypes = {
-	labels: _react2["default"].PropTypes.object
+	data: _react2["default"].PropTypes.object,
+	labels: _react2["default"].PropTypes.object,
+	metadataList: _react2["default"].PropTypes.array,
+	onSelect: _react2["default"].PropTypes.func
 };
 
 exports["default"] = Result;
@@ -4953,6 +4965,7 @@ var FacetedSearch = (function (_React$Component) {
 				_react2["default"].createElement(_componentsResults2["default"], {
 					config: this.state.config,
 					labels: this.state.labels,
+					metadataList: this.props.metadataList,
 					onChangeSearchTerm: function (value) {
 						return store.dispatch((0, _actionsQueries.changeSearchTerm)(value));
 					},
@@ -4983,6 +4996,7 @@ var FacetedSearch = (function (_React$Component) {
 
 FacetedSearch.defaultProps = {
 	facetList: [],
+	metadataList: [],
 	labels: {}
 };
 
@@ -4990,6 +5004,7 @@ FacetedSearch.propTypes = {
 	config: _react2["default"].PropTypes.object.isRequired,
 	facetList: _react2["default"].PropTypes.array,
 	labels: _react2["default"].PropTypes.object,
+	metadataList: _react2["default"].PropTypes.array,
 	onChange: _react2["default"].PropTypes.func,
 	onSelect: _react2["default"].PropTypes.func
 };
@@ -5149,10 +5164,7 @@ var initialState = {
 	all: [],
 	"default": {
 		"facetValues": [],
-		"searchInAnnotations": true,
-		"searchInTranscriptions": true,
-		"term": "",
-		"textLayers": ["Diplomatic", "Opmerkingen en verwijzingen", "Comments and References", "Transcription", "Transcripción", "Transcriptie", "Vertaling", "Translation", "Traducción", "Comentarios y referencias"]
+		"term": ""
 	},
 	last: null
 };
@@ -5165,7 +5177,6 @@ exports["default"] = function (state, action) {
 	switch (action.type) {
 		case "SET_QUERY_DEFAULTS":
 			var defaultModel = _extends({}, initialState["default"], {
-				resultFields: action.config.levels,
 				sortParameters: action.config.levels.map(function (level) {
 					return {
 						fieldname: level,
@@ -5310,9 +5321,9 @@ exports["default"] = function (state, action) {
 
 		case "RECEIVE_NEXT_RESULTS":
 			var withConcatResults = _extends({}, action.response, {
-				results: [].concat(_toConsumableArray(state.last.results), _toConsumableArray(action.response.results))
+				results: [].concat(_toConsumableArray(state.last.results), _toConsumableArray(action.response.results)),
+				refs: [].concat(_toConsumableArray(state.last.refs), _toConsumableArray(action.response.refs))
 			});
-
 			return addResponseToState(state, withConcatResults);
 
 		default:

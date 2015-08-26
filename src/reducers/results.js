@@ -69,9 +69,9 @@ export default function(state=initialState, action) {
 
 		case "RECEIVE_NEXT_RESULTS":
 			let withConcatResults = {...action.response, ...{
-				results: [...state.last.results, ...action.response.results]
+				results: [...state.last.results, ...action.response.results],
+				refs: [...state.last.refs, ...action.response.refs]
 			}};
-
 			return addResponseToState(state, withConcatResults);
 
 		default:

@@ -48,10 +48,7 @@ let initialState = {
 	all: [],
 	default: {
 		"facetValues": [],
-		"searchInAnnotations": true,
-		"searchInTranscriptions": true,
-		"term": "",
-		"textLayers": ["Diplomatic", "Opmerkingen en verwijzingen", "Comments and References", "Transcription", "Transcripción", "Transcriptie", "Vertaling", "Translation", "Traducción", "Comentarios y referencias"]
+		"term": ""
 	},
 	last: null
 };
@@ -62,7 +59,6 @@ export default function(state=initialState, action) {
 	switch (action.type) {
 		case "SET_QUERY_DEFAULTS":
 			let defaultModel =  {...initialState.default, ...{
-				resultFields: action.config.levels,
 				sortParameters: action.config.levels.map((level) => {
 					return {
 						fieldname: level,
