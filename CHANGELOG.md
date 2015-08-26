@@ -1,3 +1,6 @@
+### v3.2.0	(2015/8/26 15:10)
+* show loader by clearing list before new result fetch
+
 ### v3.1.1	(2015/8/26 14:47)
 * bugfix, do not throw error when a certain expected facet is not in a result set
 
