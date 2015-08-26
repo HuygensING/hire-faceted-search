@@ -1,3 +1,6 @@
+### v3.1.1	(2015/8/26 14:47)
+* bugfix, do not throw error when a certain expected facet is not in a result set
+
 ### v3.1.0	(2015/8/26 14:40)
 * WWHT-23 determine sort parameters from api response
 
