@@ -2,6 +2,7 @@
 
 A faceted search React component.
 
+## Config for publications
 
 ```javascript
 import FacetedSearch from "hire-faceted-search";
