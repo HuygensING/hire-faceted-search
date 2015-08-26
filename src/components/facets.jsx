@@ -13,9 +13,9 @@ class Facets extends React.Component {
 				if (found.length) {
 					return found[0];
 				} else {
-					throw new Error(`Unknown facet name: ${facetName}`);
+					return null;
 				}
-			}) :
+			}).filter((facetName) => facetName !== null) :
 			this.props.results.last.facets;
 
 		let facets = facetList.map((data, index) => {

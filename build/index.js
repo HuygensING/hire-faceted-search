@@ -2770,8 +2770,10 @@ var Facets = (function (_React$Component) {
 				if (found.length) {
 					return found[0];
 				} else {
-					throw new Error("Unknown facet name: " + facetName);
+					return null;
 				}
+			}).filter(function (facetName) {
+				return facetName !== null;
 			}) : this.props.results.last.facets;
 
 			var facets = facetList.map(function (data, index) {
