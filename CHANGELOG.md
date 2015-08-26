@@ -1,3 +1,10 @@
+### v3.0.1	(2015/8/26 13:22)
+* show facet name in CurrentQuery component; bugfix on 0 results
+* reduced README
+* added sample to readme
+* added sample to readme
+* new readme
+
 ### v3.0.0	(2015/8/26 10:50)
 
 
