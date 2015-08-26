@@ -2685,7 +2685,7 @@ var cache = {};
 
 function fetchResults() {
 	return function (dispatch, getState) {
-		dispatch({ type: "REQUEST_RESULTS" });
+		dispatch({ type: "CLEAR_LIST" });
 
 		var state = getState();
 		var query = state.queries.all.length ? state.queries.all[state.queries.all.length - 1] : state.queries["default"];
@@ -5324,6 +5324,15 @@ exports["default"] = function (state, action) {
 	switch (action.type) {
 		case "REQUEST_RESULTS":
 			return _extends({}, state, { requesting: true });
+
+		case "CLEAR_LIST":
+			var newState = state;
+			if (newState.last) {
+				newState.last.refs = [];
+				newState.last.results = [];
+				newState.requesting = true;
+			}
+			return newState;
 
 		case "RECEIVE_RESULTS":
 			if (state.first == null) {

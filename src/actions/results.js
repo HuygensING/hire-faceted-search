@@ -54,7 +54,7 @@ let cache = {};
 
 export function fetchResults() {
 	return function (dispatch, getState) {
-		dispatch({type: "REQUEST_RESULTS"});
+		dispatch({type: "CLEAR_LIST"});
 
 		let state = getState();
 		let query = state.queries.all.length ?

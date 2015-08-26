@@ -54,6 +54,15 @@ export default function(state=initialState, action) {
 		case "REQUEST_RESULTS":
 			return {...state, ...{requesting: true}};
 
+		case "CLEAR_LIST":
+			let newState = state;
+			if(newState.last) {
+				newState.last.refs = [];
+				newState.last.results = [];
+				newState.requesting = true;
+			}
+			return newState;
+
 		case "RECEIVE_RESULTS":
 			if (state.first == null) {
 				return {...addResponseToState(state, action.response), ...{first: action.response}};
