@@ -1,3 +1,6 @@
+### v3.1.0	(2015/8/26 14:40)
+* WWHT-23 determine sort parameters from api response
+
 ### v3.0.1	(2015/8/26 13:22)
 * show facet name in CurrentQuery component; bugfix on 0 results
 * reduced README
