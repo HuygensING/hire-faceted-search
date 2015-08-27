@@ -1,8 +1,6 @@
 import expect from "expect";
 import reducer from "../../src/reducers/labels";
 
-
-
 describe('labels reducer', () => {
 	it('should have the correct initial state', () => {
 		expect(
