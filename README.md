@@ -1,5 +1,9 @@
 # Hire Faceted Search
 
+
+
+![build status](https://travis-ci.org/HuygensING/hire-faceted-search.svg?branch=master "Build status")
+
 A faceted search React component.
 
 ## Config for publications
