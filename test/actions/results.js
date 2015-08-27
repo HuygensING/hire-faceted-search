@@ -6,6 +6,8 @@ describe("results action", () => {
 	it("should fetch results", () => {
 		let clearListDispatched = false;
 		let receiveResultsDispatched = false;
+		let getStateCalled = false;
+
 		sinon.stub(server, "performXhr", function(opts, callback){
 			if(opts.method === "POST") {
 				expect(opts.headers).toEqual({
@@ -29,18 +31,17 @@ describe("results action", () => {
 			}
 		});
 		let dispatch = function(opts) {
-			if(opts.type === 'CLEAR_LIST') {
+			if(opts.type === "CLEAR_LIST") {
 				clearListDispatched = true;
 			}
-			if(opts.type === 'RECEIVE_RESULTS') {
+			if(opts.type === "RECEIVE_RESULTS") {
 				receiveResultsDispatched = true;
-				expect(opts.response).toEqual({mock: 'response'});
+				expect(opts.response).toEqual({mock: "response"});
 			}
-			console.log("dispatch", opts);
 		};
 
 		let getState = function() {
-			console.log("getState");
+			getStateCalled = true;
 			return {
 				queries: { all: ["test query"]},
 				config: {
@@ -61,7 +62,38 @@ describe("results action", () => {
 		server.performXhr.restore();
 		expect(clearListDispatched).toEqual(true);
 		expect(receiveResultsDispatched).toEqual(true);
+		expect(getStateCalled).toEqual(true);
 	});
 
+	it("should fetch next results", () => {
+		let requestResultsDispatched = false;
+		let receiveNextResultsDispatched = false;
 
+		sinon.stub(server, "performXhr", function(opts, callback){
+			expect(opts.url).toEqual("dummy-url");
+			expect(opts.headers).toEqual({"Content-Type": "application/json"});
+			callback(null, null, JSON.stringify({
+				mock: "response"
+			}));
+		});
+		let dispatch = function(opts) {
+			if(opts.type === "REQUEST_RESULTS") {
+				requestResultsDispatched = true;
+			}
+			if(opts.type === "RECEIVE_NEXT_RESULTS") {
+				receiveNextResultsDispatched = true;
+				expect(opts.response).toEqual({mock: "response"});
+			}
+		};
+
+		let fetch = fetchNextResults("dummy-url");
+
+		fetch(dispatch, function() {});
+
+		sinon.assert.calledOnce(server.performXhr);
+		server.performXhr.restore();
+		expect(requestResultsDispatched).toEqual(true);
+		expect(receiveNextResultsDispatched).toEqual(true);
+
+	});
 });
