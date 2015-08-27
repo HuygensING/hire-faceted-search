@@ -2,7 +2,7 @@
 
 
 
-![build status](https://travis-ci.org/HuygensING/hire-faceted-search.svg?branch=master "Build status")
+[![build status](https://travis-ci.org/HuygensING/hire-faceted-search.svg?branch=master "Build status")](https://travis-ci.org/HuygensING/hire-faceted-search)
 
 A faceted search React component.
 
