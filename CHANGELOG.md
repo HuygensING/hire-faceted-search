@@ -1,3 +1,14 @@
+### v3.3.0	(2015/8/27 15:24)
+* added test for actions/results
+* added pending tests for queries, coffee break
+* Update README.md
+* Update README.md
+* newline
+* newline
+* added tests for results reducer
+* added test for config reducer
+* added first test
+
 ### v3.2.0	(2015/8/26 15:10)
 * show loader by clearing list before new result fetch
 
