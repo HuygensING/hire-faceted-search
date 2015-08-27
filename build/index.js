@@ -2632,6 +2632,14 @@ var _xhr2 = _interopRequireDefault(_xhr);
 
 var handleError = function handleError() {};
 
+var server = {
+	performXhr: function performXhr(options, cb) {
+		console.log("exposed for mock");
+		(0, _xhr2["default"])(options, cb);
+	}
+};
+
+exports.server = server;
 var getResults = function getResults(url, done) {
 	var options = {
 		headers: {
@@ -2648,7 +2656,7 @@ var getResults = function getResults(url, done) {
 		done(JSON.parse(body));
 	};
 
-	(0, _xhr2["default"])(options, cb);
+	server.performXhr(options, cb);
 };
 
 var postResults = function postResults(query, headers, url, rows, done) {
@@ -2671,7 +2679,7 @@ var postResults = function postResults(query, headers, url, rows, done) {
 		getResults(cbUrl, done);
 	};
 
-	(0, _xhr2["default"])(options, cb);
+	server.performXhr(options, cb);
 };
 
 var dispatchResponse = function dispatchResponse(dispatch, type, response) {

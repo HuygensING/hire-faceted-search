@@ -6,6 +6,13 @@ let handleError = function() {
 
 };
 
+export let server = {
+	performXhr: function(options, cb) {
+		console.log("exposed for mock");
+		xhr(options, cb);
+	}
+};
+
 let getResults = function(url, done) {
 	let options = {
 		headers: {
@@ -20,7 +27,7 @@ let getResults = function(url, done) {
 		done(JSON.parse(body));
 	};
 
-	xhr(options, cb);
+	server.performXhr(options, cb);
 };
 
 let postResults = function(query, headers, url, rows, done) {
@@ -41,7 +48,7 @@ let postResults = function(query, headers, url, rows, done) {
 		getResults(cbUrl, done);
 	};
 
-	xhr(options, cb);
+	server.performXhr(options, cb);
 };
 
 let dispatchResponse = (dispatch, type, response) =>

@@ -39,7 +39,8 @@
     "nodemon": "^1.4.0",
     "should": "^7.0.2",
     "watchify": "^3.3.0",
-    "expect": "~1.9.0"
+    "expect": "~1.9.0",
+    "sinon": "~1.16.1"
   },
   "dependencies": {
     "classnames": "^2.1.3",
