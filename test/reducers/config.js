@@ -25,6 +25,6 @@ describe('config reducer', () => {
 			})
 		).toEqual({
 			rows: 30
-		});		
+		});
 	});
 });
