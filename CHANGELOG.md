@@ -1,3 +1,9 @@
+### v3.3.1	(2015/8/28 11:44)
+* make store class local to component
+* tests for queries reducer part 1
+* fixed facet reducer test
+* added fetch next result test
+
 ### v3.3.0	(2015/8/27 15:24)
 * added test for actions/results
 * added pending tests for queries, coffee break
