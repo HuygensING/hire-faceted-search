@@ -79,10 +79,12 @@ describe('results reducer', () => {
 	it('should update facet counts with RECEIVE_RESULTS', () => {
 		let state = {
 			all: [],
-			facets: [
-				{name: "facetA", options: [{name: "foo", count: 5}, {name: "bar", count: 3}]},
-				{name: "facetB", options: [{name: "fooB", count: 5}, {name: "barB", count: 3}]}
-			],
+			first: {
+				facets: [
+					{name: "facetA", options: [{name: "foo", count: 5}, {name: "bar", count: 3}]},
+					{name: "facetB", options: [{name: "fooB", count: 5}, {name: "barB", count: 3}]}
+				]
+			},
 			requesting: true
 		};
 		let response = {
@@ -92,16 +94,17 @@ describe('results reducer', () => {
 			]
 		};
 		let expectedFacets = [
-				{name: "facetA", options: [{name: "foo", count: 3}]},
+				{name: "facetA", options: [{name: "foo", count: 3}, {name: "bar", count: 0}] },
 				{name: "facetB", options: [{name: "fooB", count: 2}, {name: "barB", count: 1}]}
 		];
 		let expectedState = {
 			all: [{facets: expectedFacets}],
-			facets: state.facets,
-			first: {facets: expectedFacets},
+			first: state.first,
 			last: {facets: expectedFacets},
 			requesting: false
 		};
+
+
 		expect(reducer(state, {type: "RECEIVE_RESULTS", response: response})).toEqual(expectedState);
 	});
 });
