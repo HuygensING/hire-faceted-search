@@ -8,7 +8,6 @@ let handleError = function() {
 
 export let server = {
 	performXhr: function(options, cb) {
-		console.log("exposed for mock");
 		xhr(options, cb);
 	}
 };

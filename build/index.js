@@ -2634,7 +2634,6 @@ var handleError = function handleError() {};
 
 var server = {
 	performXhr: function performXhr(options, cb) {
-		console.log("exposed for mock");
 		(0, _xhr2["default"])(options, cb);
 	}
 };
@@ -4198,7 +4197,7 @@ var Results = (function (_React$Component) {
 		value: function onScroll() {
 			var nth = this.props.results.last.results.length - parseInt(Math.floor(this.props.config.rows / 2)) + 1;
 			var listItem = _react2["default"].findDOMNode(this).querySelector(".hire-faceted-search-result-list > li:nth-child(" + nth + ")");
-			if (this.props.results.last.hasOwnProperty("_next") && inViewport(listItem)) {
+			if (this.props.results.last.hasOwnProperty("_next") && listItem && inViewport(listItem)) {
 				var url = this.props.results.last._next;
 				this.props.onFetchNextResults(url);
 			}
@@ -4863,7 +4862,6 @@ var logger = function logger(store) {
 };
 
 var createStoreWithMiddleware = (0, _redux.applyMiddleware)(logger, _reduxThunk2["default"])(_redux.createStore);
-var store = createStoreWithMiddleware(_reducers2["default"]);
 
 
 
@@ -4877,23 +4875,24 @@ var FacetedSearch = (function (_React$Component) {
 		_classCallCheck(this, FacetedSearch);
 
 		_get(Object.getPrototypeOf(FacetedSearch.prototype), "constructor", this).call(this, props);
+		this.store = createStoreWithMiddleware(_reducers2["default"]);
 
-		store.dispatch({
+		this.store.dispatch({
 			type: "SET_QUERY_DEFAULTS",
 			config: this.props.config
 		});
 
-		store.dispatch({
+		this.store.dispatch({
 			type: "SET_CONFIG_DEFAULTS",
 			config: this.props.config
 		});
 
-		store.dispatch({
+		this.store.dispatch({
 			type: "SET_LABELS",
 			labels: this.props.labels
 		});
 
-		this.state = store.getState();
+		this.state = this.store.getState();
 	}
 
 	_createClass(FacetedSearch, [{
@@ -4901,17 +4900,17 @@ var FacetedSearch = (function (_React$Component) {
 		value: function componentDidMount() {
 			var _this = this;
 
-			this.unsubscribe = store.subscribe(function () {
-				return _this.setState(store.getState());
+			this.unsubscribe = this.store.subscribe(function () {
+				return _this.setState(_this.store.getState());
 			});
 
-			store.dispatch((0, _actionsResults.fetchResults)());
+			this.store.dispatch((0, _actionsResults.fetchResults)());
 		}
 	}, {
 		key: "componentWillReceiveProps",
 		value: function componentWillReceiveProps(nextProps) {
 			if (!(0, _lodashIsequal2["default"])(this.state.labels, nextProps.labels)) {
-				store.dispatch({
+				this.store.dispatch({
 					type: "SET_LABELS",
 					labels: nextProps.labels
 				});
@@ -4925,7 +4924,7 @@ var FacetedSearch = (function (_React$Component) {
 			if (resultsChanged) {
 				this.props.onChange(nextState.results.last, nextState.queries.last);
 				if (this.state.queries.last.sortParameters.length === 0) {
-					store.dispatch({
+					this.store.dispatch({
 						type: "INIT_SORT_PARAMS",
 						sortableFields: nextState.results.last.sortableFields
 					});
@@ -4940,12 +4939,12 @@ var FacetedSearch = (function (_React$Component) {
 	}, {
 		key: "handleFetchNextResults",
 		value: function handleFetchNextResults(url) {
-			store.dispatch((0, _actionsResults.fetchNextResults)(url));
+			this.store.dispatch((0, _actionsResults.fetchNextResults)(url));
 		}
 	}, {
 		key: "handleSelectFacetValue",
 		value: function handleSelectFacetValue(facetName, value, remove) {
-			store.dispatch((0, _actionsQueries.selectFacetValue)(facetName, value, remove));
+			this.store.dispatch((0, _actionsQueries.selectFacetValue)(facetName, value, remove));
 		}
 	}, {
 		key: "render",
@@ -4967,17 +4966,17 @@ var FacetedSearch = (function (_React$Component) {
 					facetList: this.props.facetList,
 					labels: this.state.labels,
 					onChangeSearchTerm: function (value) {
-						return store.dispatch((0, _actionsQueries.changeSearchTerm)(value));
+						return _this2.store.dispatch((0, _actionsQueries.changeSearchTerm)(value));
 					},
 					onNewSearch: function () {
-						return store.dispatch((0, _actionsQueries.newSearch)());
+						return _this2.store.dispatch((0, _actionsQueries.newSearch)());
 					},
 					onSelectFacetValue: function () {
 						for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
 							args[_key] = arguments[_key];
 						}
 
-						return store.dispatch(_actionsQueries.selectFacetValue.apply(undefined, args));
+						return _this2.store.dispatch(_actionsQueries.selectFacetValue.apply(undefined, args));
 					},
 					queries: this.state.queries,
 					results: this.state.results }),
@@ -4986,10 +4985,10 @@ var FacetedSearch = (function (_React$Component) {
 					labels: this.state.labels,
 					metadataList: this.props.metadataList,
 					onChangeSearchTerm: function (value) {
-						return store.dispatch((0, _actionsQueries.changeSearchTerm)(value));
+						return _this2.store.dispatch((0, _actionsQueries.changeSearchTerm)(value));
 					},
 					onFetchNextResults: function (url) {
-						return store.dispatch((0, _actionsResults.fetchNextResults)(url));
+						return _this2.store.dispatch((0, _actionsResults.fetchNextResults)(url));
 					},
 					onSelect: function (item) {
 						return _this2.props.onSelect(item);
@@ -4999,10 +4998,10 @@ var FacetedSearch = (function (_React$Component) {
 							args[_key2] = arguments[_key2];
 						}
 
-						return store.dispatch(_actionsQueries.selectFacetValue.apply(undefined, args));
+						return _this2.store.dispatch(_actionsQueries.selectFacetValue.apply(undefined, args));
 					},
 					onSetSort: function (field) {
-						return store.dispatch((0, _actionsQueries.setSort)(field));
+						return _this2.store.dispatch((0, _actionsQueries.setSort)(field));
 					},
 					queries: this.state.queries,
 					results: this.state.results })
