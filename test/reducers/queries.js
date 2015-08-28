@@ -76,8 +76,71 @@ describe('queries reducer', () => {
 		});
 	});
 
-	it("should handle REMOVE_FACET_VALUE");
-	it("should handle ADD_FACET_VALUE");
+	it("should handle REMOVE_FACET_VALUE", () => {
+		let initialFacets = {
+			facetValues: [
+				{name: "facet1", values: ["a", "b", "c"]},
+				{name: "facet2", values: ["d", "e"]}
+			]
+		};
+		let state = {
+			last: initialFacets,
+			all: [initialFacets]
+		};
+		let action = {
+			type: "REMOVE_FACET_VALUE",
+			facetName: "facet1",
+			value: "b"
+		};
+
+		let expectedFacets = {
+			facetValues: [
+				{name: "facet2", values: ["d", "e"]},
+				{name: "facet1", values: ["a", "c"]}
+			]
+		};
+
+		let expectedState = {
+			all: [initialFacets, expectedFacets],
+			last: expectedFacets
+		};
+
+		expect(reducer(state, action)).toEqual(expectedState);
+	});
+
+
+	it("should handle ADD_FACET_VALUE", () => {
+		let initialFacets = {
+			facetValues: [
+				{name: "facet1", values: ["b", "c"]},
+				{name: "facet2", values: ["d", "e"]}
+			]
+		};
+		let state = {
+			last: initialFacets,
+			all: [initialFacets]
+		};
+		let action = {
+			type: "ADD_FACET_VALUE",
+			facetName: "facet1",
+			value: "a"
+		};
+
+		let expectedFacets = {
+			facetValues: [
+				{name: "facet2", values: ["d", "e"]},
+				{name: "facet1", values: ["b", "c", "a"]}
+			]
+		};
+		let expectedState = {
+			all: [initialFacets, expectedFacets],
+			last: expectedFacets
+		};
+		
+		expect(reducer(state, action)).toEqual(expectedState);
+	});
+
+
 	it("should handle CHANGE_SEARCH_TERM", () => {
 		let state = {
 			all: [{term: "foo"}],
