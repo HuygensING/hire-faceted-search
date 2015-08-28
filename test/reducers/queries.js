@@ -76,7 +76,7 @@ describe('queries reducer', () => {
 		});
 	});
 
-	it("should handle REMOVE_FACET_VALUE", () => {
+	it("should REMOVE_FACET_VALUE but keep other facet values in the same facet name", () => {
 		let initialFacets = {
 			facetValues: [
 				{name: "facet1", values: ["a", "b", "c"]},
@@ -108,8 +108,36 @@ describe('queries reducer', () => {
 		expect(reducer(state, action)).toEqual(expectedState);
 	});
 
+	it("should REMOVE_FACET_VALUE and facet when list is empty", () => {
+		let initialFacets = {
+			facetValues: [
+				{name: "facet1", values: ["a"]},
+			]
+		};
+		let state = {
+			last: initialFacets,
+			all: [initialFacets]
+		};
+		let action = {
+			type: "REMOVE_FACET_VALUE",
+			facetName: "facet1",
+			value: "a"
+		};
 
-	it("should handle ADD_FACET_VALUE", () => {
+		let expectedFacets = {
+			facetValues: []
+		};
+
+		let expectedState = {
+			all: [initialFacets, expectedFacets],
+			last: expectedFacets
+		};
+
+		expect(reducer(state, action)).toEqual(expectedState);
+	});	
+
+
+	it("should ADD_FACET_VALUE with existing facets", () => {
 		let initialFacets = {
 			facetValues: [
 				{name: "facet1", values: ["b", "c"]},
@@ -136,7 +164,62 @@ describe('queries reducer', () => {
 			all: [initialFacets, expectedFacets],
 			last: expectedFacets
 		};
-		
+
+		expect(reducer(state, action)).toEqual(expectedState);
+	});
+
+	it("should ADD_FACET_VALUE without existing facets", () => {
+		let initialFacets = {
+			facetValues: []
+		};
+		let state = {
+			last: initialFacets,
+			all: [initialFacets]
+		};
+		let action = {
+			type: "ADD_FACET_VALUE",
+			facetName: "facet1",
+			value: "a"
+		};
+
+		let expectedFacets = {
+			facetValues: [
+				{name: "facet1", values: ["a"]}
+			]
+		};
+		let expectedState = {
+			all: [initialFacets, expectedFacets],
+			last: expectedFacets
+		};
+
+		expect(reducer(state, action)).toEqual(expectedState);
+	});
+
+	it("should ADD_FACET_VALUE with existing other facet name", () => {
+		let initialFacets = {
+			facetValues: [{name: "facet2", values: ["d", "e"]}]
+		};
+		let state = {
+			last: initialFacets,
+			all: [initialFacets]
+		};
+		let action = {
+			type: "ADD_FACET_VALUE",
+			facetName: "facet1",
+			value: "a"
+		};
+
+		let expectedFacets = {
+			facetValues: [
+				{name: "facet2", values: ["d", "e"]},
+				{name: "facet1", values: ["a"]}
+			]
+		};
+		let expectedState = {
+			all: [initialFacets, expectedFacets],
+			last: expectedFacets
+		};
+
 		expect(reducer(state, action)).toEqual(expectedState);
 	});
 
