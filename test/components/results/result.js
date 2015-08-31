@@ -65,6 +65,5 @@ describe('Result', () => {
 		expect(barSpan.type).toBe("span");
 		expect(fooSpan.props.children).toBe("fooVal");
 		expect(barSpan.props.children).toBe("barVal");
-
 	});
 });

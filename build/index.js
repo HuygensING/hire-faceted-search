@@ -4659,7 +4659,7 @@ SortMenu.sortFunctions = {
 	}
 };
 
-SortMenu.defaultSort = "alphaAsc";
+SortMenu.defaultSort = "countDesc";
 
 SortMenu.defaultProps = {};
 
