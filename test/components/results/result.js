@@ -37,7 +37,6 @@ function setup() {
 describe('Result', () => {
 	it("should render correctly", () => {
 		const { output } = setup();
-		console.log(output);
 
 		expect(output.type).toBe("li");
 		expect(output.props.onClick).toBeA(Function);

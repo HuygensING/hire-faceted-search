@@ -71,7 +71,7 @@ class FacetedSearch extends React.Component {
 		let resultsChanged = this.state.results.last !== nextState.results.last;
 
 		if (resultsChanged) {
-			this.props.onChange(nextState.results.last, nextState.queries.last);
+			if(this.props.onChange) { this.props.onChange(nextState.results.last, nextState.queries.last); }
 			if(this.state.queries.last.sortParameters.length === 0) {
 				this.store.dispatch({
 					type: "INIT_SORT_PARAMS",
