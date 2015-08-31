@@ -2639,11 +2639,11 @@ var server = {
 };
 
 exports.server = server;
-var getResults = function getResults(url, done) {
+var getResults = function getResults(url, headers, done) {
 	var options = {
-		headers: {
+		headers: _extends(headers, {
 			"Content-Type": "application/json"
-		},
+		}),
 		url: url
 	};
 
@@ -2675,7 +2675,7 @@ var postResults = function postResults(query, headers, url, rows, done) {
 
 		var cbUrl = resp.headers.location + "?rows=" + rows;
 
-		getResults(cbUrl, done);
+		getResults(cbUrl, headers, done);
 	};
 
 	server.performXhr(options, cb);
@@ -2712,16 +2712,16 @@ function fetchResults() {
 }
 
 function fetchNextResults(url) {
-	return function (dispatch) {
+	return function (dispatch, getState) {
 		dispatch({ type: "REQUEST_RESULTS" });
 
+		var state = getState();
 		// if (cache.hasOwnProperty(url)) {
 		// 	return dispatchResponse(dispatch, "RECEIVE_RESULTS_FROM_URL", cache[url]);
 		// }
 
-		return getResults(url, function (response) {
+		return getResults(url, state.config.headers || {}, function (response) {
 			cache[url] = response;
-
 			return dispatchResponse(dispatch, "RECEIVE_NEXT_RESULTS", response);
 		});
 	};

@@ -22,7 +22,10 @@ describe("results action", () => {
 					}
 				}, null);
 			} else {
-				expect(opts.headers).toEqual({"Content-Type": "application/json"		});
+				expect(opts.headers).toEqual({
+					"Content-Type": "application/json",
+					"x-dummy-header": "hdr"
+				});
 				expect(opts.url).toEqual("dummy-location?rows=10");
 				callback(null, null, JSON.stringify({
 					mock: "response"
@@ -68,6 +71,7 @@ describe("results action", () => {
 	it("should fetch next results", () => {
 		let requestResultsDispatched = false;
 		let receiveNextResultsDispatched = false;
+		let getStateCalled = false;
 
 		sinon.stub(server, "performXhr", function(opts, callback){
 			expect(opts.url).toEqual("dummy-url");
@@ -76,6 +80,12 @@ describe("results action", () => {
 				mock: "response"
 			}));
 		});
+
+		let getState = function() {
+			getStateCalled = true;
+			return {config: {headers: {}}};
+		};
+
 		let dispatch = function(opts) {
 			if(opts.type === "REQUEST_RESULTS") {
 				requestResultsDispatched = true;
@@ -88,12 +98,13 @@ describe("results action", () => {
 
 		let fetch = fetchNextResults("dummy-url");
 
-		fetch(dispatch, function() {});
+		fetch(dispatch, getState);
 
 		sinon.assert.calledOnce(server.performXhr);
 		server.performXhr.restore();
 		expect(requestResultsDispatched).toEqual(true);
 		expect(receiveNextResultsDispatched).toEqual(true);
+		expect(getStateCalled).toEqual(true);
 
 	});
 });

@@ -12,11 +12,11 @@ export let server = {
 	}
 };
 
-let getResults = function(url, done) {
+let getResults = function(url, headers, done) {
 	let options = {
-		headers: {
+		headers: Object.assign(headers, {
 			"Content-Type": "application/json"
-		},
+		}),
 		url: url
 	};
 
@@ -44,7 +44,7 @@ let postResults = function(query, headers, url, rows, done) {
 
 		let cbUrl = `${resp.headers.location}?rows=${rows}`;
 
-		getResults(cbUrl, done);
+		getResults(cbUrl, headers, done);
 	};
 
 	server.performXhr(options, cb);
@@ -88,16 +88,18 @@ export function fetchResults() {
 }
 
 export function fetchNextResults(url) {
-	return function (dispatch) {
+	return function (dispatch, getState) {
 		dispatch({type: "REQUEST_RESULTS"});
 
+		let state = getState();
 		// if (cache.hasOwnProperty(url)) {
 		// 	return dispatchResponse(dispatch, "RECEIVE_RESULTS_FROM_URL", cache[url]);
 		// }
 
-		return getResults(url, (response) => {
-			cache[url] = response;
-
+		return getResults(url,
+			state.config.headers || {},
+			(response) => {
+				cache[url] = response;
 			return dispatchResponse(dispatch, "RECEIVE_NEXT_RESULTS", response);
 		});
 	};
