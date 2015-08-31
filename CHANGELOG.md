@@ -1,3 +1,8 @@
+### v3.3.2	(2015/8/31 10:18)
+* pass optional headers on GET request as well
+* finished tests for queries reducer
+* finished tests for queries reducer
+
 ### v3.3.1	(2015/8/28 11:44)
 * make store class local to component
 * tests for queries reducer part 1
