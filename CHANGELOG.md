@@ -1,3 +1,7 @@
+### v3.4.0	(2015/8/31 11:20)
+* changed default facet sort to countDesc
+* added test for result item component
+
 ### v3.3.2	(2015/8/31 10:18)
 * pass optional headers on GET request as well
 * finished tests for queries reducer
