@@ -1,3 +1,6 @@
+### v3.4.2	(2015/8/31 12:33)
+* only load new result batch when list item has over zero height, i.e. it is visible in dom
+
 ### v3.4.1	(2015/8/31 12:0)
 * onChange is not required
 
