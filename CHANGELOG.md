@@ -1,3 +1,6 @@
+### v3.4.1	(2015/8/31 12:0)
+* onChange is not required
+
 ### v3.4.0	(2015/8/31 11:20)
 * changed default facet sort to countDesc
 * added test for result item component
