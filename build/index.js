@@ -4167,8 +4167,7 @@ var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciB7Cglib3JkZX
 
 var inViewport = function inViewport(el) {
 	var rect = el.getBoundingClientRect();
-
-	return rect.bottom <= (window.innerHeight || document.documentElement.clientHeight);
+	return rect.height > 0 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight);
 };
 
 var Results = (function (_React$Component) {

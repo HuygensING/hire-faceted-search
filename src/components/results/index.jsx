@@ -15,8 +15,7 @@ insertCss(css, {prepend: true});
 
 let inViewport = function(el) {
 	let rect = el.getBoundingClientRect();
-
-	return rect.bottom <= (window.innerHeight || document.documentElement.clientHeight);
+	return rect.height > 0 &&  rect.bottom <= (window.innerHeight || document.documentElement.clientHeight);
 };
 
 class Results extends React.Component {
