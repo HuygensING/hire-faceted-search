@@ -52,6 +52,8 @@ describe("Facets", () => {
 		expect(textSearch.type).toBe(TextSearch);
 		expect(listFacets.length).toBe(2);
 		let [fooFacet, barFacet] = listFacets;
+		expect(fooFacet.type).toBe(ListFacet);
+		expect(barFacet.type).toBe(ListFacet);
 		expect(fooFacet.props.data).toEqual({name: "foo"});
 		expect(barFacet.props.data).toEqual({name: "bar"});
 		expect(fooFacet.props.labels).toEqual({facetTitles: "mock labels"});
