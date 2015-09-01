@@ -44,14 +44,24 @@ class Results extends React.Component {
 	}
 
 	dataToComponents(results) {
-		return results.map((data, index) =>
-			<Result
-				data={data}
-				key={index + Math.random()}
-				labels={this.props.labels}
-				metadataList={this.props.metadataList}
-				onSelect={this.props.onSelect} />
-		);
+		return results.map((data, index) => {
+			if(this.props.resultComponent) {
+				return React.createElement(this.props.resultComponent, {
+					data: data,
+					key: index + Math.random(),
+					labels: this.props.labels,
+					metadataList: this.props.metadataList,
+					onSelect: this.props.onSelect
+				});
+			} else {
+				return (<Result
+					data={data}
+					key={index + Math.random()}
+					labels={this.props.labels}
+					metadataList={this.props.metadataList}
+					onSelect={this.props.onSelect} />);
+			}
+		});
 	}
 
 	render() {
@@ -99,7 +109,9 @@ Results.propTypes = {
 	onSelectFacetValue: React.PropTypes.func,
 	onSetSort: React.PropTypes.func,
 	queries: React.PropTypes.object,
+	resultComponent: React.PropTypes.func,
 	results: React.PropTypes.object
+
 };
 
 export default Results;

@@ -4207,12 +4207,22 @@ var Results = (function (_React$Component) {
 			var _this = this;
 
 			return results.map(function (data, index) {
-				return _react2["default"].createElement(_result2["default"], {
-					data: data,
-					key: index + Math.random(),
-					labels: _this.props.labels,
-					metadataList: _this.props.metadataList,
-					onSelect: _this.props.onSelect });
+				if (_this.props.resultComponent) {
+					return _react2["default"].createElement(_this.props.resultComponent, {
+						data: data,
+						key: index + Math.random(),
+						labels: _this.props.labels,
+						metadataList: _this.props.metadataList,
+						onSelect: _this.props.onSelect
+					});
+				} else {
+					return _react2["default"].createElement(_result2["default"], {
+						data: data,
+						key: index + Math.random(),
+						labels: _this.props.labels,
+						metadataList: _this.props.metadataList,
+						onSelect: _this.props.onSelect });
+				}
 			});
 		}
 	}, {
@@ -4271,7 +4281,9 @@ Results.propTypes = {
 	onSelectFacetValue: _react2["default"].PropTypes.func,
 	onSetSort: _react2["default"].PropTypes.func,
 	queries: _react2["default"].PropTypes.object,
+	resultComponent: _react2["default"].PropTypes.func,
 	results: _react2["default"].PropTypes.object
+
 };
 
 exports["default"] = Results;
@@ -5005,6 +5017,7 @@ var FacetedSearch = (function (_React$Component) {
 						return _this2.store.dispatch((0, _actionsQueries.setSort)(field));
 					},
 					queries: this.state.queries,
+					resultComponent: this.props.resultComponent,
 					results: this.state.results })
 			);
 		}
@@ -5025,7 +5038,8 @@ FacetedSearch.propTypes = {
 	labels: _react2["default"].PropTypes.object,
 	metadataList: _react2["default"].PropTypes.array,
 	onChange: _react2["default"].PropTypes.func,
-	onSelect: _react2["default"].PropTypes.func
+	onSelect: _react2["default"].PropTypes.func,
+	resultComponent: _react2["default"].PropTypes.func
 };
 
 exports["default"] = FacetedSearch;

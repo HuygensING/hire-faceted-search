@@ -138,6 +138,7 @@ class FacetedSearch extends React.Component {
 						this.store.dispatch(setSort(field))
 					}
 					queries={this.state.queries}
+					resultComponent={this.props.resultComponent}
 					results={this.state.results} />
 			</div>
 		);
@@ -156,7 +157,8 @@ FacetedSearch.propTypes = {
 	labels: React.PropTypes.object,
 	metadataList: React.PropTypes.array,
 	onChange: React.PropTypes.func,
-	onSelect: React.PropTypes.func
+	onSelect: React.PropTypes.func,
+	resultComponent: React.PropTypes.func,
 };
 
 export default FacetedSearch;
