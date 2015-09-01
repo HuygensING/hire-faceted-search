@@ -1,3 +1,8 @@
+### v3.5.0	(2015/9/1 14:5)
+* overridable result component
+* shallow render test of text search
+* added test for Facet component
+
 ### v3.4.2	(2015/8/31 12:33)
 * only load new result batch when list item has over zero height, i.e. it is visible in dom
 
