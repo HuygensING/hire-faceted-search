@@ -1,3 +1,7 @@
+### v3.5.1	(2015/9/2 17:39)
+* Work with refs instead of results
+* Add numberedResults prop
+
 ### v3.5.0	(2015/9/1 14:5)
 * overridable result component
 * shallow render test of text search
