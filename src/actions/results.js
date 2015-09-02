@@ -96,11 +96,14 @@ export function fetchNextResults(url) {
 		// 	return dispatchResponse(dispatch, "RECEIVE_RESULTS_FROM_URL", cache[url]);
 		// }
 
-		return getResults(url,
+		return getResults(
+			url,
 			state.config.headers || {},
 			(response) => {
 				cache[url] = response;
-			return dispatchResponse(dispatch, "RECEIVE_NEXT_RESULTS", response);
-		});
+
+				return dispatchResponse(dispatch, "RECEIVE_NEXT_RESULTS", response);
+			}
+		);
 	};
 }

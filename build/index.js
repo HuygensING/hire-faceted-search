@@ -2722,6 +2722,7 @@ function fetchNextResults(url) {
 
 		return getResults(url, state.config.headers || {}, function (response) {
 			cache[url] = response;
+
 			return dispatchResponse(dispatch, "RECEIVE_NEXT_RESULTS", response);
 		});
 	};
@@ -4194,7 +4195,7 @@ var Results = (function (_React$Component) {
 	}, {
 		key: "onScroll",
 		value: function onScroll() {
-			var nth = this.props.results.last.results.length - parseInt(Math.floor(this.props.config.rows / 2)) + 1;
+			var nth = this.props.results.last.refs.length - parseInt(Math.floor(this.props.config.rows / 2)) + 1;
 			var listItem = _react2["default"].findDOMNode(this).querySelector(".hire-faceted-search-result-list > li:nth-child(" + nth + ")");
 			if (this.props.results.last.hasOwnProperty("_next") && listItem && inViewport(listItem)) {
 				var url = this.props.results.last._next;
@@ -5351,7 +5352,6 @@ exports["default"] = function (state, action) {
 			var newState = state;
 			if (newState.last) {
 				newState.last.refs = [];
-				newState.last.results = [];
 				newState.requesting = true;
 			}
 			return newState;
@@ -5369,7 +5369,6 @@ exports["default"] = function (state, action) {
 
 		case "RECEIVE_NEXT_RESULTS":
 			var withConcatResults = _extends({}, action.response, {
-				results: [].concat(_toConsumableArray(state.last.results), _toConsumableArray(action.response.results)),
 				refs: [].concat(_toConsumableArray(state.last.refs), _toConsumableArray(action.response.refs))
 			});
 			return addResponseToState(state, withConcatResults);

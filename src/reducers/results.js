@@ -58,7 +58,6 @@ export default function(state=initialState, action) {
 			let newState = state;
 			if(newState.last) {
 				newState.last.refs = [];
-				newState.last.results = [];
 				newState.requesting = true;
 			}
 			return newState;
@@ -79,7 +78,6 @@ export default function(state=initialState, action) {
 
 		case "RECEIVE_NEXT_RESULTS":
 			let withConcatResults = {...action.response, ...{
-				results: [...state.last.results, ...action.response.results],
 				refs: [...state.last.refs, ...action.response.refs]
 			}};
 			return addResponseToState(state, withConcatResults);
