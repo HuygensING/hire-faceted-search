@@ -2266,7 +2266,7 @@ function createXHR(options, callback) {
 
         return body
     }
-
+    
     var failureResponse = {
                 body: undefined,
                 headers: {},
@@ -2275,7 +2275,7 @@ function createXHR(options, callback) {
                 url: uri,
                 rawRequest: xhr
             }
-
+    
     function errorFunc(evt) {
         clearTimeout(timeoutTimer)
         if(!(evt instanceof Error)){
@@ -2298,7 +2298,7 @@ function createXHR(options, callback) {
         }
         var response = failureResponse
         var err = null
-
+        
         if (status !== 0){
             response = {
                 body: getBody(),
@@ -2315,9 +2315,9 @@ function createXHR(options, callback) {
             err = new Error("Internal XMLHttpRequest Error")
         }
         callback(err, response, response.body)
-
+        
     }
-
+    
     if (typeof options === "string") {
         options = { uri: options }
     }
@@ -2352,7 +2352,7 @@ function createXHR(options, callback) {
         isJson = true
         headers["accept"] || headers["Accept"] || (headers["Accept"] = "application/json") //Don't override existing accept header declared by user
         if (method !== "GET" && method !== "HEAD") {
-            headers["content-type"] || headers["Content-Type"] || (headers["Content-Type"] = "application/json") //Don't override existing accept header declared by user
+            headers["Content-Type"] = "application/json"
             body = JSON.stringify(options.json)
         }
     }
@@ -2394,8 +2394,8 @@ function createXHR(options, callback) {
     if ("responseType" in options) {
         xhr.responseType = options.responseType
     }
-
-    if ("beforeSend" in options &&
+    
+    if ("beforeSend" in options && 
         typeof options.beforeSend === "function"
     ) {
         options.beforeSend(xhr)
@@ -4132,13 +4132,13 @@ var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
 
+var _classnames = _dereq_("classnames");
+
+var _classnames2 = _interopRequireDefault(_classnames);
+
 var _lodashDebounce = _dereq_("lodash.debounce");
 
 var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
-
-var _lodashIsequal = _dereq_("lodash.isequal");
-
-var _lodashIsequal2 = _interopRequireDefault(_lodashIsequal);
 
 var _result = _dereq_("./result");
 
@@ -4162,7 +4162,7 @@ var _insertCss2 = _interopRequireDefault(_insertCss);
 
 
 
-var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciB7Cglib3JkZXItYm90dG9tOiAxcHggc29saWQgI0FBQTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciA+IGgzLAouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gaGVhZGVyID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1zb3J0LW1lbnUgewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCXZlcnRpY2FsLWFsaWduOiB0b3A7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiBoZWFkZXIgPiBoMyB7CgltYXJnaW4tdG9wOiAwOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gaGVhZGVyID4gaDMgewoJd2lkdGg6IDYwJTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMtc29ydC1tZW51IHsKCXRleHQtYWxpZ246IHJpZ2h0OwoJd2lkdGg6IDQwJTsKfQoKCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiB1bC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdC1saXN0IHsKCXBhZGRpbmctdG9wOiAyMHB4Owp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gdWwgPiBsaSB7CgljdXJzb3I6IHBvaW50ZXI7CgltYXJnaW4tYm90dG9tOiAyMHB4Owp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gdWwgPiBsaSA+IGxhYmVsIHsKCWN1cnNvcjogcG9pbnRlcjsKCWZvbnQtc2l6ZTogMS4xZW07Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiB1bCA+IGxpID4gdWwubWV0YWRhdGEgewoJY29sb3I6ICM4ODg7Cglmb250LXNpemU6IDAuN2VtOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gdWwgPiBsaSA+IHVsLm1ldGFkYXRhID4gbGkgPiBsYWJlbCB7Cglib3gtc2l6aW5nOiBib3JkZXItYm94OwoJZGlzcGxheTogaW5saW5lLWJsb2NrOwoJdmVydGljYWwtYWxpZ246IHRvcDsKCXdpZHRoOiAxNTBweDsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyBzdmcubG9hZGVyIHsKCXBhZGRpbmc6IDYwcHggMCA0MHB4IDA7Cgl3aWR0aDogMTAwJQp9","base64");
+var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciB7Cglib3JkZXItYm90dG9tOiAxcHggc29saWQgI0FBQTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciA+IGgzLAouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gaGVhZGVyID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1zb3J0LW1lbnUgewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCXZlcnRpY2FsLWFsaWduOiB0b3A7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiBoZWFkZXIgPiBoMyB7CgltYXJnaW4tdG9wOiAwOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gaGVhZGVyID4gaDMgewoJd2lkdGg6IDYwJTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMtc29ydC1tZW51IHsKCXRleHQtYWxpZ246IHJpZ2h0OwoJd2lkdGg6IDQwJTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IG9sLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0LWxpc3QgewoJbGlzdC1zdHlsZTogbm9uZTsKCW1hcmdpbjogMDsKCXBhZGRpbmc6IDIwcHggMCAwIDA7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiBvbC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdC1saXN0Lm51bWJlcmVkIHsKCWxpc3Qtc3R5bGU6IGRlY2ltYWw7CglwYWRkaW5nLWxlZnQ6IDQwcHg7Cn0KCgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gb2wuaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHQtbGlzdCA+IGxpIHsKCWN1cnNvcjogcG9pbnRlcjsKCW1hcmdpbi1ib3R0b206IDIwcHg7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiBvbC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdC1saXN0ID4gbGkgPiBsYWJlbCB7CgljdXJzb3I6IHBvaW50ZXI7Cglmb250LXNpemU6IDEuMWVtOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gb2wuaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHQtbGlzdCA+IGxpID4gdWwubWV0YWRhdGEgewoJY29sb3I6ICM4ODg7Cglmb250LXNpemU6IDAuN2VtOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gb2wuaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHQtbGlzdCA+IGxpID4gdWwubWV0YWRhdGEgPiBsaSA+IGxhYmVsIHsKCWJveC1zaXppbmc6IGJvcmRlci1ib3g7CglkaXNwbGF5OiBpbmxpbmUtYmxvY2s7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwoJd2lkdGg6IDE1MHB4Owp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzIHN2Zy5sb2FkZXIgewoJcGFkZGluZzogNjBweCAwIDQwcHggMDsKCXdpZHRoOiAxMDAlCn0=","base64");
 (0, _insertCss2["default"])(css, { prepend: true });
 
 var inViewport = function inViewport(el) {
@@ -4259,8 +4259,8 @@ var Results = (function (_React$Component) {
 						results: this.props.results })
 				),
 				_react2["default"].createElement(
-					"ul",
-					{ className: "hire-faceted-search-result-list" },
+					"ol",
+					{ className: (0, _classnames2["default"])("hire-faceted-search-result-list", { numbered: this.props.numberedResults }) },
 					this.dataToComponents(this.props.results.last.refs) /** API V2.x uses refs as result key, back to results in API 3 */
 				),
 				loader
@@ -4289,7 +4289,7 @@ Results.propTypes = {
 exports["default"] = Results;
 module.exports = exports["default"];
 
-},{"../icons/loader-three-dots":36,"./current-query":46,"./result":48,"./sort-menu":49,"insert-css":2,"lodash.debounce":3,"lodash.isequal":5,"react":"react"}],48:[function(_dereq_,module,exports){
+},{"../icons/loader-three-dots":36,"./current-query":46,"./result":48,"./sort-menu":49,"classnames":"classnames","insert-css":2,"lodash.debounce":3,"react":"react"}],48:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4997,15 +4997,14 @@ var FacetedSearch = (function (_React$Component) {
 					config: this.state.config,
 					labels: this.state.labels,
 					metadataList: this.props.metadataList,
+					numberedResults: this.props.numberedResults,
 					onChangeSearchTerm: function (value) {
 						return _this2.store.dispatch((0, _actionsQueries.changeSearchTerm)(value));
 					},
 					onFetchNextResults: function (url) {
 						return _this2.store.dispatch((0, _actionsResults.fetchNextResults)(url));
 					},
-					onSelect: function (item) {
-						return _this2.props.onSelect(item);
-					},
+					onSelect: this.props.onSelect,
 					onSelectFacetValue: function () {
 						for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
 							args[_key2] = arguments[_key2];
@@ -5037,6 +5036,7 @@ FacetedSearch.propTypes = {
 	facetList: _react2["default"].PropTypes.array,
 	labels: _react2["default"].PropTypes.object,
 	metadataList: _react2["default"].PropTypes.array,
+	numberedResults: _react2["default"].PropTypes.bool,
 	onChange: _react2["default"].PropTypes.func,
 	onSelect: _react2["default"].PropTypes.func,
 	resultComponent: _react2["default"].PropTypes.func

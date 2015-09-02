@@ -22,27 +22,34 @@
 	width: 40%;
 }
 
-
-.hire-faceted-search-results > ul.hire-faceted-search-result-list {
-	padding-top: 20px;
+.hire-faceted-search-results > ol.hire-faceted-search-result-list {
+	list-style: none;
+	margin: 0;
+	padding: 20px 0 0 0;
 }
 
-.hire-faceted-search-results > ul > li {
+.hire-faceted-search-results > ol.hire-faceted-search-result-list.numbered {
+	list-style: decimal;
+	padding-left: 40px;
+}
+
+
+.hire-faceted-search-results > ol.hire-faceted-search-result-list > li {
 	cursor: pointer;
 	margin-bottom: 20px;
 }
 
-.hire-faceted-search-results > ul > li > label {
+.hire-faceted-search-results > ol.hire-faceted-search-result-list > li > label {
 	cursor: pointer;
 	font-size: 1.1em;
 }
 
-.hire-faceted-search-results > ul > li > ul.metadata {
+.hire-faceted-search-results > ol.hire-faceted-search-result-list > li > ul.metadata {
 	color: #888;
 	font-size: 0.7em;
 }
 
-.hire-faceted-search-results > ul > li > ul.metadata > li > label {
+.hire-faceted-search-results > ol.hire-faceted-search-result-list > li > ul.metadata > li > label {
 	box-sizing: border-box;
 	display: inline-block;
 	vertical-align: top;

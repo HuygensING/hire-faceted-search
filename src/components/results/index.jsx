@@ -1,6 +1,6 @@
 import React from "react";
+import cx from "classnames";
 import debounce from "lodash.debounce";
-import isEqual from "lodash.isequal";
 
 import Result from "./result";
 import ResultsSortMenu from "./sort-menu";
@@ -90,9 +90,12 @@ class Results extends React.Component {
 						queries={this.props.queries}
 						results={this.props.results} />
 				</header>
-				<ul className="hire-faceted-search-result-list">
+				<ol className={cx(
+						"hire-faceted-search-result-list",
+						{numbered: this.props.numberedResults}
+					)}>
 					{this.dataToComponents(this.props.results.last.refs) /** API V2.x uses refs as result key, back to results in API 3 */ }
-				</ul>
+				</ol>
 				{loader}
 			</div>
 		);
