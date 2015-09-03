@@ -28,14 +28,14 @@ describe('results reducer', () => {
 	it('should handle CLEAR_LIST by emptying results and refs of last result state', () => {
 		expect(reducer({
 			last: {
-				refs: ["arr", "with", "content"],
-				results: ["arr", "with", "content"]
+				refs: ["arr", "with", "content"] /*,
+				results: ["arr", "with", "content"]*/
 			},
 			requesting: false
 		}, {type: "CLEAR_LIST"})).toEqual({
 			last: {
-				refs: [],
-				results: []
+				refs: [] /*,
+				results: []*/
 			},
 			requesting: true
 		});
@@ -44,18 +44,18 @@ describe('results reducer', () => {
 
 	it('should handle RECEIVE_NEXT_RESULTS by adding the refs and results to the last state and pushing the new state to all', () => {
 		expect(reducer({
-			all: [{results: ["old", "results"], refs: ["old", "refs"]}],
-			last: {results: ["old", "results"], refs: ["old", "refs"]},
+			all: [{/*results: ["old", "results"],*/ refs: ["old", "refs"]}],
+			last: { /*results: ["old", "results"],*/ refs: ["old", "refs"]},
 			requesting: true
 		}, {
 			type: "RECEIVE_NEXT_RESULTS",
-			response: {results: ["new", "results"], refs: ["new", "refs"]}
+			response: {/*results: ["new", "results"],*/ refs: ["new", "refs"]}
 		})).toEqual({
 			all: [
-				{results: ["old", "results"], refs: ["old", "refs"]},
-				{results: ["old", "results", "new", "results"], refs: ["old", "refs", "new", "refs"]}
+				{ /*results: ["old", "results"],*/ refs: ["old", "refs"]},
+				{ /*results: ["old", "results", "new", "results"], */ refs: ["old", "refs", "new", "refs"]}
 			],
-			last: {results: ["old", "results", "new", "results"], refs: ["old", "refs", "new", "refs"]},
+			last: { /*results: ["old", "results", "new", "results"], */ refs: ["old", "refs", "new", "refs"]},
 			requesting: false
 		});
 	});
