@@ -1,3 +1,6 @@
+### v3.5.2	(2015/9/3 7:28)
+
+
 ### v3.5.1	(2015/9/2 17:39)
 * Work with refs instead of results
 * Add numberedResults prop
