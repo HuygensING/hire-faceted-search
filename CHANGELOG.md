@@ -1,3 +1,11 @@
+### v3.7.0	(2015/9/4 17:14)
+* Make sorting configurable per facet
+* Move render facets if/else to function map
+* Move none facet titles out of facetTitles map
+* Fix one to many change from results to refs
+* New build
+* Add update script
+
 ### v3.6.0	(2015/9/4 10:54)
 * added range facet
 
