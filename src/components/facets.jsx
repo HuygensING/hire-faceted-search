@@ -4,40 +4,53 @@ import TextSearch from "./text-search";
 import ListFacet from "./list-facet";
 import RangeFacet from "./range-facet";
 
+let facetMap = {
+	LIST(data, props, key) {
+		return (<ListFacet
+			data={data}
+			key={key}
+			labels={props.labels}
+			onSelectFacetValue={props.onSelectFacetValue}
+			queries={props.queries} />
+		);
+	},
+
+	BOOLEAN(...args) {
+		return this.LIST(...args);
+	},
+
+	RANGE(data, props, key) {
+		return (<RangeFacet
+			data={data}
+			key={key}
+			labels={props.labels}
+			onSelectFacetRange={props.onSelectFacetRange}
+			queries={props.queries} />
+		);
+	}
+};
+
 class Facets extends React.Component {
 	render() {
-		let facetList = (this.props.facetList.length) ?
-			this.props.facetList.map((facetName) => {
-				let found = this.props.results.last.facets.filter((facet) =>
-					facet.name === facetName
-				);
-				if (found.length) {
-					return found[0];
-				} else {
-					return null;
-				}
-			}).filter((facetName) => facetName !== null) :
-			this.props.results.last.facets;
+		let updateCount = (facetName) => {
+			let found = this.props.results.last.facets.filter((facet) =>
+				facet.name === facetName
+			);
 
-		let facets = facetList.map((data, index) => {
-			if(data.type === "LIST") {
-				return (
-					<ListFacet
-						data={data}
-						key={index}
-						labels={this.props.labels}
-						onSelectFacetValue={this.props.onSelectFacetValue}
-						queries={this.props.queries} />);
-			} else {
-				return (<RangeFacet
-					data={data}
-					key={index}
-					labels={this.props.labels}
-					onSelectFacetRange={this.props.onSelectFacetRange}
-					queries={this.props.queries}
-					/>);
-			}
-		});
+			return (found.length) ? found[0] : null;
+		};
+
+		let notNull = (facetName) =>
+			facetName !== null;
+
+		let toComponent = (data, index) =>
+			facetMap[data.type](data, this.props, index);
+
+		let facets = (this.props.facetList.length) ?
+			this.props.facetList
+				.map(updateCount)
+				.filter(notNull) :
+			this.props.results.last.facets;
 
 		return (
 			<ul className="hire-faceted-search-facets">
@@ -45,15 +58,13 @@ class Facets extends React.Component {
 				<TextSearch
 					onChangeSearchTerm={this.props.onChangeSearchTerm}
 					value={this.props.queries.last.term} />
-				{facets}
+				{facets.map(toComponent)}
 			</ul>
 		);
 	}
 }
 
-Facets.defaultProps = {
-
-};
+Facets.defaultProps = {};
 
 Facets.propTypes = {
 	facetList: React.PropTypes.array,

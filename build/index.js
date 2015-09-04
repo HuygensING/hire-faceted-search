@@ -2770,6 +2770,30 @@ var _rangeFacet = _dereq_("./range-facet");
 
 var _rangeFacet2 = _interopRequireDefault(_rangeFacet);
 
+var facetMap = {
+	LIST: function LIST(data, props, key) {
+		return _react2["default"].createElement(_listFacet2["default"], {
+			data: data,
+			key: key,
+			labels: props.labels,
+			onSelectFacetValue: props.onSelectFacetValue,
+			queries: props.queries });
+	},
+
+	BOOLEAN: function BOOLEAN() {
+		return this.LIST.apply(this, arguments);
+	},
+
+	RANGE: function RANGE(data, props, key) {
+		return _react2["default"].createElement(_rangeFacet2["default"], {
+			data: data,
+			key: key,
+			labels: props.labels,
+			onSelectFacetRange: props.onSelectFacetRange,
+			queries: props.queries });
+	}
+};
+
 var Facets = (function (_React$Component) {
 	_inherits(Facets, _React$Component);
 
@@ -2784,37 +2808,23 @@ var Facets = (function (_React$Component) {
 		value: function render() {
 			var _this = this;
 
-			var facetList = this.props.facetList.length ? this.props.facetList.map(function (facetName) {
+			var updateCount = function updateCount(facetName) {
 				var found = _this.props.results.last.facets.filter(function (facet) {
 					return facet.name === facetName;
 				});
-				if (found.length) {
-					return found[0];
-				} else {
-					return null;
-				}
-			}).filter(function (facetName) {
-				return facetName !== null;
-			}) : this.props.results.last.facets;
 
-			var facets = facetList.map(function (data, index) {
-				if (data.type === "LIST") {
-					return _react2["default"].createElement(_listFacet2["default"], {
-						data: data,
-						key: index,
-						labels: _this.props.labels,
-						onSelectFacetValue: _this.props.onSelectFacetValue,
-						queries: _this.props.queries });
-				} else {
-					return _react2["default"].createElement(_rangeFacet2["default"], {
-						data: data,
-						key: index,
-						labels: _this.props.labels,
-						onSelectFacetRange: _this.props.onSelectFacetRange,
-						queries: _this.props.queries
-					});
-				}
-			});
+				return found.length ? found[0] : null;
+			};
+
+			var notNull = function notNull(facetName) {
+				return facetName !== null;
+			};
+
+			var toComponent = function toComponent(data, index) {
+				return facetMap[data.type](data, _this.props, index);
+			};
+
+			var facets = this.props.facetList.length ? this.props.facetList.map(updateCount).filter(notNull) : this.props.results.last.facets;
 
 			return _react2["default"].createElement(
 				"ul",
@@ -2827,7 +2837,7 @@ var Facets = (function (_React$Component) {
 				_react2["default"].createElement(_textSearch2["default"], {
 					onChangeSearchTerm: this.props.onChangeSearchTerm,
 					value: this.props.queries.last.term }),
-				facets
+				facets.map(toComponent)
 			);
 		}
 	}]);
