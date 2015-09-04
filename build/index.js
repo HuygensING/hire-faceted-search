@@ -2266,7 +2266,7 @@ function createXHR(options, callback) {
 
         return body
     }
-
+    
     var failureResponse = {
                 body: undefined,
                 headers: {},
@@ -2275,7 +2275,7 @@ function createXHR(options, callback) {
                 url: uri,
                 rawRequest: xhr
             }
-
+    
     function errorFunc(evt) {
         clearTimeout(timeoutTimer)
         if(!(evt instanceof Error)){
@@ -2298,7 +2298,7 @@ function createXHR(options, callback) {
         }
         var response = failureResponse
         var err = null
-
+        
         if (status !== 0){
             response = {
                 body: getBody(),
@@ -2315,9 +2315,9 @@ function createXHR(options, callback) {
             err = new Error("Internal XMLHttpRequest Error")
         }
         callback(err, response, response.body)
-
+        
     }
-
+    
     if (typeof options === "string") {
         options = { uri: options }
     }
@@ -2352,7 +2352,7 @@ function createXHR(options, callback) {
         isJson = true
         headers["accept"] || headers["Accept"] || (headers["Accept"] = "application/json") //Don't override existing accept header declared by user
         if (method !== "GET" && method !== "HEAD") {
-            headers["content-type"] || headers["Content-Type"] || (headers["Content-Type"] = "application/json") //Don't override existing accept header declared by user
+            headers["Content-Type"] = "application/json"
             body = JSON.stringify(options.json)
         }
     }
@@ -2394,8 +2394,8 @@ function createXHR(options, callback) {
     if ("responseType" in options) {
         xhr.responseType = options.responseType
     }
-
-    if ("beforeSend" in options &&
+    
+    if ("beforeSend" in options && 
         typeof options.beforeSend === "function"
     ) {
         options.beforeSend(xhr)
@@ -4489,7 +4489,7 @@ var Results = (function (_React$Component) {
 			var nth = this.props.results.last.refs.length - parseInt(Math.floor(this.props.config.rows / 2)) + 1;
 			var listItem = _react2["default"].findDOMNode(this).querySelector(".hire-faceted-search-result-list > li:nth-child(" + nth + ")");
 			if (this.props.results.last.hasOwnProperty("_next") && listItem && inViewport(listItem)) {
-				var url = this.props.refs.last._next;
+				var url = this.props.results.last._next;
 				this.props.onFetchNextResults(url);
 			}
 		}
@@ -4614,7 +4614,7 @@ var Result = (function (_React$Component) {
 	_createClass(Result, [{
 		key: "toLabel",
 		value: function toLabel(name) {
-			return this.props.labels.facetTitles.hasOwnProperty(name) ? this.props.labels.facetTitles[name] : name;
+			return this.props.labels.hasOwnProperty(name) ? this.props.labels[name] : name;
 		}
 	}, {
 		key: "render",
@@ -4758,7 +4758,7 @@ var ResultsSortMenu = (function (_React$Component) {
 	}, {
 		key: "toLabel",
 		value: function toLabel(name) {
-			return this.props.labels.facetTitles.hasOwnProperty(name) ? this.props.labels.facetTitles[name] : name;
+			return this.props.labels.hasOwnProperty(name) ? this.props.labels[name] : name;
 		}
 	}, {
 		key: "render",
