@@ -2,8 +2,8 @@ import React from "react";
 
 class Result extends React.Component {
 	toLabel(name) {
-		return (this.props.labels.facetTitles.hasOwnProperty(name)) ?
-			this.props.labels.facetTitles[name] :
+		return (this.props.labels.hasOwnProperty(name)) ?
+			this.props.labels[name] :
 			name;
 	}
 
