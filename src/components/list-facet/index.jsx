@@ -5,6 +5,8 @@ import SortMenu from "../sort-menu";
 import FilterMenu from "../filter-menu";
 import ListItem from "./list-item";
 
+import sortFunction from "./sort-function";
+
 let fs = require("fs");
 import insertCss from "insert-css";
 let css = fs.readFileSync(__dirname + "/index.css");
@@ -17,9 +19,10 @@ class ListFacet extends React.Component {
 		super(props);
 
 		this.state = {
-			currentSort: SortMenu.defaultSort,
 			filterQuery: "",
-			showAll: false
+			showAll: false,
+			sortDirection: (props.sort != null) ? props.sort.direction : "descending",
+			sortType: (props.sort != null) ? props.sort.type : "count"
 		};
 	}
 
@@ -29,9 +32,10 @@ class ListFacet extends React.Component {
 		});
 	}
 
-	handleSortMenuChange(funcName) {
+	handleSortMenuChange(type, direction) {
 		this.setState({
-			currentSort: funcName
+			sortDirection: direction,
+			sortType: type
 		});
 	}
 
@@ -52,12 +56,16 @@ class ListFacet extends React.Component {
 
 	render() {
 		let filterMenu, sortMenu;
-		let options = this.props.data.options;
 
-		options = options.sort(SortMenu.sortFunctions[this.state.currentSort]);
+		let options = this.props.data.options;
+		options = options.sort(sortFunction(this.state.sortType, this.state.sortDirection));
 
 		if (this.props.showSortMenu) {
-			sortMenu = <SortMenu onChange={this.handleSortMenuChange.bind(this)} />;
+			sortMenu = (<SortMenu
+				direction={this.state.sortDirection}
+				onChange={this.handleSortMenuChange.bind(this)}
+				type={this.state.sortType} />
+			);
 		}
 
 		if (this.props.showFilterMenu) {
@@ -71,7 +79,6 @@ class ListFacet extends React.Component {
 				);
 			}
 		}
-
 
 		let optionsToRender = (this.state.showAll) ?
 			options :

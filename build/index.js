@@ -2772,12 +2772,15 @@ var _rangeFacet2 = _interopRequireDefault(_rangeFacet);
 
 var facetMap = {
 	LIST: function LIST(data, props, key) {
+		var sort = props.facetSortMap.hasOwnProperty(data.name) ? props.facetSortMap[data.name] : null;
+
 		return _react2["default"].createElement(_listFacet2["default"], {
 			data: data,
 			key: key,
 			labels: props.labels,
 			onSelectFacetValue: props.onSelectFacetValue,
-			queries: props.queries });
+			queries: props.queries,
+			sort: sort });
 	},
 
 	BOOLEAN: function BOOLEAN() {
@@ -2861,7 +2864,7 @@ Facets.propTypes = {
 exports["default"] = Facets;
 module.exports = exports["default"];
 
-},{"./list-facet":43,"./range-facet":45,"./text-search":52,"react":"react"}],33:[function(_dereq_,module,exports){
+},{"./list-facet":43,"./range-facet":46,"./text-search":53,"react":"react"}],33:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3691,6 +3694,10 @@ var _listItem = _dereq_("./list-item");
 
 var _listItem2 = _interopRequireDefault(_listItem);
 
+var _sortFunction = _dereq_("./sort-function");
+
+var _sortFunction2 = _interopRequireDefault(_sortFunction);
+
 var _insertCss = _dereq_("insert-css");
 
 var _insertCss2 = _interopRequireDefault(_insertCss);
@@ -3711,9 +3718,10 @@ var ListFacet = (function (_React$Component) {
 		_get(Object.getPrototypeOf(ListFacet.prototype), "constructor", this).call(this, props);
 
 		this.state = {
-			currentSort: _sortMenu2["default"].defaultSort,
 			filterQuery: "",
-			showAll: false
+			showAll: false,
+			sortDirection: props.sort != null ? props.sort.direction : "descending",
+			sortType: props.sort != null ? props.sort.type : "count"
 		};
 	}
 
@@ -3726,9 +3734,10 @@ var ListFacet = (function (_React$Component) {
 		}
 	}, {
 		key: "handleSortMenuChange",
-		value: function handleSortMenuChange(funcName) {
+		value: function handleSortMenuChange(type, direction) {
 			this.setState({
-				currentSort: funcName
+				sortDirection: direction,
+				sortType: type
 			});
 		}
 	}, {
@@ -3756,12 +3765,15 @@ var ListFacet = (function (_React$Component) {
 
 			var filterMenu = undefined,
 			    sortMenu = undefined;
-			var options = this.props.data.options;
 
-			options = options.sort(_sortMenu2["default"].sortFunctions[this.state.currentSort]);
+			var options = this.props.data.options;
+			options = options.sort((0, _sortFunction2["default"])(this.state.sortType, this.state.sortDirection));
 
 			if (this.props.showSortMenu) {
-				sortMenu = _react2["default"].createElement(_sortMenu2["default"], { onChange: this.handleSortMenuChange.bind(this) });
+				sortMenu = _react2["default"].createElement(_sortMenu2["default"], {
+					direction: this.state.sortDirection,
+					onChange: this.handleSortMenuChange.bind(this),
+					type: this.state.sortType });
 			}
 
 			if (this.props.showFilterMenu) {
@@ -3856,7 +3868,7 @@ ListFacet.propTypes = {
 exports["default"] = ListFacet;
 module.exports = exports["default"];
 
-},{"../filter-menu":33,"../sort-menu":51,"./list-item":44,"classnames":"classnames","insert-css":2,"react":"react"}],44:[function(_dereq_,module,exports){
+},{"../filter-menu":33,"../sort-menu":52,"./list-item":44,"./sort-function":45,"classnames":"classnames","insert-css":2,"react":"react"}],44:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3966,6 +3978,70 @@ module.exports = exports["default"];
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
+exports["default"] = sortFunction;
+var sortFunctions = {
+	alphabetAscending: function alphabetAscending(valA, valB) {
+		if (valA.name > valB.name) {
+			return 1;
+		}
+		if (valB.name > valA.name) {
+			return -1;
+		}
+		return 0;
+	},
+
+	alphabetDescending: function alphabetDescending(valA, valB) {
+		if (valA.name > valB.name) {
+			return -1;
+		}
+		if (valB.name > valA.name) {
+			return 1;
+		}
+		return 0;
+	},
+
+	countAscending: function countAscending(valA, valB) {
+		if (valA.count > valB.count) {
+			return 1;
+		}
+		if (valB.count > valA.count) {
+			return -1;
+		}
+		return 0;
+	},
+
+	countDescending: function countDescending(valA, valB) {
+		if (valA.count > valB.count) {
+			return -1;
+		}
+		if (valB.count > valA.count) {
+			return 1;
+		}
+		return 0;
+	}
+};
+
+function sortFunction(type, direction) {
+	if (["count", "alphabet"].indexOf(type) === -1) {
+		console.error("Unknown sort type: ", type);
+	}
+
+	if (["ascending", "descending"].indexOf(direction) === -1) {
+		console.error("Unknown sort direction: ", direction);
+	}
+
+	var functionName = type + direction.charAt(0).toUpperCase() + direction.substr(1);
+	return sortFunctions[functionName];
+}
+
+module.exports = exports["default"];
+
+},{}],46:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -4004,10 +4080,12 @@ var RangeFacet = (function (_React$Component) {
 		_classCallCheck(this, RangeFacet);
 
 		_get(Object.getPrototypeOf(RangeFacet.prototype), "constructor", this).call(this, props);
+
 		this.mouseState = MOUSE_UP;
 		this.mouseUpListener = this.onMouseUp.bind(this);
 		this.mouseMoveListener = this.onMouseMove.bind(this);
 		this.touchMoveListener = this.onTouchMove.bind(this);
+
 		this.state = _extends({}, this.propsToState(this.props), { hoverState: null });
 	}
 
@@ -4215,7 +4293,7 @@ RangeFacet.propTypes = {
 exports["default"] = RangeFacet;
 module.exports = exports["default"];
 
-},{"insert-css":2,"react":"react"}],46:[function(_dereq_,module,exports){
+},{"insert-css":2,"react":"react"}],47:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4280,7 +4358,7 @@ FacetValue.propTypes = {
 exports["default"] = FacetValue;
 module.exports = exports["default"];
 
-},{"react":"react"}],47:[function(_dereq_,module,exports){
+},{"react":"react"}],48:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4413,7 +4491,7 @@ CurrentQuery.propTypes = {
 exports["default"] = CurrentQuery;
 module.exports = exports["default"];
 
-},{"./facet-value":46,"insert-css":2,"react":"react"}],48:[function(_dereq_,module,exports){
+},{"./facet-value":47,"insert-css":2,"react":"react"}],49:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4591,7 +4669,7 @@ Results.propTypes = {
 exports["default"] = Results;
 module.exports = exports["default"];
 
-},{"../icons/loader-three-dots":36,"./current-query":47,"./result":49,"./sort-menu":50,"classnames":"classnames","insert-css":2,"lodash.debounce":3,"react":"react"}],49:[function(_dereq_,module,exports){
+},{"../icons/loader-three-dots":36,"./current-query":48,"./result":50,"./sort-menu":51,"classnames":"classnames","insert-css":2,"lodash.debounce":3,"react":"react"}],50:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4691,7 +4769,7 @@ Result.propTypes = {
 exports["default"] = Result;
 module.exports = exports["default"];
 
-},{"react":"react"}],50:[function(_dereq_,module,exports){
+},{"react":"react"}],51:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4823,7 +4901,7 @@ ResultsSortMenu.propTypes = {
 exports["default"] = ResultsSortMenu;
 module.exports = exports["default"];
 
-},{"classnames":"classnames","insert-css":2,"react":"react"}],51:[function(_dereq_,module,exports){
+},{"classnames":"classnames","insert-css":2,"react":"react"}],52:[function(_dereq_,module,exports){
 /* TODO Remove sort menu and move sort options (count/alpha) to facet schema.
 	A schema is needed, because different facets, should be able to have different
 	options set. */
@@ -4888,38 +4966,38 @@ var SortMenu = (function (_React$Component) {
 		_get(Object.getPrototypeOf(SortMenu.prototype), "constructor", this).call(this, props);
 
 		this.state = {
-			alpha: "asc",
-			count: "desc",
-			current: "count"
+			alphabet: props.type === "alphabet" ? props.direction : "ascending",
+			count: props.type === "count" ? props.direction : "descending",
+			current: props.type
 		};
 	}
 
 	/*
-  * Change the sort based on type (alpha|count) clicked and current state.
+  * Change the sort based on type (alphabet|count) clicked and current state.
   *
-  * If the active sort type is clicked, the direction (asc|desc) is changed.
-  * If the inactive sort type is clicked, the type (alpha|count) is set to current, the dir (asc|desc) does not change.
+  * If the active sort type is clicked, the direction (ascending|descending) is changed.
+  * If the inactive sort type is clicked, the type (alphabet|count) is set to current, the dir (ascending|descending) does not change.
   *
-  * @param {String} type Type of sorting: "alpha" or "count"
+  * @param {String} type Type of sorting: "alphabet" or "count"
   */
 
 	_createClass(SortMenu, [{
 		key: "changeSort",
 		value: function changeSort(type) {
-			var dir = this.state.current != type ? this.state[type].charAt(0).toUpperCase() + this.state[type].substr(1) : this.state[type] === "asc" ? "Desc" : "Asc";
+			var direction = this.state.current !== type ? this.state[type] : this.state[type] === "ascending" ? "descending" : "ascending";
 
 			this.setState(_defineProperty({
 				current: type
-			}, type, dir.toLowerCase()));
-
-			this.props.onChange(type + dir);
+			}, type, direction));
+			console.log(type, direction);
+			this.props.onChange(type, direction);
 		}
 	}, {
 		key: "render",
 		value: function render() {
-			var alpha = this.state.alpha === "asc" ? _react2["default"].createElement(_iconsSortAlphabeticallyAscending2["default"], null) : _react2["default"].createElement(_iconsSortAlphabeticallyDescending2["default"], null);
+			var alphabetIcon = this.state.alphabet === "ascending" ? _react2["default"].createElement(_iconsSortAlphabeticallyAscending2["default"], null) : _react2["default"].createElement(_iconsSortAlphabeticallyDescending2["default"], null);
 
-			var count = this.state.count === "asc" ? _react2["default"].createElement(_iconsSortCountAscending2["default"], null) : _react2["default"].createElement(_iconsSortCountDescending2["default"], null);
+			var countIcon = this.state.count === "ascending" ? _react2["default"].createElement(_iconsSortCountAscending2["default"], null) : _react2["default"].createElement(_iconsSortCountDescending2["default"], null);
 
 			return _react2["default"].createElement(
 				"ul",
@@ -4928,10 +5006,10 @@ var SortMenu = (function (_React$Component) {
 					"li",
 					{
 						className: (0, _classnames2["default"])({
-							active: this.state.current === "alpha"
+							active: this.state.current === "alphabet"
 						}),
-						onClick: this.changeSort.bind(this, "alpha") },
-					alpha
+						onClick: this.changeSort.bind(this, "alphabet") },
+					alphabetIcon
 				),
 				_react2["default"].createElement(
 					"li",
@@ -4940,7 +5018,7 @@ var SortMenu = (function (_React$Component) {
 							active: this.state.current === "count"
 						}),
 						onClick: this.changeSort.bind(this, "count") },
-					count
+					countIcon
 				)
 			);
 		}
@@ -4949,41 +5027,16 @@ var SortMenu = (function (_React$Component) {
 	return SortMenu;
 })(_react2["default"].Component);
 
-SortMenu.sortFunctions = {
-	alphaAsc: function alphaAsc(valA, valB) {
-		if (valA.name > valB.name) return 1;
-		if (valB.name > valA.name) return -1;
-		return 0;
-	},
-	alphaDesc: function alphaDesc(valA, valB) {
-		if (valA.name > valB.name) return -1;
-		if (valB.name > valA.name) return 1;
-		return 0;
-	},
-	countAsc: function countAsc(valA, valB) {
-		if (valA.count > valB.count) return 1;
-		if (valB.count > valA.count) return -1;
-		return 0;
-	},
-	countDesc: function countDesc(valA, valB) {
-		if (valA.count > valB.count) return -1;
-		if (valB.count > valA.count) return 1;
-		return 0;
-	}
-};
-
-SortMenu.defaultSort = "countDesc";
-
-SortMenu.defaultProps = {};
-
 SortMenu.propTypes = {
-	onChange: _react2["default"].PropTypes.func.isRequired
+	direction: _react2["default"].PropTypes.oneOf(["ascending", "descending"]),
+	onChange: _react2["default"].PropTypes.func.isRequired,
+	type: _react2["default"].PropTypes.oneOf(["alphabet", "count"])
 };
 
 exports["default"] = SortMenu;
 module.exports = exports["default"];
 
-},{"../icons/sort-alphabetically-ascending":38,"../icons/sort-alphabetically-descending":39,"../icons/sort-count-ascending":40,"../icons/sort-count-descending":41,"classnames":"classnames","insert-css":2,"react":"react"}],52:[function(_dereq_,module,exports){
+},{"../icons/sort-alphabetically-ascending":38,"../icons/sort-alphabetically-descending":39,"../icons/sort-count-ascending":40,"../icons/sort-count-descending":41,"classnames":"classnames","insert-css":2,"react":"react"}],53:[function(_dereq_,module,exports){
 // TODO add searching class to .search-icon when async query is busy
 
 "use strict";
@@ -5107,7 +5160,7 @@ TextSearch.propTypes = {
 exports["default"] = TextSearch;
 module.exports = exports["default"];
 
-},{"../icons/search":37,"classnames":"classnames","insert-css":2,"react":"react"}],53:[function(_dereq_,module,exports){
+},{"../icons/search":37,"classnames":"classnames","insert-css":2,"react":"react"}],54:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5279,6 +5332,7 @@ var FacetedSearch = (function (_React$Component) {
 				{ className: "hire-faceted-search" },
 				_react2["default"].createElement(_componentsFacets2["default"], {
 					facetList: this.props.facetList,
+					facetSortMap: this.props.facetSortMap,
 					labels: this.state.labels,
 					onChangeSearchTerm: function (value) {
 						return _this2.store.dispatch((0, _actionsQueries.changeSearchTerm)(value));
@@ -5343,6 +5397,7 @@ FacetedSearch.defaultProps = {
 FacetedSearch.propTypes = {
 	config: _react2["default"].PropTypes.object.isRequired,
 	facetList: _react2["default"].PropTypes.array,
+	facetSortMap: _react2["default"].PropTypes.object,
 	labels: _react2["default"].PropTypes.object,
 	metadataList: _react2["default"].PropTypes.array,
 	numberedResults: _react2["default"].PropTypes.bool,
@@ -5354,7 +5409,7 @@ FacetedSearch.propTypes = {
 exports["default"] = FacetedSearch;
 module.exports = exports["default"];
 
-},{"./actions/queries":30,"./actions/results":31,"./components/facets":32,"./components/icons/loader-three-dots":36,"./components/results":48,"./reducers":55,"insert-css":2,"lodash.isequal":5,"react":"react","redux":15,"redux-thunk":13}],54:[function(_dereq_,module,exports){
+},{"./actions/queries":30,"./actions/results":31,"./components/facets":32,"./components/icons/loader-three-dots":36,"./components/results":49,"./reducers":56,"insert-css":2,"lodash.isequal":5,"react":"react","redux":15,"redux-thunk":13}],55:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5382,7 +5437,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}],55:[function(_dereq_,module,exports){
+},{}],56:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5417,7 +5472,7 @@ exports["default"] = (0, _redux.combineReducers)({
 });
 module.exports = exports["default"];
 
-},{"./config":54,"./labels":56,"./queries":57,"./results":58,"redux":15}],56:[function(_dereq_,module,exports){
+},{"./config":55,"./labels":57,"./queries":58,"./results":59,"redux":15}],57:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5448,7 +5503,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}],57:[function(_dereq_,module,exports){
+},{}],58:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5612,7 +5667,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}],58:[function(_dereq_,module,exports){
+},{}],59:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5711,5 +5766,5 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}]},{},[53])(53)
+},{}]},{},[54])(54)
 });

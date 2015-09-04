@@ -13,11 +13,16 @@ React.initializeTouchEvents(true);
 class RangeFacet extends React.Component {
 	constructor(props) {
 		super(props);
+
 		this.mouseState = MOUSE_UP;
 		this.mouseUpListener = this.onMouseUp.bind(this);
 		this.mouseMoveListener = this.onMouseMove.bind(this);
 		this.touchMoveListener = this.onTouchMove.bind(this);
-		this.state = {...this.propsToState(this.props), ...{hoverState: null}};
+
+		this.state = {
+			...this.propsToState(this.props),
+			...{hoverState: null}
+		};
 	}
 
 	componentDidMount() {

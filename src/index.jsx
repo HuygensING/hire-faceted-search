@@ -106,6 +106,7 @@ class FacetedSearch extends React.Component {
 			<div className="hire-faceted-search">
 				<Facets
 					facetList={this.props.facetList}
+					facetSortMap={this.props.facetSortMap}
 					labels={this.state.labels}
 					onChangeSearchTerm={(value) =>
 						this.store.dispatch(changeSearchTerm(value))
@@ -156,6 +157,7 @@ FacetedSearch.defaultProps = {
 FacetedSearch.propTypes = {
 	config: React.PropTypes.object.isRequired,
 	facetList: React.PropTypes.array,
+	facetSortMap: React.PropTypes.object,
 	labels: React.PropTypes.object,
 	metadataList: React.PropTypes.array,
 	numberedResults: React.PropTypes.bool,

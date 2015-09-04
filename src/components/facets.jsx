@@ -6,12 +6,17 @@ import RangeFacet from "./range-facet";
 
 let facetMap = {
 	LIST(data, props, key) {
+		let sort = (props.facetSortMap.hasOwnProperty(data.name)) ?
+			props.facetSortMap[data.name] :
+			null;
+
 		return (<ListFacet
 			data={data}
 			key={key}
 			labels={props.labels}
 			onSelectFacetValue={props.onSelectFacetValue}
-			queries={props.queries} />
+			queries={props.queries}
+			sort={sort} />
 		);
 	},
 
