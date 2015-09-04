@@ -1,0 +1,36 @@
+.hire-range-facet > div * {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none; 
+    user-select: none; 
+    -webkit-user-drag: none;
+    user-drag: none;
+}
+
+.hire-range-facet > div > svg {
+	cursor: pointer;
+	width: 100%;
+	stroke: #000;
+	fill: #000;
+}
+
+.hire-range-facet > div > svg > .range-line {
+	stroke-width: 10px;
+	stroke-opacity: 0.3;
+}
+
+.hire-range-facet > div > svg:hover > .range-line {
+	stroke-opacity: 0.35;
+}
+.hire-range-facet > div > svg > .range-line circle {
+	stroke-width: 0;
+	fill-opacity: 0.2;
+}
+
+.hire-range-facet > div > svg > .range-line circle.hovering {
+	fill-opacity: 1;
+}
+
+.hire-range-facet > div > label:nth-of-type(2) {
+	float: right;
+}
