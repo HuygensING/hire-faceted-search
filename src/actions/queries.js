@@ -8,6 +8,14 @@ function createNewQuery(dispatchData) {
 	};
 }
 
+export function selectFacetRange(facetName, value) {
+	return createNewQuery({
+		type: "ADD_FACET_RANGE",
+		facetName: facetName,
+		value: value
+	});
+}
+
 export function selectFacetValue(facetName, value, remove) {
 	let part1 = {
 		facetName: facetName,

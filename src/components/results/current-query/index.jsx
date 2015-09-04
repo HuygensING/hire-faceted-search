@@ -37,14 +37,17 @@ class CurrentQuery extends React.Component {
 					return new Error("CurrentQuery: facet not found!");
 				}
 
-				let facetValues = selectedFacet.values
-					.map((value, index2) =>
+				let facetValues = selectedFacet.values ?
+					selectedFacet.values.map((value, index2) =>
 						<FacetValue
 							facetName={selectedFacet.name}
 							key={index2}
 							onSelectFacetValue={this.props.onSelectFacetValue}
-							value={value} />);
-
+							value={value} />)
+					: <FacetValue
+							facetName={selectedFacet.name}
+							onSelectFacetValue={this.props.onSelectFacetValue}
+							range={{lowerLimit: selectedFacet.lowerLimit, upperLimit: selectedFacet.upperLimit}} />;
 				return (
 					<li
 						className="hire-faceted-search-selected-facet"

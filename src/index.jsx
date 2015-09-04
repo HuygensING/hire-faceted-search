@@ -6,7 +6,7 @@ import Results from "./components/results";
 import Loader from "./components/icons/loader-three-dots";
 
 import {fetchResults, fetchNextResults} from "./actions/results";
-import {selectFacetValue, newSearch, setSort, changeSearchTerm} from "./actions/queries";
+import {selectFacetValue, selectFacetRange, newSearch, setSort, changeSearchTerm} from "./actions/queries";
 
 import {createStore, applyMiddleware} from "redux";
 import reducers from "./reducers";
@@ -112,6 +112,9 @@ class FacetedSearch extends React.Component {
 					}
 					onNewSearch={() =>
 						this.store.dispatch(newSearch())
+					}
+					onSelectFacetRange={(...args) =>
+						this.store.dispatch(selectFacetRange(...args))
 					}
 					onSelectFacetValue={(...args) =>
 						this.store.dispatch(selectFacetValue(...args))

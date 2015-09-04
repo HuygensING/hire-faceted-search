@@ -6,13 +6,16 @@ let removeFacetValue = function(facetValues, name, value) {
 	let otherFacetValues = facetValues.filter((facetValue) =>
 		facetValue.name !== name
 	);
-
-	return (foundFacetValue[0].values.length > 1) ?
-		otherFacetValues.concat({
-			name: name,
-			values: foundFacetValue[0].values.filter((v) => v !== value)
-		}) :
-		otherFacetValues;
+	if(foundFacetValue[0].values) {
+		return (foundFacetValue[0].values.length > 1) ?
+			otherFacetValues.concat({
+				name: name,
+				values: foundFacetValue[0].values.filter((v) => v !== value)
+			}) :
+			otherFacetValues;
+	} else {
+		return otherFacetValues;
+	}
 };
 
 let addFacetValue = function(facetValues, name, value) {
@@ -34,6 +37,22 @@ let addFacetValue = function(facetValues, name, value) {
 	};
 
 	return otherFacetValues.concat(newFacetValue);
+};
+
+let addRangeFacetValue = function(facetValues, name, value) {
+	let found = false;
+	for(let i = 0; i < facetValues.length; i++) {
+		if(facetValues[i].name === name) {
+			facetValues[i] = {name: name, ...value};
+			found = true;
+			break;
+		}
+	}
+	if(!found) {
+		facetValues = [...facetValues, {name: name, ...value}];
+	}
+
+	return facetValues;
 };
 
 let addQueryToState = function(state, query) {
@@ -101,9 +120,13 @@ export default function(state=initialState, action) {
 			query = {...state.last, ...{
 				facetValues: addFacetValue(state.last.facetValues, action.facetName, action.value)
 			}};
-
 			return addQueryToState(state, query);
 
+		case "ADD_FACET_RANGE":
+			query = {...state.last, ...{
+				facetValues: addRangeFacetValue(state.last.facetValues, action.facetName, action.value)
+			}};
+			return addQueryToState(state, query);
 		case "CHANGE_SEARCH_TERM":
 			query = {...state.last, ...{term: action.value}};
 
@@ -111,6 +134,8 @@ export default function(state=initialState, action) {
 
 		case "NEW_SEARCH":
 			return addQueryToState(state, state.default);
+
+
 
 		default:
 			return state;

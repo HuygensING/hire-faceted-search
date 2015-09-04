@@ -2266,7 +2266,7 @@ function createXHR(options, callback) {
 
         return body
     }
-    
+
     var failureResponse = {
                 body: undefined,
                 headers: {},
@@ -2275,7 +2275,7 @@ function createXHR(options, callback) {
                 url: uri,
                 rawRequest: xhr
             }
-    
+
     function errorFunc(evt) {
         clearTimeout(timeoutTimer)
         if(!(evt instanceof Error)){
@@ -2298,7 +2298,7 @@ function createXHR(options, callback) {
         }
         var response = failureResponse
         var err = null
-        
+
         if (status !== 0){
             response = {
                 body: getBody(),
@@ -2315,9 +2315,9 @@ function createXHR(options, callback) {
             err = new Error("Internal XMLHttpRequest Error")
         }
         callback(err, response, response.body)
-        
+
     }
-    
+
     if (typeof options === "string") {
         options = { uri: options }
     }
@@ -2352,7 +2352,7 @@ function createXHR(options, callback) {
         isJson = true
         headers["accept"] || headers["Accept"] || (headers["Accept"] = "application/json") //Don't override existing accept header declared by user
         if (method !== "GET" && method !== "HEAD") {
-            headers["Content-Type"] = "application/json"
+            headers["content-type"] || headers["Content-Type"] || (headers["Content-Type"] = "application/json") //Don't override existing accept header declared by user
             body = JSON.stringify(options.json)
         }
     }
@@ -2394,8 +2394,8 @@ function createXHR(options, callback) {
     if ("responseType" in options) {
         xhr.responseType = options.responseType
     }
-    
-    if ("beforeSend" in options && 
+
+    if ("beforeSend" in options &&
         typeof options.beforeSend === "function"
     ) {
         options.beforeSend(xhr)
@@ -2564,6 +2564,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+exports.selectFacetRange = selectFacetRange;
 exports.selectFacetValue = selectFacetValue;
 exports.newSearch = newSearch;
 exports.changeSearchTerm = changeSearchTerm;
@@ -2577,6 +2578,14 @@ function createNewQuery(dispatchData) {
 
 		dispatch((0, _results.fetchResults)());
 	};
+}
+
+function selectFacetRange(facetName, value) {
+	return createNewQuery({
+		type: "ADD_FACET_RANGE",
+		facetName: facetName,
+		value: value
+	});
 }
 
 function selectFacetValue(facetName, value, remove) {
@@ -2757,6 +2766,10 @@ var _listFacet = _dereq_("./list-facet");
 
 var _listFacet2 = _interopRequireDefault(_listFacet);
 
+var _rangeFacet = _dereq_("./range-facet");
+
+var _rangeFacet2 = _interopRequireDefault(_rangeFacet);
+
 var Facets = (function (_React$Component) {
 	_inherits(Facets, _React$Component);
 
@@ -2785,12 +2798,22 @@ var Facets = (function (_React$Component) {
 			}) : this.props.results.last.facets;
 
 			var facets = facetList.map(function (data, index) {
-				return _react2["default"].createElement(_listFacet2["default"], {
-					data: data,
-					key: index,
-					labels: _this.props.labels,
-					onSelectFacetValue: _this.props.onSelectFacetValue,
-					queries: _this.props.queries });
+				if (data.type === "LIST") {
+					return _react2["default"].createElement(_listFacet2["default"], {
+						data: data,
+						key: index,
+						labels: _this.props.labels,
+						onSelectFacetValue: _this.props.onSelectFacetValue,
+						queries: _this.props.queries });
+				} else {
+					return _react2["default"].createElement(_rangeFacet2["default"], {
+						data: data,
+						key: index,
+						labels: _this.props.labels,
+						onSelectFacetRange: _this.props.onSelectFacetRange,
+						queries: _this.props.queries
+					});
+				}
 			});
 
 			return _react2["default"].createElement(
@@ -2819,6 +2842,7 @@ Facets.propTypes = {
 	labels: _react2["default"].PropTypes.object,
 	onChangeSearchTerm: _react2["default"].PropTypes.func,
 	onNewSearch: _react2["default"].PropTypes.func,
+	onSelectFacetRange: _react2["default"].PropTypes.func,
 	onSelectFacetValue: _react2["default"].PropTypes.func,
 	queries: _react2["default"].PropTypes.object,
 	results: _react2["default"].PropTypes.object
@@ -2827,7 +2851,7 @@ Facets.propTypes = {
 exports["default"] = Facets;
 module.exports = exports["default"];
 
-},{"./list-facet":43,"./text-search":51,"react":"react"}],33:[function(_dereq_,module,exports){
+},{"./list-facet":43,"./range-facet":45,"./text-search":52,"react":"react"}],33:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3822,7 +3846,7 @@ ListFacet.propTypes = {
 exports["default"] = ListFacet;
 module.exports = exports["default"];
 
-},{"../filter-menu":33,"../sort-menu":50,"./list-item":44,"classnames":"classnames","insert-css":2,"react":"react"}],44:[function(_dereq_,module,exports){
+},{"../filter-menu":33,"../sort-menu":51,"./list-item":44,"classnames":"classnames","insert-css":2,"react":"react"}],44:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3933,6 +3957,261 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = _dereq_("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _insertCss = _dereq_("insert-css");
+
+var _insertCss2 = _interopRequireDefault(_insertCss);
+
+
+
+var css = Buffer("LmhpcmUtcmFuZ2UtZmFjZXQgPiBkaXYgKiB7CiAgICAtbW96LXVzZXItc2VsZWN0OiBub25lOwogICAgLXdlYmtpdC11c2VyLXNlbGVjdDogbm9uZTsKICAgIC1tcy11c2VyLXNlbGVjdDogbm9uZTsgCiAgICB1c2VyLXNlbGVjdDogbm9uZTsgCiAgICAtd2Via2l0LXVzZXItZHJhZzogbm9uZTsKICAgIHVzZXItZHJhZzogbm9uZTsKfQoKLmhpcmUtcmFuZ2UtZmFjZXQgPiBkaXYgPiBzdmcgewoJY3Vyc29yOiBwb2ludGVyOwoJd2lkdGg6IDEwMCU7CglzdHJva2U6ICMwMDA7CglmaWxsOiAjMDAwOwp9CgouaGlyZS1yYW5nZS1mYWNldCA+IGRpdiA+IHN2ZyA+IC5yYW5nZS1saW5lIHsKCXN0cm9rZS13aWR0aDogMTBweDsKCXN0cm9rZS1vcGFjaXR5OiAwLjM7Cn0KCi5oaXJlLXJhbmdlLWZhY2V0ID4gZGl2ID4gc3ZnOmhvdmVyID4gLnJhbmdlLWxpbmUgewoJc3Ryb2tlLW9wYWNpdHk6IDAuMzU7Cn0KLmhpcmUtcmFuZ2UtZmFjZXQgPiBkaXYgPiBzdmcgPiAucmFuZ2UtbGluZSBjaXJjbGUgewoJc3Ryb2tlLXdpZHRoOiAwOwoJZmlsbC1vcGFjaXR5OiAwLjI7Cn0KCi5oaXJlLXJhbmdlLWZhY2V0ID4gZGl2ID4gc3ZnID4gLnJhbmdlLWxpbmUgY2lyY2xlLmhvdmVyaW5nIHsKCWZpbGwtb3BhY2l0eTogMTsKfQoKLmhpcmUtcmFuZ2UtZmFjZXQgPiBkaXYgPiBsYWJlbDpudGgtb2YtdHlwZSgyKSB7CglmbG9hdDogcmlnaHQ7Cn0=","base64");
+(0, _insertCss2["default"])(css, { prepend: true });
+
+var MOUSE_DOWN = 0;
+var MOUSE_UP = 1;
+
+_react2["default"].initializeTouchEvents(true);
+
+var RangeFacet = (function (_React$Component) {
+	_inherits(RangeFacet, _React$Component);
+
+	function RangeFacet(props) {
+		_classCallCheck(this, RangeFacet);
+
+		_get(Object.getPrototypeOf(RangeFacet.prototype), "constructor", this).call(this, props);
+		this.mouseState = MOUSE_UP;
+		this.mouseUpListener = this.onMouseUp.bind(this);
+		this.mouseMoveListener = this.onMouseMove.bind(this);
+		this.touchMoveListener = this.onTouchMove.bind(this);
+		this.state = _extends({}, this.propsToState(this.props), { hoverState: null });
+	}
+
+	_createClass(RangeFacet, [{
+		key: "componentDidMount",
+		value: function componentDidMount() {
+			window.addEventListener("mouseup", this.mouseUpListener);
+			window.addEventListener("mousemove", this.mouseMoveListener);
+			window.addEventListener("touchend", this.mouseUpListener);
+			window.addEventListener("touchmove", this.touchMoveListener);
+		}
+	}, {
+		key: "componentWillReceiveProps",
+		value: function componentWillReceiveProps(nextProps) {
+			this.setState(this.propsToState(nextProps));
+		}
+	}, {
+		key: "componentWillUnmount",
+		value: function componentWillUnmount() {
+			window.removeEventListener("mouseup", this.mouseUpListener);
+			window.removeEventListener("mousemove", this.mouseMoveListener);
+			window.removeEventListener("touchend", this.mouseUpListener);
+			window.removeEventListener("touchmove", this.touchMoveListener);
+		}
+	}, {
+		key: "propsToState",
+		value: function propsToState(props) {
+			var _this = this;
+
+			var queryValues = (props.queries.last.facetValues || []).filter(function (x) {
+				return x.name === _this.props.data.name;
+			})[0] || {};
+			var lowerLimit = queryValues.lowerLimit || props.data.options[0].lowerLimit;
+			var upperLimit = queryValues.upperLimit || props.data.options[0].upperLimit;
+			return {
+				lowerLimit: lowerLimit,
+				upperLimit: upperLimit,
+				lowerBound: props.data.options[0].lowerLimit,
+				upperBound: props.data.options[0].upperLimit
+			};
+		}
+	}, {
+		key: "convertUnit",
+		value: function convertUnit(value, mul) {
+			return Math.floor(value * mul);
+		}
+	}, {
+		key: "getPositionForLimit",
+		value: function getPositionForLimit(pageX) {
+			var rect = _react2["default"].findDOMNode(this).children[1].children[0].getBoundingClientRect();
+			if (rect.width > 0) {
+				var percentage = (pageX - rect.left) / rect.width;
+				var onScale = Math.floor((this.state.upperBound - this.state.lowerBound) * percentage) + this.state.lowerBound;
+				if (onScale > this.state.upperBound) {
+					onScale = this.state.upperBound;
+				} else if (onScale < this.state.lowerBound) {
+					onScale = this.state.lowerBound;
+				}
+				var deltaL = Math.max(onScale - this.state.lowerLimit, this.state.lowerLimit - onScale);
+				var deltaU = Math.max(onScale - this.state.upperLimit, this.state.upperLimit - onScale);
+				if (deltaL < deltaU) {
+					if (onScale >= this.state.upperLimit) {
+						onScale = this.state.upperLimit;
+					}
+					return { lowerLimit: onScale };
+				} else {
+					if (onScale <= this.state.lowerLimit) {
+						onScale = this.state.lowerLimit;
+					}
+					return { upperLimit: onScale };
+				}
+			}
+			return null;
+		}
+	}, {
+		key: "setRange",
+		value: function setRange(pageX) {
+			var posForLim = this.getPositionForLimit(pageX);
+			if (posForLim !== null) {
+				this.setState(posForLim);
+			}
+		}
+	}, {
+		key: "onMouseDown",
+		value: function onMouseDown(ev) {
+			this.mouseState = MOUSE_DOWN;
+			this.setRange(ev.pageX);
+		}
+	}, {
+		key: "onTouchStart",
+		value: function onTouchStart(ev) {
+			this.mouseState = MOUSE_DOWN;
+			this.setRange(ev.touches[0].pageX);
+			return ev.preventDefault();
+		}
+	}, {
+		key: "onMouseMove",
+		value: function onMouseMove(ev) {
+			if (this.mouseState === MOUSE_DOWN) {
+				this.setRange(ev.pageX);
+				return ev.preventDefault();
+			} else if (_react2["default"].findDOMNode(this).children[1].children[0].contains(ev.target)) {
+				this.setState({
+					hoverState: this.getPositionForLimit(ev.pageX)
+				});
+			} else {
+				this.setState({ hoverState: null });
+			}
+		}
+	}, {
+		key: "onTouchMove",
+		value: function onTouchMove(ev) {
+			if (this.mouseState === MOUSE_DOWN) {
+				this.setRange(ev.touches[0].pageX);
+				return ev.preventDefault();
+			}
+		}
+	}, {
+		key: "onMouseUp",
+		value: function onMouseUp() {
+			if (this.mouseState === MOUSE_DOWN) {
+				this.props.onSelectFacetRange(this.props.data.name, {
+					lowerLimit: Math.floor(this.state.lowerLimit / 10000) * 10000 + 101,
+					upperLimit: Math.floor(this.state.upperLimit / 10000) * 10000 + 3112
+				});
+			}
+			this.mouseState = MOUSE_UP;
+		}
+	}, {
+		key: "getRangePath",
+		value: function getRangePath() {
+			var lower = (this.state.lowerLimit - this.state.lowerBound) / (this.state.upperBound - this.state.lowerBound);
+			var upper = (this.state.upperLimit - this.state.lowerBound) / (this.state.upperBound - this.state.lowerBound);
+			return "M" + lower * 400 + " 10 L " + upper * 400 + " 10 Z";
+		}
+	}, {
+		key: "getRangeCircle",
+		value: function getRangeCircle(key) {
+			var percentage = (this.state[key] - this.state.lowerBound) / (this.state.upperBound - this.state.lowerBound);
+			return _react2["default"].createElement("circle", { className: this.state.hoverState && this.state.hoverState[key] ? "hovering" : "", cx: percentage * 400, cy: "10", r: "4" });
+		}
+	}, {
+		key: "render",
+		value: function render() {
+			var title = this.props.data.name;
+			var facetTitle = this.props.labels.facetTitles.hasOwnProperty(title) ? this.props.labels.facetTitles[title] : title;
+
+			return _react2["default"].createElement(
+				"li",
+				{ className: "hire-facet hire-range-facet" },
+				_react2["default"].createElement(
+					"header",
+					null,
+					_react2["default"].createElement(
+						"h3",
+						null,
+						facetTitle
+					)
+				),
+				_react2["default"].createElement(
+					"div",
+					null,
+					_react2["default"].createElement(
+						"svg",
+						{
+							onMouseDown: this.onMouseDown.bind(this),
+							onTouchStart: this.onTouchStart.bind(this),
+							viewBox: "0 0 400 20" },
+						_react2["default"].createElement(
+							"g",
+							{ className: "range-line" },
+							_react2["default"].createElement("path", { d: this.getRangePath(), fill: "transparent" }),
+							this.getRangeCircle("lowerLimit"),
+							this.getRangeCircle("upperLimit")
+						),
+						_react2["default"].createElement("path", { d: "M0 0 L 0 20 Z", fill: "transparent" }),
+						_react2["default"].createElement("path", { d: "M400 0 L 400 20 Z", fill: "transparent" }),
+						_react2["default"].createElement("path", { d: "M0 10 L 400 10 Z", fill: "transparent" })
+					),
+					_react2["default"].createElement(
+						"label",
+						null,
+						this.convertUnit(this.state.lowerLimit, 0.0001)
+					),
+					_react2["default"].createElement(
+						"label",
+						null,
+						this.convertUnit(this.state.upperLimit, 0.0001)
+					)
+				)
+			);
+		}
+	}]);
+
+	return RangeFacet;
+})(_react2["default"].Component);
+
+RangeFacet.propTypes = {
+	data: _react2["default"].PropTypes.object,
+	labels: _react2["default"].PropTypes.object,
+	onSelectFacetRange: _react2["default"].PropTypes.func,
+	queries: _react2["default"].PropTypes.object
+};
+
+exports["default"] = RangeFacet;
+module.exports = exports["default"];
+
+},{"insert-css":2,"react":"react"}],46:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -3957,6 +4236,15 @@ var FacetValue = (function (_React$Component) {
 	}
 
 	_createClass(FacetValue, [{
+		key: "renderValue",
+		value: function renderValue() {
+			if (this.props.range) {
+				return Math.floor(this.props.range.lowerLimit * 0.0001) + " - " + Math.floor(this.props.range.upperLimit * 0.0001);
+			} else {
+				return this.props.value;
+			}
+		}
+	}, {
 		key: "render",
 		value: function render() {
 			return _react2["default"].createElement(
@@ -3964,7 +4252,7 @@ var FacetValue = (function (_React$Component) {
 				{
 					className: "hire-faceted-search-selected-facet-value",
 					onClick: this.props.onSelectFacetValue.bind(this, this.props.facetName, this.props.value, true) },
-				this.props.value
+				this.renderValue()
 			);
 		}
 	}]);
@@ -3975,13 +4263,14 @@ var FacetValue = (function (_React$Component) {
 FacetValue.propTypes = {
 	facetName: _react2["default"].PropTypes.string,
 	onSelectFacetValue: _react2["default"].PropTypes.func,
+	range: _react2["default"].PropTypes.object,
 	value: _react2["default"].PropTypes.string
 };
 
 exports["default"] = FacetValue;
 module.exports = exports["default"];
 
-},{"react":"react"}],46:[function(_dereq_,module,exports){
+},{"react":"react"}],47:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4063,14 +4352,16 @@ var CurrentQuery = (function (_React$Component) {
 					return new Error("CurrentQuery: facet not found!");
 				}
 
-				var facetValues = selectedFacet.values.map(function (value, index2) {
+				var facetValues = selectedFacet.values ? selectedFacet.values.map(function (value, index2) {
 					return _react2["default"].createElement(_facetValue2["default"], {
 						facetName: selectedFacet.name,
 						key: index2,
 						onSelectFacetValue: _this.props.onSelectFacetValue,
 						value: value });
-				});
-
+				}) : _react2["default"].createElement(_facetValue2["default"], {
+					facetName: selectedFacet.name,
+					onSelectFacetValue: _this.props.onSelectFacetValue,
+					range: { lowerLimit: selectedFacet.lowerLimit, upperLimit: selectedFacet.upperLimit } });
 				return _react2["default"].createElement(
 					"li",
 					{
@@ -4112,7 +4403,7 @@ CurrentQuery.propTypes = {
 exports["default"] = CurrentQuery;
 module.exports = exports["default"];
 
-},{"./facet-value":45,"insert-css":2,"react":"react"}],47:[function(_dereq_,module,exports){
+},{"./facet-value":46,"insert-css":2,"react":"react"}],48:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4198,7 +4489,7 @@ var Results = (function (_React$Component) {
 			var nth = this.props.results.last.refs.length - parseInt(Math.floor(this.props.config.rows / 2)) + 1;
 			var listItem = _react2["default"].findDOMNode(this).querySelector(".hire-faceted-search-result-list > li:nth-child(" + nth + ")");
 			if (this.props.results.last.hasOwnProperty("_next") && listItem && inViewport(listItem)) {
-				var url = this.props.results.last._next;
+				var url = this.props.refs.last._next;
 				this.props.onFetchNextResults(url);
 			}
 		}
@@ -4290,7 +4581,7 @@ Results.propTypes = {
 exports["default"] = Results;
 module.exports = exports["default"];
 
-},{"../icons/loader-three-dots":36,"./current-query":46,"./result":48,"./sort-menu":49,"classnames":"classnames","insert-css":2,"lodash.debounce":3,"react":"react"}],48:[function(_dereq_,module,exports){
+},{"../icons/loader-three-dots":36,"./current-query":47,"./result":49,"./sort-menu":50,"classnames":"classnames","insert-css":2,"lodash.debounce":3,"react":"react"}],49:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4390,7 +4681,7 @@ Result.propTypes = {
 exports["default"] = Result;
 module.exports = exports["default"];
 
-},{"react":"react"}],49:[function(_dereq_,module,exports){
+},{"react":"react"}],50:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4522,7 +4813,7 @@ ResultsSortMenu.propTypes = {
 exports["default"] = ResultsSortMenu;
 module.exports = exports["default"];
 
-},{"classnames":"classnames","insert-css":2,"react":"react"}],50:[function(_dereq_,module,exports){
+},{"classnames":"classnames","insert-css":2,"react":"react"}],51:[function(_dereq_,module,exports){
 /* TODO Remove sort menu and move sort options (count/alpha) to facet schema.
 	A schema is needed, because different facets, should be able to have different
 	options set. */
@@ -4682,7 +4973,7 @@ SortMenu.propTypes = {
 exports["default"] = SortMenu;
 module.exports = exports["default"];
 
-},{"../icons/sort-alphabetically-ascending":38,"../icons/sort-alphabetically-descending":39,"../icons/sort-count-ascending":40,"../icons/sort-count-descending":41,"classnames":"classnames","insert-css":2,"react":"react"}],51:[function(_dereq_,module,exports){
+},{"../icons/sort-alphabetically-ascending":38,"../icons/sort-alphabetically-descending":39,"../icons/sort-count-ascending":40,"../icons/sort-count-descending":41,"classnames":"classnames","insert-css":2,"react":"react"}],52:[function(_dereq_,module,exports){
 // TODO add searching class to .search-icon when async query is busy
 
 "use strict";
@@ -4806,7 +5097,7 @@ TextSearch.propTypes = {
 exports["default"] = TextSearch;
 module.exports = exports["default"];
 
-},{"../icons/search":37,"classnames":"classnames","insert-css":2,"react":"react"}],52:[function(_dereq_,module,exports){
+},{"../icons/search":37,"classnames":"classnames","insert-css":2,"react":"react"}],53:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4985,9 +5276,16 @@ var FacetedSearch = (function (_React$Component) {
 					onNewSearch: function () {
 						return _this2.store.dispatch((0, _actionsQueries.newSearch)());
 					},
-					onSelectFacetValue: function () {
+					onSelectFacetRange: function () {
 						for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
 							args[_key] = arguments[_key];
+						}
+
+						return _this2.store.dispatch(_actionsQueries.selectFacetRange.apply(undefined, args));
+					},
+					onSelectFacetValue: function () {
+						for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+							args[_key2] = arguments[_key2];
 						}
 
 						return _this2.store.dispatch(_actionsQueries.selectFacetValue.apply(undefined, args));
@@ -5007,8 +5305,8 @@ var FacetedSearch = (function (_React$Component) {
 					},
 					onSelect: this.props.onSelect,
 					onSelectFacetValue: function () {
-						for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-							args[_key2] = arguments[_key2];
+						for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+							args[_key3] = arguments[_key3];
 						}
 
 						return _this2.store.dispatch(_actionsQueries.selectFacetValue.apply(undefined, args));
@@ -5046,7 +5344,7 @@ FacetedSearch.propTypes = {
 exports["default"] = FacetedSearch;
 module.exports = exports["default"];
 
-},{"./actions/queries":30,"./actions/results":31,"./components/facets":32,"./components/icons/loader-three-dots":36,"./components/results":47,"./reducers":54,"insert-css":2,"lodash.isequal":5,"react":"react","redux":15,"redux-thunk":13}],53:[function(_dereq_,module,exports){
+},{"./actions/queries":30,"./actions/results":31,"./components/facets":32,"./components/icons/loader-three-dots":36,"./components/results":48,"./reducers":55,"insert-css":2,"lodash.isequal":5,"react":"react","redux":15,"redux-thunk":13}],54:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5074,7 +5372,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}],54:[function(_dereq_,module,exports){
+},{}],55:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5109,7 +5407,7 @@ exports["default"] = (0, _redux.combineReducers)({
 });
 module.exports = exports["default"];
 
-},{"./config":53,"./labels":55,"./queries":56,"./results":57,"redux":15}],55:[function(_dereq_,module,exports){
+},{"./config":54,"./labels":56,"./queries":57,"./results":58,"redux":15}],56:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5140,7 +5438,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}],56:[function(_dereq_,module,exports){
+},{}],57:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5159,13 +5457,16 @@ var removeFacetValue = function removeFacetValue(facetValues, name, value) {
 	var otherFacetValues = facetValues.filter(function (facetValue) {
 		return facetValue.name !== name;
 	});
-
-	return foundFacetValue[0].values.length > 1 ? otherFacetValues.concat({
-		name: name,
-		values: foundFacetValue[0].values.filter(function (v) {
-			return v !== value;
-		})
-	}) : otherFacetValues;
+	if (foundFacetValue[0].values) {
+		return foundFacetValue[0].values.length > 1 ? otherFacetValues.concat({
+			name: name,
+			values: foundFacetValue[0].values.filter(function (v) {
+				return v !== value;
+			})
+		}) : otherFacetValues;
+	} else {
+		return otherFacetValues;
+	}
 };
 
 var addFacetValue = function addFacetValue(facetValues, name, value) {
@@ -5185,6 +5486,22 @@ var addFacetValue = function addFacetValue(facetValues, name, value) {
 	};
 
 	return otherFacetValues.concat(newFacetValue);
+};
+
+var addRangeFacetValue = function addRangeFacetValue(facetValues, name, value) {
+	var found = false;
+	for (var i = 0; i < facetValues.length; i++) {
+		if (facetValues[i].name === name) {
+			facetValues[i] = _extends({ name: name }, value);
+			found = true;
+			break;
+		}
+	}
+	if (!found) {
+		facetValues = [].concat(_toConsumableArray(facetValues), [_extends({ name: name }, value)]);
+	}
+
+	return facetValues;
 };
 
 var addQueryToState = function addQueryToState(state, query) {
@@ -5263,9 +5580,13 @@ exports["default"] = function (state, action) {
 			query = _extends({}, state.last, {
 				facetValues: addFacetValue(state.last.facetValues, action.facetName, action.value)
 			});
-
 			return addQueryToState(state, query);
 
+		case "ADD_FACET_RANGE":
+			query = _extends({}, state.last, {
+				facetValues: addRangeFacetValue(state.last.facetValues, action.facetName, action.value)
+			});
+			return addQueryToState(state, query);
 		case "CHANGE_SEARCH_TERM":
 			query = _extends({}, state.last, { term: action.value });
 
@@ -5281,7 +5602,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}],57:[function(_dereq_,module,exports){
+},{}],58:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5380,5 +5701,5 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}]},{},[52])(52)
+},{}]},{},[53])(53)
 });
