@@ -1,3 +1,6 @@
+### v3.7.2	(2015/9/7 8:57)
+* New build
+
 ### v3.7.1	(2015/9/7 7:27)
 * Fix tests around changed labels (not all labels are facetTitles)
 * Add default prop val for facetSortMap
