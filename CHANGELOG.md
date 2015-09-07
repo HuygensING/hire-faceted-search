@@ -1,3 +1,7 @@
+### v3.7.1	(2015/9/7 7:27)
+* Fix tests around changed labels (not all labels are facetTitles)
+* Add default prop val for facetSortMap
+
 ### v3.7.0	(2015/9/4 17:14)
 * Make sorting configurable per facet
 * Move render facets if/else to function map
