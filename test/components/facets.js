@@ -24,7 +24,7 @@ describe("Facets", () => {
 
 			let props = {
 				data: "mock data",
-				labels: {facetTitles: "mock labels"},
+				labels: {facetTitles: { "someFacet": "mock labels"}},
 				queries: {last: {term: "mock term"}},
 				facetList: ["foo", "bar", "range"],
 				results: {last: {facets: [{name: "foo", type: "LIST"}, {name: "bar", type: "LIST"}, {name: "do-not-show"}, {name: "range", type: "RANGE"}]}},
@@ -61,8 +61,8 @@ describe("Facets", () => {
 		expect(rangeFacet.type).toBe(RangeFacet);
 		expect(fooFacet.props.data).toEqual({name: "foo", type: "LIST"});
 		expect(barFacet.props.data).toEqual({name: "bar", type: "LIST"});
-		expect(fooFacet.props.labels).toEqual({facetTitles: "mock labels"});
-		expect(barFacet.props.labels).toEqual({facetTitles: "mock labels"});
+		expect(fooFacet.props.labels).toEqual({facetTitles: { "someFacet": "mock labels"}});
+		expect(barFacet.props.labels).toEqual({facetTitles: { "someFacet": "mock labels"}});
 		expect(fooFacet.props.onSelectFacetValue()).toBe("onSelectFacetValue passed as prop");
 		expect(fooFacet.props.queries).toEqual({last: {term: "mock term"}});
 		expect(barFacet.props.queries).toEqual({last: {term: "mock term"}});

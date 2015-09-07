@@ -17,9 +17,7 @@ function setup() {
 			displayName: "display title"
 		},
 		labels: {
-			facetTitles: {
-				foo: "Foo Label"
-			}
+			foo: "Foo Label"
 		},
 		onSelect: onSelect
 	};
