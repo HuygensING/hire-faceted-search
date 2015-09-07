@@ -69,7 +69,9 @@ class Facets extends React.Component {
 	}
 }
 
-Facets.defaultProps = {};
+Facets.defaultProps = {
+	facetSortMap: {}
+};
 
 Facets.propTypes = {
 	facetList: React.PropTypes.array,

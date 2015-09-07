@@ -73,33 +73,9 @@ var Input = (function (_React$Component) {
 			return this.props.value !== nextProps.value;
 		}
 	}, {
-		key: "handleBlur",
-		value: function handleBlur(ev) {
-			this.props.onBlur(ev);
-		}
-	}, {
-		key: "handleFocus",
-		value: function handleFocus(ev) {
-			this.props.onFocus(ev);
-		}
-	}, {
 		key: "handleChange",
 		value: function handleChange(ev) {
 			this.props.onChange(ev.currentTarget.value, ev);
-		}
-	}, {
-		key: "handleKeyDown",
-		value: function handleKeyDown(ev) {
-			if (this.props.onKeyDown) {
-				this.props.onKeyDown(ev);
-			}
-		}
-	}, {
-		key: "handleKeyUp",
-		value: function handleKeyUp(ev) {
-			if (this.props.onKeyUp) {
-				this.props.onKeyUp(ev);
-			}
 		}
 	}, {
 		key: "render",
@@ -115,11 +91,11 @@ var Input = (function (_React$Component) {
 				{
 					className: (0, _classnames2["default"])("hire-input", { invalid: !this.state.valid }) },
 				_react2["default"].createElement("input", {
-					onBlur: this.handleBlur.bind(this),
+					onBlur: this.props.onBlur,
 					onChange: this.handleChange.bind(this),
-					onFocus: this.handleFocus.bind(this),
-					onKeyDown: this.handleKeyDown.bind(this),
-					onKeyUp: this.handleKeyUp.bind(this),
+					onFocus: this.props.onFocus,
+					onKeyDown: this.props.onKeyDown,
+					onKeyUp: this.props.onKeyUp,
 					placeholder: this.props.placeholder,
 					style: this.props.style,
 					value: this.props.value }),
@@ -2266,7 +2242,7 @@ function createXHR(options, callback) {
 
         return body
     }
-    
+
     var failureResponse = {
                 body: undefined,
                 headers: {},
@@ -2275,7 +2251,7 @@ function createXHR(options, callback) {
                 url: uri,
                 rawRequest: xhr
             }
-    
+
     function errorFunc(evt) {
         clearTimeout(timeoutTimer)
         if(!(evt instanceof Error)){
@@ -2298,7 +2274,7 @@ function createXHR(options, callback) {
         }
         var response = failureResponse
         var err = null
-        
+
         if (status !== 0){
             response = {
                 body: getBody(),
@@ -2315,9 +2291,9 @@ function createXHR(options, callback) {
             err = new Error("Internal XMLHttpRequest Error")
         }
         callback(err, response, response.body)
-        
+
     }
-    
+
     if (typeof options === "string") {
         options = { uri: options }
     }
@@ -2352,7 +2328,7 @@ function createXHR(options, callback) {
         isJson = true
         headers["accept"] || headers["Accept"] || (headers["Accept"] = "application/json") //Don't override existing accept header declared by user
         if (method !== "GET" && method !== "HEAD") {
-            headers["Content-Type"] = "application/json"
+            headers["content-type"] || headers["Content-Type"] || (headers["Content-Type"] = "application/json") //Don't override existing accept header declared by user
             body = JSON.stringify(options.json)
         }
     }
@@ -2394,8 +2370,8 @@ function createXHR(options, callback) {
     if ("responseType" in options) {
         xhr.responseType = options.responseType
     }
-    
-    if ("beforeSend" in options && 
+
+    if ("beforeSend" in options &&
         typeof options.beforeSend === "function"
     ) {
         options.beforeSend(xhr)
@@ -2848,7 +2824,9 @@ var Facets = (function (_React$Component) {
 	return Facets;
 })(_react2["default"].Component);
 
-Facets.defaultProps = {};
+Facets.defaultProps = {
+	facetSortMap: {}
+};
 
 Facets.propTypes = {
 	facetList: _react2["default"].PropTypes.array,
