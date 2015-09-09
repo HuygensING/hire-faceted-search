@@ -5340,7 +5340,7 @@ var FacetedSearch = (function (_React$Component) {
 			return _react2["default"].createElement(
 				"div",
 				{ className: className },
-				_react2["default"].createElement(_componentsFacets2["default"], _extends({}, this.state, this.props, {
+				_react2["default"].createElement(_componentsFacets2["default"], _extends({}, this.props, this.state, {
 					onChangeSearchTerm: function (value) {
 						return _this2.store.dispatch((0, _actionsQueries.changeSearchTerm)(value));
 					},
@@ -5361,7 +5361,7 @@ var FacetedSearch = (function (_React$Component) {
 
 						return _this2.store.dispatch(_actionsQueries.selectFacetValue.apply(undefined, args));
 					} })),
-				_react2["default"].createElement(_componentsResults2["default"], _extends({}, this.state, this.props, {
+				_react2["default"].createElement(_componentsResults2["default"], _extends({}, this.props, this.state, {
 					onChangeSearchTerm: function (value) {
 						return _this2.store.dispatch((0, _actionsQueries.changeSearchTerm)(value));
 					},

@@ -109,8 +109,8 @@ class FacetedSearch extends React.Component {
 		return (
 			<div className={className}>
 				<Facets
-					{...this.state}
 					{...this.props}
+					{...this.state}
 					onChangeSearchTerm={(value) =>
 						this.store.dispatch(changeSearchTerm(value))
 					}
@@ -124,8 +124,8 @@ class FacetedSearch extends React.Component {
 						this.store.dispatch(selectFacetValue(...args))
 					} />
 				<Results
-					{...this.state}
 					{...this.props}
+					{...this.state}
 					onChangeSearchTerm={(value) =>
 						this.store.dispatch(changeSearchTerm(value))
 					}
