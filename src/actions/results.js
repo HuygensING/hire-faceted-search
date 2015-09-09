@@ -23,7 +23,13 @@ let getResults = function(url, headers, done) {
 	let cb = function(err, resp, body) {
 		if (err) { handleError(err, resp, body); }
 
-		done(JSON.parse(body));
+		body = JSON.parse(body);
+
+		if (body.results != null && body.refs == null) {
+			body.refs = body.results;
+		}
+
+		done(body);
 	};
 
 	server.performXhr(options, cb);

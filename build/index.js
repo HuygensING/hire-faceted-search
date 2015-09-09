@@ -2661,7 +2661,13 @@ var getResults = function getResults(url, headers, done) {
 			handleError(err, resp, body);
 		}
 
-		done(JSON.parse(body));
+		body = JSON.parse(body);
+
+		if (body.results != null && body.refs == null) {
+			body.refs = body.results;
+		}
+
+		done(body);
 	};
 
 	server.performXhr(options, cb);
