@@ -5213,23 +5213,19 @@ var _reduxThunk = _dereq_("redux-thunk");
 
 var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 
+// const logger = store => next => action => {
+// 	if (action.hasOwnProperty("type")) {
+// 		console.log(action.type, action);
+// 	}
+
+//   return next(action);
+// };
+
 var _insertCss = _dereq_("insert-css");
 
 var _insertCss2 = _interopRequireDefault(_insertCss);
 
-var logger = function logger(store) {
-	return function (next) {
-		return function (action) {
-			if (action.hasOwnProperty("type")) {
-				console.log(action.type, action);
-			}
-
-			return next(action);
-		};
-	};
-};
-
-var createStoreWithMiddleware = (0, _redux.applyMiddleware)(logger, _reduxThunk2["default"])(_redux.createStore);
+var createStoreWithMiddleware = (0, _redux.applyMiddleware)(_reduxThunk2["default"])(_redux.createStore);
 
 
 
@@ -5321,17 +5317,19 @@ var FacetedSearch = (function (_React$Component) {
 		value: function render() {
 			var _this2 = this;
 
+			var className = this.props.className !== "" ? "hire-faceted-search " + this.props.className : "hire-faceted-search";
+
 			if (this.state.results.all.length === 0) {
 				return _react2["default"].createElement(
 					"div",
-					{ className: "hire-faceted-search" },
+					{ className: className },
 					_react2["default"].createElement(_componentsIconsLoaderThreeDots2["default"], { className: "loader" })
 				);
 			}
 
 			return _react2["default"].createElement(
 				"div",
-				{ className: "hire-faceted-search" },
+				{ className: className },
 				_react2["default"].createElement(_componentsFacets2["default"], {
 					facetList: this.props.facetList,
 					facetSortMap: this.props.facetSortMap,
@@ -5391,12 +5389,14 @@ var FacetedSearch = (function (_React$Component) {
 })(_react2["default"].Component);
 
 FacetedSearch.defaultProps = {
+	className: "",
 	facetList: [],
 	metadataList: [],
 	labels: {}
 };
 
 FacetedSearch.propTypes = {
+	className: _react2["default"].PropTypes.string,
 	config: _react2["default"].PropTypes.object.isRequired,
 	facetList: _react2["default"].PropTypes.array,
 	facetSortMap: _react2["default"].PropTypes.object,

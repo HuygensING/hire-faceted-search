@@ -12,15 +12,15 @@ import {createStore, applyMiddleware} from "redux";
 import reducers from "./reducers";
 import thunkMiddleware from "redux-thunk";
 
-const logger = store => next => action => {
-	if (action.hasOwnProperty("type")) {
-		console.log(action.type, action);
-	}
+// const logger = store => next => action => {
+// 	if (action.hasOwnProperty("type")) {
+// 		console.log(action.type, action);
+// 	}
 
-  return next(action);
-};
+//   return next(action);
+// };
 
-let createStoreWithMiddleware = applyMiddleware(logger, thunkMiddleware)(createStore);
+let createStoreWithMiddleware = applyMiddleware(thunkMiddleware)(createStore);
 
 let fs = require("fs");
 import insertCss from "insert-css";
@@ -94,16 +94,20 @@ class FacetedSearch extends React.Component {
 	}
 
 	render() {
+		let className = this.props.className !== "" ?
+			"hire-faceted-search " + this.props.className :
+			"hire-faceted-search";
+
 		if (this.state.results.all.length === 0) {
 			return (
-				<div className="hire-faceted-search">
+				<div className={className}>
 					<Loader className="loader" />
 				</div>
 			);
 		}
 
 		return (
-			<div className="hire-faceted-search">
+			<div className={className}>
 				<Facets
 					facetList={this.props.facetList}
 					facetSortMap={this.props.facetSortMap}
@@ -149,12 +153,14 @@ class FacetedSearch extends React.Component {
 }
 
 FacetedSearch.defaultProps = {
+	className: "",
 	facetList: [],
 	metadataList: [],
 	labels: {}
 };
 
 FacetedSearch.propTypes = {
+	className: React.PropTypes.string,
 	config: React.PropTypes.object.isRequired,
 	facetList: React.PropTypes.array,
 	facetSortMap: React.PropTypes.object,
