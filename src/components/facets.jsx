@@ -57,12 +57,17 @@ class Facets extends React.Component {
 				.filter(notNull) :
 			this.props.results.last.facets;
 
+		let fullTextSearch = (this.props.fullTextSearch) ?
+			<TextSearch
+				onChangeSearchTerm={this.props.onChangeSearchTerm}
+				value={this.props.queries.last.term} /> :
+			null;
+
+
 		return (
 			<ul className="hire-faceted-search-facets">
 				<button onClick={this.props.onNewSearch}>New search</button>
-				<TextSearch
-					onChangeSearchTerm={this.props.onChangeSearchTerm}
-					value={this.props.queries.last.term} />
+				{fullTextSearch}
 				{facets.map(toComponent)}
 			</ul>
 		);

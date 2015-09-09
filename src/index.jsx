@@ -147,6 +147,7 @@ class FacetedSearch extends React.Component {
 FacetedSearch.defaultProps = {
 	className: "",
 	facetList: [],
+	fullTextSearch: true,
 	metadataList: [],
 	labels: {}
 };
@@ -156,13 +157,13 @@ FacetedSearch.propTypes = {
 	config: React.PropTypes.object.isRequired,
 	facetList: React.PropTypes.array,
 	facetSortMap: React.PropTypes.object,
+	fullTextSearch: React.PropTypes.bool,
 	labels: React.PropTypes.object,
 	metadataList: React.PropTypes.array,
 	numberedResults: React.PropTypes.bool,
 	onChange: React.PropTypes.func,
 	onSelect: React.PropTypes.func,
-	resultComponent: React.PropTypes.func,
-	fullTextSearch: React.PropTypes.bool
+	resultComponent: React.PropTypes.func
 };
 
 export default FacetedSearch;

@@ -2835,6 +2835,10 @@ var Facets = (function (_React$Component) {
 
 			var facets = this.props.facetList.length ? this.props.facetList.map(updateCount).filter(notNull) : this.props.results.last.facets;
 
+			var fullTextSearch = this.props.fullTextSearch ? _react2["default"].createElement(_textSearch2["default"], {
+				onChangeSearchTerm: this.props.onChangeSearchTerm,
+				value: this.props.queries.last.term }) : null;
+
 			return _react2["default"].createElement(
 				"ul",
 				{ className: "hire-faceted-search-facets" },
@@ -2843,9 +2847,7 @@ var Facets = (function (_React$Component) {
 					{ onClick: this.props.onNewSearch },
 					"New search"
 				),
-				_react2["default"].createElement(_textSearch2["default"], {
-					onChangeSearchTerm: this.props.onChangeSearchTerm,
-					value: this.props.queries.last.term }),
+				fullTextSearch,
 				facets.map(toComponent)
 			);
 		}
@@ -5387,6 +5389,7 @@ var FacetedSearch = (function (_React$Component) {
 FacetedSearch.defaultProps = {
 	className: "",
 	facetList: [],
+	fullTextSearch: true,
 	metadataList: [],
 	labels: {}
 };
@@ -5396,13 +5399,13 @@ FacetedSearch.propTypes = {
 	config: _react2["default"].PropTypes.object.isRequired,
 	facetList: _react2["default"].PropTypes.array,
 	facetSortMap: _react2["default"].PropTypes.object,
+	fullTextSearch: _react2["default"].PropTypes.bool,
 	labels: _react2["default"].PropTypes.object,
 	metadataList: _react2["default"].PropTypes.array,
 	numberedResults: _react2["default"].PropTypes.bool,
 	onChange: _react2["default"].PropTypes.func,
 	onSelect: _react2["default"].PropTypes.func,
-	resultComponent: _react2["default"].PropTypes.func,
-	fullTextSearch: _react2["default"].PropTypes.bool
+	resultComponent: _react2["default"].PropTypes.func
 };
 
 exports["default"] = FacetedSearch;
