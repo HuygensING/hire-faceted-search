@@ -109,9 +109,8 @@ class FacetedSearch extends React.Component {
 		return (
 			<div className={className}>
 				<Facets
-					facetList={this.props.facetList}
-					facetSortMap={this.props.facetSortMap}
-					labels={this.state.labels}
+					{...this.state}
+					{...this.props}
 					onChangeSearchTerm={(value) =>
 						this.store.dispatch(changeSearchTerm(value))
 					}
@@ -123,14 +122,10 @@ class FacetedSearch extends React.Component {
 					}
 					onSelectFacetValue={(...args) =>
 						this.store.dispatch(selectFacetValue(...args))
-					}
-					queries={this.state.queries}
-					results={this.state.results} />
+					} />
 				<Results
-					config={this.state.config}
-					labels={this.state.labels}
-					metadataList={this.props.metadataList}
-					numberedResults={this.props.numberedResults}
+					{...this.state}
+					{...this.props}
 					onChangeSearchTerm={(value) =>
 						this.store.dispatch(changeSearchTerm(value))
 					}
@@ -143,10 +138,7 @@ class FacetedSearch extends React.Component {
 					}
 					onSetSort={(field) =>
 						this.store.dispatch(setSort(field))
-					}
-					queries={this.state.queries}
-					resultComponent={this.props.resultComponent}
-					results={this.state.results} />
+					} />
 			</div>
 		);
 	}
@@ -169,7 +161,8 @@ FacetedSearch.propTypes = {
 	numberedResults: React.PropTypes.bool,
 	onChange: React.PropTypes.func,
 	onSelect: React.PropTypes.func,
-	resultComponent: React.PropTypes.func
+	resultComponent: React.PropTypes.func,
+	fullTextSearch: React.PropTypes.bool
 };
 
 export default FacetedSearch;
