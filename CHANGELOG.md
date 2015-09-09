@@ -1,3 +1,6 @@
+### v3.8.0	(2015/9/9 10:42)
+* Add custom className
+
 ### v3.7.2	(2015/9/7 8:57)
 * New build
 
