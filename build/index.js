@@ -73,33 +73,9 @@ var Input = (function (_React$Component) {
 			return this.props.value !== nextProps.value;
 		}
 	}, {
-		key: "handleBlur",
-		value: function handleBlur(ev) {
-			this.props.onBlur(ev);
-		}
-	}, {
-		key: "handleFocus",
-		value: function handleFocus(ev) {
-			this.props.onFocus(ev);
-		}
-	}, {
 		key: "handleChange",
 		value: function handleChange(ev) {
 			this.props.onChange(ev.currentTarget.value, ev);
-		}
-	}, {
-		key: "handleKeyDown",
-		value: function handleKeyDown(ev) {
-			if (this.props.onKeyDown) {
-				this.props.onKeyDown(ev);
-			}
-		}
-	}, {
-		key: "handleKeyUp",
-		value: function handleKeyUp(ev) {
-			if (this.props.onKeyUp) {
-				this.props.onKeyUp(ev);
-			}
 		}
 	}, {
 		key: "render",
@@ -115,11 +91,11 @@ var Input = (function (_React$Component) {
 				{
 					className: (0, _classnames2["default"])("hire-input", { invalid: !this.state.valid }) },
 				_react2["default"].createElement("input", {
-					onBlur: this.handleBlur.bind(this),
+					onBlur: this.props.onBlur,
 					onChange: this.handleChange.bind(this),
-					onFocus: this.handleFocus.bind(this),
-					onKeyDown: this.handleKeyDown.bind(this),
-					onKeyUp: this.handleKeyUp.bind(this),
+					onFocus: this.props.onFocus,
+					onKeyDown: this.props.onKeyDown,
+					onKeyUp: this.props.onKeyUp,
 					placeholder: this.props.placeholder,
 					style: this.props.style,
 					value: this.props.value }),
@@ -156,6 +132,7 @@ module.exports = exports["default"];
 });
 
 },{}],2:[function(_dereq_,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.RangeSlider = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 var inserted = {};
 
 module.exports = function (css, options) {
@@ -179,7 +156,244 @@ module.exports = function (css, options) {
     }
 };
 
+},{}],2:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = _dereq_("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _insertCss = _dereq_("insert-css");
+
+var _insertCss2 = _interopRequireDefault(_insertCss);
+
+
+
+var css = Buffer("LmhpcmUtcmFuZ2Utc2xpZGVyIHsKICAgIC1tb3otdXNlci1zZWxlY3Q6IG5vbmU7CiAgICAtd2Via2l0LXVzZXItc2VsZWN0OiBub25lOwogICAgLW1zLXVzZXItc2VsZWN0OiBub25lOyAKICAgIHVzZXItc2VsZWN0OiBub25lOyAKICAgIC13ZWJraXQtdXNlci1kcmFnOiBub25lOwogICAgdXNlci1kcmFnOiBub25lOwoJY3Vyc29yOiBwb2ludGVyOwoJd2lkdGg6IDEwMCU7CglzdHJva2U6ICMwMDA7CglmaWxsOiAjMDAwOwp9CgouaGlyZS1yYW5nZS1zbGlkZXIgLnJhbmdlLWxpbmUgewoJc3Ryb2tlLXdpZHRoOiA4OwoJc3Ryb2tlLW9wYWNpdHk6IDAuMzsKfQoKLmhpcmUtcmFuZ2Utc2xpZGVyOmhvdmVyID4gLnJhbmdlLWxpbmUgewoJc3Ryb2tlLW9wYWNpdHk6IDAuMzU7Cn0KCi5oaXJlLXJhbmdlLXNsaWRlciAucmFuZ2UtbGluZSBjaXJjbGUgewoJc3Ryb2tlLXdpZHRoOiAwOwoJZmlsbC1vcGFjaXR5OiAwLjI7Cn0KCi5oaXJlLXJhbmdlLXNsaWRlciAucmFuZ2UtbGluZSBjaXJjbGUuaG92ZXJpbmcgewoJZmlsbC1vcGFjaXR5OiAxOwp9Cg==","base64");
+(0, _insertCss2["default"])(css, { prepend: true });
+
+var MOUSE_DOWN = 0;
+var MOUSE_UP = 1;
+
+_react2["default"].initializeTouchEvents(true);
+
+var RangeSlider = (function (_React$Component) {
+	_inherits(RangeSlider, _React$Component);
+
+	function RangeSlider(props) {
+		_classCallCheck(this, RangeSlider);
+
+		_get(Object.getPrototypeOf(RangeSlider.prototype), "constructor", this).call(this, props);
+
+		this.mouseState = MOUSE_UP;
+		this.mouseUpListener = this.onMouseUp.bind(this);
+		this.mouseMoveListener = this.onMouseMove.bind(this);
+		this.touchMoveListener = this.onTouchMove.bind(this);
+
+		this.state = _extends({}, this.propsToState(this.props), { hoverState: null });
+	}
+
+	_createClass(RangeSlider, [{
+		key: "componentDidMount",
+		value: function componentDidMount() {
+			window.addEventListener("mouseup", this.mouseUpListener);
+			window.addEventListener("mousemove", this.mouseMoveListener);
+			window.addEventListener("touchend", this.mouseUpListener);
+			window.addEventListener("touchmove", this.touchMoveListener);
+		}
+	}, {
+		key: "componentWillReceiveProps",
+		value: function componentWillReceiveProps(nextProps) {
+			this.setState(this.propsToState(nextProps));
+		}
+	}, {
+		key: "componentWillUnmount",
+		value: function componentWillUnmount() {
+			window.removeEventListener("mouseup", this.mouseUpListener);
+			window.removeEventListener("mousemove", this.mouseMoveListener);
+			window.removeEventListener("touchend", this.mouseUpListener);
+			window.removeEventListener("touchmove", this.touchMoveListener);
+		}
+	}, {
+		key: "propsToState",
+		value: function propsToState(props) {
+			var lowerLimit = props.lowerLimit || 0;
+			var upperLimit = props.upperLimit || 1;
+			return {
+				lowerLimit: lowerLimit,
+				upperLimit: upperLimit
+			};
+		}
+	}, {
+		key: "getPositionForLimit",
+		value: function getPositionForLimit(pageX) {
+			var rect = _react2["default"].findDOMNode(this).getBoundingClientRect();
+			if (rect.width > 0) {
+				var percentage = (pageX - rect.left) / rect.width;
+				if (percentage > 1) {
+					percentage = 1;
+				} else if (percentage < 0) {
+					percentage = 0;
+				}
+				var deltaL = Math.max(percentage - this.state.lowerLimit, this.state.lowerLimit - percentage);
+				var deltaU = Math.max(percentage - this.state.upperLimit, this.state.upperLimit - percentage);
+				if (deltaL < deltaU) {
+					if (percentage >= this.state.upperLimit) {
+						percentage = this.state.upperLimit;
+					}
+					return { lowerLimit: percentage };
+				} else {
+					if (percentage <= this.state.lowerLimit) {
+						percentage = this.state.lowerLimit;
+					}
+					return { upperLimit: percentage };
+				}
+			}
+			return null;
+		}
+	}, {
+		key: "setRange",
+		value: function setRange(pageX) {
+			var posForLim = this.getPositionForLimit(pageX);
+			if (posForLim !== null) {
+				this.setState(posForLim);
+				this.props.onChange(_extends({}, this.state, { refresh: false }));
+			}
+		}
+	}, {
+		key: "onMouseDown",
+		value: function onMouseDown(ev) {
+			this.mouseState = MOUSE_DOWN;
+			this.setRange(ev.pageX);
+		}
+	}, {
+		key: "onTouchStart",
+		value: function onTouchStart(ev) {
+			this.mouseState = MOUSE_DOWN;
+			this.setRange(ev.touches[0].pageX);
+			return ev.preventDefault();
+		}
+	}, {
+		key: "onMouseMove",
+		value: function onMouseMove(ev) {
+			if (this.mouseState === MOUSE_DOWN) {
+				this.setRange(ev.pageX);
+				return ev.preventDefault();
+			} else if (_react2["default"].findDOMNode(this).contains(ev.target)) {
+				var hoverState = Object.keys(this.getPositionForLimit(ev.pageX))[0];
+				if (this.state.hoverState !== hoverState) {
+					this.setState({ hoverState: hoverState });
+				}
+			} else if (this.state.hoverState !== null) {
+				this.setState({ hoverState: null });
+			}
+		}
+	}, {
+		key: "onTouchMove",
+		value: function onTouchMove(ev) {
+			if (this.mouseState === MOUSE_DOWN) {
+				this.setRange(ev.touches[0].pageX);
+				return ev.preventDefault();
+			}
+		}
+	}, {
+		key: "onMouseUp",
+		value: function onMouseUp() {
+			if (this.mouseState === MOUSE_DOWN) {
+				this.props.onChange(_extends({}, this.state, { refresh: true }));
+			}
+			this.mouseState = MOUSE_UP;
+		}
+	}, {
+		key: "getRangePath",
+		value: function getRangePath() {
+			return "M" + Math.floor(this.state.lowerLimit * 400) + " 10 L " + Math.ceil(this.state.upperLimit * 400) + " 10 Z";
+		}
+	}, {
+		key: "getRangeCircle",
+		value: function getRangeCircle(key) {
+			var percentage = this.state[key];
+			return _react2["default"].createElement("circle", { className: this.state.hoverState === key ? "hovering" : "", cx: percentage * 400, cy: "10", r: "4" });
+		}
+	}, {
+		key: "render",
+		value: function render() {
+
+			return _react2["default"].createElement(
+				"svg",
+				{ className: "hire-range-slider",
+					onMouseDown: this.onMouseDown.bind(this),
+					onTouchStart: this.onTouchStart.bind(this),
+					viewBox: "0 0 400 20" },
+				_react2["default"].createElement(
+					"g",
+					{ className: "range-line" },
+					_react2["default"].createElement("path", { d: this.getRangePath(), fill: "transparent" }),
+					this.getRangeCircle("lowerLimit"),
+					this.getRangeCircle("upperLimit")
+				),
+				_react2["default"].createElement("path", { d: "M0 0 L 0 20 Z", fill: "transparent" }),
+				_react2["default"].createElement("path", { d: "M400 0 L 400 20 Z", fill: "transparent" }),
+				_react2["default"].createElement("path", { d: "M0 10 L 400 10 Z", fill: "transparent" })
+			);
+		}
+	}]);
+
+	return RangeSlider;
+})(_react2["default"].Component);
+
+RangeSlider.propTypes = {
+	lowerLimit: _react2["default"].PropTypes.number,
+	onChange: _react2["default"].PropTypes.func.isRequired,
+	upperLimit: _react2["default"].PropTypes.number
+};
+
+exports["default"] = RangeSlider;
+module.exports = exports["default"];
+
+},{"insert-css":1,"react":"react"}]},{},[2])(2)
+});
 },{}],3:[function(_dereq_,module,exports){
+var inserted = {};
+
+module.exports = function (css, options) {
+    if (inserted[css]) return;
+    inserted[css] = true;
+    
+    var elem = document.createElement('style');
+    elem.setAttribute('type', 'text/css');
+
+    if ('textContent' in elem) {
+      elem.textContent = css;
+    } else {
+      elem.styleSheet.cssText = css;
+    }
+    
+    var head = document.getElementsByTagName('head')[0];
+    if (options && options.prepend) {
+        head.insertBefore(elem, head.childNodes[0]);
+    } else {
+        head.appendChild(elem);
+    }
+};
+
+},{}],4:[function(_dereq_,module,exports){
 /**
  * lodash 3.1.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -415,7 +629,7 @@ function isObject(value) {
 
 module.exports = debounce;
 
-},{"lodash._getnative":4}],4:[function(_dereq_,module,exports){
+},{"lodash._getnative":5}],5:[function(_dereq_,module,exports){
 /**
  * lodash 3.9.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -554,7 +768,7 @@ function isNative(value) {
 
 module.exports = getNative;
 
-},{}],5:[function(_dereq_,module,exports){
+},{}],6:[function(_dereq_,module,exports){
 /**
  * lodash 3.0.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -618,7 +832,7 @@ function isEqual(value, other, customizer, thisArg) {
 
 module.exports = isEqual;
 
-},{"lodash._baseisequal":6,"lodash._bindcallback":12}],6:[function(_dereq_,module,exports){
+},{"lodash._baseisequal":7,"lodash._bindcallback":13}],7:[function(_dereq_,module,exports){
 /**
  * lodash 3.0.7 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -962,7 +1176,7 @@ function isObject(value) {
 
 module.exports = baseIsEqual;
 
-},{"lodash.isarray":7,"lodash.istypedarray":8,"lodash.keys":9}],7:[function(_dereq_,module,exports){
+},{"lodash.isarray":8,"lodash.istypedarray":9,"lodash.keys":10}],8:[function(_dereq_,module,exports){
 /**
  * lodash 3.0.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1144,7 +1358,7 @@ function isNative(value) {
 
 module.exports = isArray;
 
-},{}],8:[function(_dereq_,module,exports){
+},{}],9:[function(_dereq_,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1256,7 +1470,7 @@ function isTypedArray(value) {
 
 module.exports = isTypedArray;
 
-},{}],9:[function(_dereq_,module,exports){
+},{}],10:[function(_dereq_,module,exports){
 /**
  * lodash 3.1.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1494,9 +1708,9 @@ function keysIn(object) {
 
 module.exports = keys;
 
-},{"lodash._getnative":10,"lodash.isarguments":11,"lodash.isarray":7}],10:[function(_dereq_,module,exports){
-arguments[4][4][0].apply(exports,arguments)
-},{"dup":4}],11:[function(_dereq_,module,exports){
+},{"lodash._getnative":11,"lodash.isarguments":12,"lodash.isarray":8}],11:[function(_dereq_,module,exports){
+arguments[4][5][0].apply(exports,arguments)
+},{"dup":5}],12:[function(_dereq_,module,exports){
 /**
  * lodash 3.0.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1604,7 +1818,7 @@ function isArguments(value) {
 
 module.exports = isArguments;
 
-},{}],12:[function(_dereq_,module,exports){
+},{}],13:[function(_dereq_,module,exports){
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1671,7 +1885,7 @@ function identity(value) {
 
 module.exports = bindCallback;
 
-},{}],13:[function(_dereq_,module,exports){
+},{}],14:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1689,7 +1903,7 @@ function thunkMiddleware(_ref) {
 }
 
 module.exports = exports['default'];
-},{}],14:[function(_dereq_,module,exports){
+},{}],15:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1854,7 +2068,7 @@ function createStore(reducer, initialState) {
     replaceReducer: replaceReducer
   };
 }
-},{"./utils/isPlainObject":20}],15:[function(_dereq_,module,exports){
+},{"./utils/isPlainObject":21}],16:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1886,7 +2100,7 @@ exports.combineReducers = _utilsCombineReducers2['default'];
 exports.bindActionCreators = _utilsBindActionCreators2['default'];
 exports.applyMiddleware = _utilsApplyMiddleware2['default'];
 exports.compose = _utilsCompose2['default'];
-},{"./createStore":14,"./utils/applyMiddleware":16,"./utils/bindActionCreators":17,"./utils/combineReducers":18,"./utils/compose":19}],16:[function(_dereq_,module,exports){
+},{"./createStore":15,"./utils/applyMiddleware":17,"./utils/bindActionCreators":18,"./utils/combineReducers":19,"./utils/compose":20}],17:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1948,7 +2162,7 @@ function applyMiddleware() {
 }
 
 module.exports = exports['default'];
-},{"./compose":19}],17:[function(_dereq_,module,exports){
+},{"./compose":20}],18:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2003,7 +2217,7 @@ function bindActionCreators(actionCreators, dispatch) {
 }
 
 module.exports = exports['default'];
-},{"../utils/mapValues":21}],18:[function(_dereq_,module,exports){
+},{"../utils/mapValues":22}],19:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2121,7 +2335,7 @@ function combineReducers(reducers) {
 }
 
 module.exports = exports['default'];
-},{"../createStore":14,"../utils/isPlainObject":20,"../utils/mapValues":21,"../utils/pick":22}],19:[function(_dereq_,module,exports){
+},{"../createStore":15,"../utils/isPlainObject":21,"../utils/mapValues":22,"../utils/pick":23}],20:[function(_dereq_,module,exports){
 /**
  * Composes functions from left to right.
  *
@@ -2146,7 +2360,7 @@ function compose() {
 }
 
 module.exports = exports["default"];
-},{}],20:[function(_dereq_,module,exports){
+},{}],21:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2177,7 +2391,7 @@ function isPlainObject(obj) {
 }
 
 module.exports = exports['default'];
-},{}],21:[function(_dereq_,module,exports){
+},{}],22:[function(_dereq_,module,exports){
 /**
  * Applies a function to every key-value pair inside an object.
  *
@@ -2198,7 +2412,7 @@ function mapValues(obj, fn) {
 }
 
 module.exports = exports["default"];
-},{}],22:[function(_dereq_,module,exports){
+},{}],23:[function(_dereq_,module,exports){
 /**
  * Picks key-value pairs from an object where values satisfy a predicate.
  *
@@ -2221,7 +2435,7 @@ function pick(obj, fn) {
 }
 
 module.exports = exports["default"];
-},{}],23:[function(_dereq_,module,exports){
+},{}],24:[function(_dereq_,module,exports){
 "use strict";
 var window = _dereq_("global/window")
 var once = _dereq_("once")
@@ -2266,7 +2480,7 @@ function createXHR(options, callback) {
 
         return body
     }
-    
+
     var failureResponse = {
                 body: undefined,
                 headers: {},
@@ -2275,11 +2489,11 @@ function createXHR(options, callback) {
                 url: uri,
                 rawRequest: xhr
             }
-    
+
     function errorFunc(evt) {
         clearTimeout(timeoutTimer)
         if(!(evt instanceof Error)){
-            evt = new Error("" + (evt || "unknown") )
+            evt = new Error("" + (evt || "Unknown XMLHttpRequest Error") )
         }
         evt.statusCode = 0
         callback(evt, failureResponse)
@@ -2298,7 +2512,7 @@ function createXHR(options, callback) {
         }
         var response = failureResponse
         var err = null
-        
+
         if (status !== 0){
             response = {
                 body: getBody(),
@@ -2315,9 +2529,9 @@ function createXHR(options, callback) {
             err = new Error("Internal XMLHttpRequest Error")
         }
         callback(err, response, response.body)
-        
+
     }
-    
+
     if (typeof options === "string") {
         options = { uri: options }
     }
@@ -2352,7 +2566,7 @@ function createXHR(options, callback) {
         isJson = true
         headers["accept"] || headers["Accept"] || (headers["Accept"] = "application/json") //Don't override existing accept header declared by user
         if (method !== "GET" && method !== "HEAD") {
-            headers["Content-Type"] = "application/json"
+            headers["content-type"] || headers["Content-Type"] || (headers["Content-Type"] = "application/json") //Don't override existing accept header declared by user
             body = JSON.stringify(options.json)
         }
     }
@@ -2377,7 +2591,9 @@ function createXHR(options, callback) {
         timeoutTimer = setTimeout(function(){
             aborted=true//IE9 may still call readystatechange
             xhr.abort("timeout")
-            errorFunc();
+            var e = new Error("XMLHttpRequest timeout")
+            e.code = "ETIMEDOUT"
+            errorFunc(e)
         }, options.timeout )
     }
 
@@ -2394,8 +2610,8 @@ function createXHR(options, callback) {
     if ("responseType" in options) {
         xhr.responseType = options.responseType
     }
-    
-    if ("beforeSend" in options && 
+
+    if ("beforeSend" in options &&
         typeof options.beforeSend === "function"
     ) {
         options.beforeSend(xhr)
@@ -2410,7 +2626,7 @@ function createXHR(options, callback) {
 
 function noop() {}
 
-},{"global/window":24,"once":25,"parse-headers":29}],24:[function(_dereq_,module,exports){
+},{"global/window":25,"once":26,"parse-headers":30}],25:[function(_dereq_,module,exports){
 if (typeof window !== "undefined") {
     module.exports = window;
 } else if (typeof global !== "undefined") {
@@ -2421,7 +2637,7 @@ if (typeof window !== "undefined") {
     module.exports = {};
 }
 
-},{}],25:[function(_dereq_,module,exports){
+},{}],26:[function(_dereq_,module,exports){
 module.exports = once
 
 once.proto = once(function () {
@@ -2442,7 +2658,7 @@ function once (fn) {
   }
 }
 
-},{}],26:[function(_dereq_,module,exports){
+},{}],27:[function(_dereq_,module,exports){
 var isFunction = _dereq_('is-function')
 
 module.exports = forEach
@@ -2490,7 +2706,7 @@ function forEachObject(object, iterator, context) {
     }
 }
 
-},{"is-function":27}],27:[function(_dereq_,module,exports){
+},{"is-function":28}],28:[function(_dereq_,module,exports){
 module.exports = isFunction
 
 var toString = Object.prototype.toString
@@ -2507,7 +2723,7 @@ function isFunction (fn) {
       fn === window.prompt))
 };
 
-},{}],28:[function(_dereq_,module,exports){
+},{}],29:[function(_dereq_,module,exports){
 
 exports = module.exports = trim;
 
@@ -2523,7 +2739,7 @@ exports.right = function(str){
   return str.replace(/\s*$/, '');
 };
 
-},{}],29:[function(_dereq_,module,exports){
+},{}],30:[function(_dereq_,module,exports){
 var trim = _dereq_('trim')
   , forEach = _dereq_('for-each')
   , isArray = function(arg) {
@@ -2555,7 +2771,7 @@ module.exports = function (headers) {
 
   return result
 }
-},{"for-each":26,"trim":28}],30:[function(_dereq_,module,exports){
+},{"for-each":27,"trim":29}],31:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2619,7 +2835,7 @@ function setSort(field) {
 	});
 }
 
-},{"./results":31}],31:[function(_dereq_,module,exports){
+},{"./results":32}],32:[function(_dereq_,module,exports){
 // TODO Fix caching
 
 "use strict";
@@ -2737,7 +2953,7 @@ function fetchNextResults(url) {
 	};
 }
 
-},{"xhr":23}],32:[function(_dereq_,module,exports){
+},{"xhr":24}],33:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2866,7 +3082,7 @@ Facets.propTypes = {
 exports["default"] = Facets;
 module.exports = exports["default"];
 
-},{"./list-facet":43,"./range-facet":46,"./text-search":53,"react":"react"}],33:[function(_dereq_,module,exports){
+},{"./list-facet":44,"./range-facet":47,"./text-search":54,"react":"react"}],34:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2974,7 +3190,7 @@ FilterMenu.propTypes = {
 exports["default"] = FilterMenu;
 module.exports = exports["default"];
 
-},{"../icons/filter":35,"classnames":"classnames","hire-forms-input":1,"insert-css":2,"react":"react"}],34:[function(_dereq_,module,exports){
+},{"../icons/filter":36,"classnames":"classnames","hire-forms-input":1,"insert-css":3,"react":"react"}],35:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3035,7 +3251,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],35:[function(_dereq_,module,exports){
+},{"react":"react"}],36:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3095,7 +3311,7 @@ FilterIcon.propTypes = {
 exports["default"] = FilterIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],36:[function(_dereq_,module,exports){
+},{"react":"react"}],37:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3260,7 +3476,7 @@ LoaderThreeDots.PropTypes = {
 exports["default"] = LoaderThreeDots;
 module.exports = exports["default"];
 
-},{"react":"react"}],37:[function(_dereq_,module,exports){
+},{"react":"react"}],38:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3320,7 +3536,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],38:[function(_dereq_,module,exports){
+},{"react":"react"}],39:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3391,7 +3607,7 @@ SortAlphabeticallyAscending.propTypes = {
 exports["default"] = SortAlphabeticallyAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],39:[function(_dereq_,module,exports){
+},{"react":"react"}],40:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3462,7 +3678,7 @@ SortAlphabeticallyDescending.propTypes = {
 exports["default"] = SortAlphabeticallyDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],40:[function(_dereq_,module,exports){
+},{"react":"react"}],41:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3531,7 +3747,7 @@ SortCountAscending.propTypes = {
 exports["default"] = SortCountAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],41:[function(_dereq_,module,exports){
+},{"react":"react"}],42:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3600,7 +3816,7 @@ SortCountDescending.propTypes = {
 exports["default"] = SortCountDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],42:[function(_dereq_,module,exports){
+},{"react":"react"}],43:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3659,7 +3875,7 @@ UncheckedIcon.propTypes = {
 exports["default"] = UncheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],43:[function(_dereq_,module,exports){
+},{"react":"react"}],44:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3870,7 +4086,7 @@ ListFacet.propTypes = {
 exports["default"] = ListFacet;
 module.exports = exports["default"];
 
-},{"../filter-menu":33,"../sort-menu":52,"./list-item":44,"./sort-function":45,"classnames":"classnames","insert-css":2,"react":"react"}],44:[function(_dereq_,module,exports){
+},{"../filter-menu":34,"../sort-menu":53,"./list-item":45,"./sort-function":46,"classnames":"classnames","insert-css":3,"react":"react"}],45:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3974,7 +4190,7 @@ ListFacetListItem.propTypes = {
 exports["default"] = ListFacetListItem;
 module.exports = exports["default"];
 
-},{"../icons/checked":34,"../icons/unchecked":42,"react":"react"}],45:[function(_dereq_,module,exports){
+},{"../icons/checked":35,"../icons/unchecked":43,"react":"react"}],46:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4038,7 +4254,7 @@ function sortFunction(type, direction) {
 
 module.exports = exports["default"];
 
-},{}],46:[function(_dereq_,module,exports){
+},{}],47:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4061,13 +4277,17 @@ var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
 
+var _hireRangeSlider = _dereq_("hire-range-slider");
+
+var _hireRangeSlider2 = _interopRequireDefault(_hireRangeSlider);
+
 var _insertCss = _dereq_("insert-css");
 
 var _insertCss2 = _interopRequireDefault(_insertCss);
 
 
 
-var css = Buffer("LmhpcmUtcmFuZ2UtZmFjZXQgPiBkaXYgKiB7CiAgICAtbW96LXVzZXItc2VsZWN0OiBub25lOwogICAgLXdlYmtpdC11c2VyLXNlbGVjdDogbm9uZTsKICAgIC1tcy11c2VyLXNlbGVjdDogbm9uZTsgCiAgICB1c2VyLXNlbGVjdDogbm9uZTsgCiAgICAtd2Via2l0LXVzZXItZHJhZzogbm9uZTsKICAgIHVzZXItZHJhZzogbm9uZTsKfQoKLmhpcmUtcmFuZ2UtZmFjZXQgPiBkaXYgPiBzdmcgewoJY3Vyc29yOiBwb2ludGVyOwoJd2lkdGg6IDEwMCU7CglzdHJva2U6ICMwMDA7CglmaWxsOiAjMDAwOwp9CgouaGlyZS1yYW5nZS1mYWNldCA+IGRpdiA+IHN2ZyA+IC5yYW5nZS1saW5lIHsKCXN0cm9rZS13aWR0aDogMTBweDsKCXN0cm9rZS1vcGFjaXR5OiAwLjM7Cn0KCi5oaXJlLXJhbmdlLWZhY2V0ID4gZGl2ID4gc3ZnOmhvdmVyID4gLnJhbmdlLWxpbmUgewoJc3Ryb2tlLW9wYWNpdHk6IDAuMzU7Cn0KLmhpcmUtcmFuZ2UtZmFjZXQgPiBkaXYgPiBzdmcgPiAucmFuZ2UtbGluZSBjaXJjbGUgewoJc3Ryb2tlLXdpZHRoOiAwOwoJZmlsbC1vcGFjaXR5OiAwLjI7Cn0KCi5oaXJlLXJhbmdlLWZhY2V0ID4gZGl2ID4gc3ZnID4gLnJhbmdlLWxpbmUgY2lyY2xlLmhvdmVyaW5nIHsKCWZpbGwtb3BhY2l0eTogMTsKfQoKLmhpcmUtcmFuZ2UtZmFjZXQgPiBkaXYgPiBsYWJlbDpudGgtb2YtdHlwZSgyKSB7CglmbG9hdDogcmlnaHQ7Cn0=","base64");
+var css = Buffer("LmhpcmUtcmFuZ2UtZmFjZXQgPiBkaXYgPiBsYWJlbDpudGgtb2YtdHlwZSgyKSB7CglmbG9hdDogcmlnaHQ7Cn0=","base64");
 (0, _insertCss2["default"])(css, { prepend: true });
 
 var MOUSE_DOWN = 0;
@@ -4083,34 +4303,13 @@ var RangeFacet = (function (_React$Component) {
 
 		_get(Object.getPrototypeOf(RangeFacet.prototype), "constructor", this).call(this, props);
 
-		this.mouseState = MOUSE_UP;
-		this.mouseUpListener = this.onMouseUp.bind(this);
-		this.mouseMoveListener = this.onMouseMove.bind(this);
-		this.touchMoveListener = this.onTouchMove.bind(this);
-
-		this.state = _extends({}, this.propsToState(this.props), { hoverState: null });
+		this.state = _extends({}, this.propsToState(this.props));
 	}
 
 	_createClass(RangeFacet, [{
-		key: "componentDidMount",
-		value: function componentDidMount() {
-			window.addEventListener("mouseup", this.mouseUpListener);
-			window.addEventListener("mousemove", this.mouseMoveListener);
-			window.addEventListener("touchend", this.mouseUpListener);
-			window.addEventListener("touchmove", this.touchMoveListener);
-		}
-	}, {
 		key: "componentWillReceiveProps",
 		value: function componentWillReceiveProps(nextProps) {
 			this.setState(this.propsToState(nextProps));
-		}
-	}, {
-		key: "componentWillUnmount",
-		value: function componentWillUnmount() {
-			window.removeEventListener("mouseup", this.mouseUpListener);
-			window.removeEventListener("mousemove", this.mouseMoveListener);
-			window.removeEventListener("touchend", this.mouseUpListener);
-			window.removeEventListener("touchmove", this.touchMoveListener);
 		}
 	}, {
 		key: "propsToState",
@@ -4124,110 +4323,34 @@ var RangeFacet = (function (_React$Component) {
 			var upperLimit = queryValues.upperLimit || props.data.options[0].upperLimit;
 			return {
 				lowerLimit: lowerLimit,
-				upperLimit: upperLimit,
-				lowerBound: props.data.options[0].lowerLimit,
-				upperBound: props.data.options[0].upperLimit
+				upperLimit: upperLimit
 			};
 		}
 	}, {
-		key: "convertUnit",
-		value: function convertUnit(value, mul) {
-			return Math.floor(value * mul);
-		}
-	}, {
-		key: "getPositionForLimit",
-		value: function getPositionForLimit(pageX) {
-			var rect = _react2["default"].findDOMNode(this).children[1].children[0].getBoundingClientRect();
-			if (rect.width > 0) {
-				var percentage = (pageX - rect.left) / rect.width;
-				var onScale = Math.floor((this.state.upperBound - this.state.lowerBound) * percentage) + this.state.lowerBound;
-				if (onScale > this.state.upperBound) {
-					onScale = this.state.upperBound;
-				} else if (onScale < this.state.lowerBound) {
-					onScale = this.state.lowerBound;
-				}
-				var deltaL = Math.max(onScale - this.state.lowerLimit, this.state.lowerLimit - onScale);
-				var deltaU = Math.max(onScale - this.state.upperLimit, this.state.upperLimit - onScale);
-				if (deltaL < deltaU) {
-					if (onScale >= this.state.upperLimit) {
-						onScale = this.state.upperLimit;
-					}
-					return { lowerLimit: onScale };
-				} else {
-					if (onScale <= this.state.lowerLimit) {
-						onScale = this.state.lowerLimit;
-					}
-					return { upperLimit: onScale };
-				}
-			}
-			return null;
-		}
-	}, {
-		key: "setRange",
-		value: function setRange(pageX) {
-			var posForLim = this.getPositionForLimit(pageX);
-			if (posForLim !== null) {
-				this.setState(posForLim);
-			}
-		}
-	}, {
-		key: "onMouseDown",
-		value: function onMouseDown(ev) {
-			this.mouseState = MOUSE_DOWN;
-			this.setRange(ev.pageX);
-		}
-	}, {
-		key: "onTouchStart",
-		value: function onTouchStart(ev) {
-			this.mouseState = MOUSE_DOWN;
-			this.setRange(ev.touches[0].pageX);
-			return ev.preventDefault();
-		}
-	}, {
-		key: "onMouseMove",
-		value: function onMouseMove(ev) {
-			if (this.mouseState === MOUSE_DOWN) {
-				this.setRange(ev.pageX);
-				return ev.preventDefault();
-			} else if (_react2["default"].findDOMNode(this).children[1].children[0].contains(ev.target)) {
-				this.setState({
-					hoverState: this.getPositionForLimit(ev.pageX)
-				});
+		key: "onRangeChange",
+		value: function onRangeChange(range) {
+			var lowerBound = this.props.data.options[0].lowerLimit;
+			var upperBound = this.props.data.options[0].upperLimit;
+			var realRange = upperBound - lowerBound;
+			var newState = {
+				lowerLimit: Math.floor(range.lowerLimit * realRange) + lowerBound,
+				upperLimit: Math.ceil(range.upperLimit * realRange) + lowerBound
+			};
+			if (range.refresh) {
+				this.props.onSelectFacetRange(this.props.data.name, newState);
 			} else {
-				this.setState({ hoverState: null });
+				this.setState(newState);
 			}
 		}
 	}, {
-		key: "onTouchMove",
-		value: function onTouchMove(ev) {
-			if (this.mouseState === MOUSE_DOWN) {
-				this.setRange(ev.touches[0].pageX);
-				return ev.preventDefault();
-			}
-		}
-	}, {
-		key: "onMouseUp",
-		value: function onMouseUp() {
-			if (this.mouseState === MOUSE_DOWN) {
-				this.props.onSelectFacetRange(this.props.data.name, {
-					lowerLimit: Math.floor(this.state.lowerLimit / 10000) * 10000 + 101,
-					upperLimit: Math.floor(this.state.upperLimit / 10000) * 10000 + 3112
-				});
-			}
-			this.mouseState = MOUSE_UP;
-		}
-	}, {
-		key: "getRangePath",
-		value: function getRangePath() {
-			var lower = (this.state.lowerLimit - this.state.lowerBound) / (this.state.upperBound - this.state.lowerBound);
-			var upper = (this.state.upperLimit - this.state.lowerBound) / (this.state.upperBound - this.state.lowerBound);
-			return "M" + lower * 400 + " 10 L " + upper * 400 + " 10 Z";
-		}
-	}, {
-		key: "getRangeCircle",
-		value: function getRangeCircle(key) {
-			var percentage = (this.state[key] - this.state.lowerBound) / (this.state.upperBound - this.state.lowerBound);
-			return _react2["default"].createElement("circle", { className: this.state.hoverState && this.state.hoverState[key] ? "hovering" : "", cx: percentage * 400, cy: "10", r: "4" });
+		key: "getPercentage",
+		value: function getPercentage(key) {
+			var lowerBound = this.props.data.options[0].lowerLimit;
+			var upperBound = this.props.data.options[0].upperLimit;
+			var realRange = upperBound - lowerBound;
+
+			var atRange = this.state[key] - lowerBound;
+			return atRange / realRange;
 		}
 	}, {
 		key: "render",
@@ -4250,32 +4373,16 @@ var RangeFacet = (function (_React$Component) {
 				_react2["default"].createElement(
 					"div",
 					null,
+					_react2["default"].createElement(_hireRangeSlider2["default"], { lowerLimit: this.getPercentage("lowerLimit"), onChange: this.onRangeChange.bind(this), upperLimit: this.getPercentage("upperLimit") }),
 					_react2["default"].createElement(
-						"svg",
-						{
-							onMouseDown: this.onMouseDown.bind(this),
-							onTouchStart: this.onTouchStart.bind(this),
-							viewBox: "0 0 400 20" },
-						_react2["default"].createElement(
-							"g",
-							{ className: "range-line" },
-							_react2["default"].createElement("path", { d: this.getRangePath(), fill: "transparent" }),
-							this.getRangeCircle("lowerLimit"),
-							this.getRangeCircle("upperLimit")
-						),
-						_react2["default"].createElement("path", { d: "M0 0 L 0 20 Z", fill: "transparent" }),
-						_react2["default"].createElement("path", { d: "M400 0 L 400 20 Z", fill: "transparent" }),
-						_react2["default"].createElement("path", { d: "M0 10 L 400 10 Z", fill: "transparent" })
+						"label",
+						null,
+						Math.floor(this.state.lowerLimit * 0.0001)
 					),
 					_react2["default"].createElement(
 						"label",
 						null,
-						this.convertUnit(this.state.lowerLimit, 0.0001)
-					),
-					_react2["default"].createElement(
-						"label",
-						null,
-						this.convertUnit(this.state.upperLimit, 0.0001)
+						Math.ceil(this.state.upperLimit * 0.0001)
 					)
 				)
 			);
@@ -4295,7 +4402,7 @@ RangeFacet.propTypes = {
 exports["default"] = RangeFacet;
 module.exports = exports["default"];
 
-},{"insert-css":2,"react":"react"}],47:[function(_dereq_,module,exports){
+},{"hire-range-slider":2,"insert-css":3,"react":"react"}],48:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4360,7 +4467,7 @@ FacetValue.propTypes = {
 exports["default"] = FacetValue;
 module.exports = exports["default"];
 
-},{"react":"react"}],48:[function(_dereq_,module,exports){
+},{"react":"react"}],49:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4493,7 +4600,7 @@ CurrentQuery.propTypes = {
 exports["default"] = CurrentQuery;
 module.exports = exports["default"];
 
-},{"./facet-value":47,"insert-css":2,"react":"react"}],49:[function(_dereq_,module,exports){
+},{"./facet-value":48,"insert-css":3,"react":"react"}],50:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4671,7 +4778,7 @@ Results.propTypes = {
 exports["default"] = Results;
 module.exports = exports["default"];
 
-},{"../icons/loader-three-dots":36,"./current-query":48,"./result":50,"./sort-menu":51,"classnames":"classnames","insert-css":2,"lodash.debounce":3,"react":"react"}],50:[function(_dereq_,module,exports){
+},{"../icons/loader-three-dots":37,"./current-query":49,"./result":51,"./sort-menu":52,"classnames":"classnames","insert-css":3,"lodash.debounce":4,"react":"react"}],51:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4771,7 +4878,7 @@ Result.propTypes = {
 exports["default"] = Result;
 module.exports = exports["default"];
 
-},{"react":"react"}],51:[function(_dereq_,module,exports){
+},{"react":"react"}],52:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4903,7 +5010,7 @@ ResultsSortMenu.propTypes = {
 exports["default"] = ResultsSortMenu;
 module.exports = exports["default"];
 
-},{"classnames":"classnames","insert-css":2,"react":"react"}],52:[function(_dereq_,module,exports){
+},{"classnames":"classnames","insert-css":3,"react":"react"}],53:[function(_dereq_,module,exports){
 /* TODO Remove sort menu and move sort options (count/alpha) to facet schema.
 	A schema is needed, because different facets, should be able to have different
 	options set. */
@@ -5038,7 +5145,7 @@ SortMenu.propTypes = {
 exports["default"] = SortMenu;
 module.exports = exports["default"];
 
-},{"../icons/sort-alphabetically-ascending":38,"../icons/sort-alphabetically-descending":39,"../icons/sort-count-ascending":40,"../icons/sort-count-descending":41,"classnames":"classnames","insert-css":2,"react":"react"}],53:[function(_dereq_,module,exports){
+},{"../icons/sort-alphabetically-ascending":39,"../icons/sort-alphabetically-descending":40,"../icons/sort-count-ascending":41,"../icons/sort-count-descending":42,"classnames":"classnames","insert-css":3,"react":"react"}],54:[function(_dereq_,module,exports){
 // TODO add searching class to .search-icon when async query is busy
 
 "use strict";
@@ -5162,7 +5269,7 @@ TextSearch.propTypes = {
 exports["default"] = TextSearch;
 module.exports = exports["default"];
 
-},{"../icons/search":37,"classnames":"classnames","insert-css":2,"react":"react"}],54:[function(_dereq_,module,exports){
+},{"../icons/search":38,"classnames":"classnames","insert-css":3,"react":"react"}],55:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5411,7 +5518,7 @@ FacetedSearch.propTypes = {
 exports["default"] = FacetedSearch;
 module.exports = exports["default"];
 
-},{"./actions/queries":30,"./actions/results":31,"./components/facets":32,"./components/icons/loader-three-dots":36,"./components/results":49,"./reducers":56,"insert-css":2,"lodash.isequal":5,"react":"react","redux":15,"redux-thunk":13}],55:[function(_dereq_,module,exports){
+},{"./actions/queries":31,"./actions/results":32,"./components/facets":33,"./components/icons/loader-three-dots":37,"./components/results":50,"./reducers":57,"insert-css":3,"lodash.isequal":6,"react":"react","redux":16,"redux-thunk":14}],56:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5439,7 +5546,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}],56:[function(_dereq_,module,exports){
+},{}],57:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5474,7 +5581,7 @@ exports["default"] = (0, _redux.combineReducers)({
 });
 module.exports = exports["default"];
 
-},{"./config":55,"./labels":57,"./queries":58,"./results":59,"redux":15}],57:[function(_dereq_,module,exports){
+},{"./config":56,"./labels":58,"./queries":59,"./results":60,"redux":16}],58:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5505,7 +5612,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}],58:[function(_dereq_,module,exports){
+},{}],59:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5669,7 +5776,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}],59:[function(_dereq_,module,exports){
+},{}],60:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5768,5 +5875,5 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}]},{},[54])(54)
+},{}]},{},[55])(55)
 });
