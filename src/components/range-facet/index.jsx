@@ -40,7 +40,7 @@ class RangeFacet extends React.Component {
 		let realRange = upperBound - lowerBound;
 		let newState = {
 			lowerLimit: Math.floor(range.lowerLimit * realRange) + lowerBound,
-			upperLimit: Math.ceil(range.upperLimit * realRange) + lowerBound
+			upperLimit: Math.floor(range.upperLimit * realRange) + lowerBound
 		};
 		if(range.refresh) {
 			this.props.onSelectFacetRange(this.props.data.name, newState);
@@ -72,7 +72,7 @@ class RangeFacet extends React.Component {
 				<div>
 					<RangeSlider lowerLimit={this.getPercentage("lowerLimit")} onChange={this.onRangeChange.bind(this)} upperLimit={this.getPercentage("upperLimit")} />
 					<label>{Math.floor(this.state.lowerLimit * 0.0001)}</label>
-					<label>{Math.ceil(this.state.upperLimit * 0.0001)}</label>
+					<label>{Math.floor(this.state.upperLimit * 0.0001)}</label>
 				</div>
 			</li>
 		);
