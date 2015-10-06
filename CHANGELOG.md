@@ -1,3 +1,8 @@
+### v3.9.0	(2015/10/6 12:28)
+* Merge pull request #2 from HuygensING/development
+* new range slider
+* now using range slider component
+
 ### v3.8.0	(2015/9/9 10:42)
 * Add custom className
 
