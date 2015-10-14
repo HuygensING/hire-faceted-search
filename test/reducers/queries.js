@@ -111,7 +111,7 @@ describe('queries reducer', () => {
 	it("should REMOVE_FACET_VALUE and facet when list is empty", () => {
 		let initialFacets = {
 			facetValues: [
-				{name: "facet1", values: ["a"]},
+				{name: "facet1", values: ["a"]}
 			]
 		};
 		let state = {
@@ -224,6 +224,32 @@ describe('queries reducer', () => {
 	});
 
 
+	it("should overwrite the facetValues with SET_FACET_VALUES", () => {
+		let initialFacets = {
+			facetValues: [{name: "facet2", values: ["d", "e"]}]
+		};
+		let state = {
+			last: initialFacets,
+			all: [initialFacets]
+		};
+		let action = {
+			type: "SET_FACET_VALUES",
+			facetValues: [{name: "facet1", values: ["a", "b"]}]
+		};
+
+		let expectedFacets = {
+			facetValues: [
+				{name: "facet1", values: ["a", "b"]}
+			]
+		};
+		let expectedState = {
+			all: [initialFacets, expectedFacets],
+			last: expectedFacets
+		};
+
+		expect(reducer(state, action)).toEqual(expectedState);
+	});
+
 	it("should handle CHANGE_SEARCH_TERM", () => {
 		let state = {
 			all: [{term: "foo"}],
@@ -238,6 +264,7 @@ describe('queries reducer', () => {
 			value: "bar"
 		})).toEqual(expectedState);
 	});
+
 	it("should handle NEW_SEARCH", () => {
 
 		let state = {

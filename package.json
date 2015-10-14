@@ -41,6 +41,7 @@
     "nodemon": "^1.4.0",
     "should": "^7.0.2",
     "sinon": "~1.16.1",
+    "skin-deep": "^0.8.1",
     "watchify": "^3.3.0"
   },
   "dependencies": {

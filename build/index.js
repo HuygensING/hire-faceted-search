@@ -2804,6 +2804,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 exports.selectFacetRange = selectFacetRange;
 exports.selectFacetValue = selectFacetValue;
+exports.setFacetValues = setFacetValues;
 exports.newSearch = newSearch;
 exports.changeSearchTerm = changeSearchTerm;
 exports.setSort = setSort;
@@ -2835,6 +2836,13 @@ function selectFacetValue(facetName, value, remove) {
 	var part2 = remove ? { type: "REMOVE_FACET_VALUE" } : { type: "ADD_FACET_VALUE" };
 
 	return createNewQuery(_extends(part1, part2));
+}
+
+function setFacetValues(facetValues) {
+	return createNewQuery({
+		type: "SET_FACET_VALUES",
+		facetValues: facetValues
+	});
 }
 
 function newSearch() {
@@ -5342,13 +5350,13 @@ var _reduxThunk = _dereq_("redux-thunk");
 
 var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 
-// const logger = store => next => action => {
-// 	if (action.hasOwnProperty("type")) {
-// 		console.log(action.type, action);
-// 	}
+//const logger = store => next => action => {
+//	if (action.hasOwnProperty("type")) {
+//		console.log("[FACETED SEARCH] " + action.type, action);
+//	}
 
 //   return next(action);
-// };
+//};
 
 var _insertCss = _dereq_("insert-css");
 
@@ -5407,6 +5415,10 @@ var FacetedSearch = (function (_React$Component) {
 					type: "SET_LABELS",
 					labels: nextProps.labels
 				});
+			}
+			// Allows a query update to be passed through the prop named query
+			if (nextProps.query && nextProps.query.facetValues && !(0, _lodashIsequal2["default"])(nextProps.query.facetValues, this.state.queries.last.facetValues)) {
+				this.store.dispatch((0, _actionsQueries.setFacetValues)(nextProps.query.facetValues));
 			}
 		}
 	}, {
@@ -5783,6 +5795,13 @@ exports["default"] = function (state, action) {
 				facetValues: addRangeFacetValue(state.last.facetValues, action.facetName, action.value)
 			});
 			return addQueryToState(state, query);
+
+		case "SET_FACET_VALUES":
+			query = _extends({}, state.last, {
+				facetValues: action.facetValues
+			});
+			return addQueryToState(state, query);
+
 		case "CHANGE_SEARCH_TERM":
 			query = _extends({}, state.last, { term: action.value });
 

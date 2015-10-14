@@ -6,19 +6,19 @@ import Results from "./components/results";
 import Loader from "./components/icons/loader-three-dots";
 
 import {fetchResults, fetchNextResults} from "./actions/results";
-import {selectFacetValue, selectFacetRange, newSearch, setSort, changeSearchTerm} from "./actions/queries";
+import {selectFacetValue, selectFacetRange, newSearch, setSort, changeSearchTerm, setFacetValues} from "./actions/queries";
 
 import {createStore, applyMiddleware} from "redux";
 import reducers from "./reducers";
 import thunkMiddleware from "redux-thunk";
 
-// const logger = store => next => action => {
-// 	if (action.hasOwnProperty("type")) {
-// 		console.log(action.type, action);
-// 	}
+//const logger = store => next => action => {
+//	if (action.hasOwnProperty("type")) {
+//		console.log("[FACETED SEARCH] " + action.type, action);
+//	}
 
 //   return next(action);
-// };
+//};
 
 let createStoreWithMiddleware = applyMiddleware(thunkMiddleware)(createStore);
 
@@ -64,6 +64,11 @@ class FacetedSearch extends React.Component {
 				type: "SET_LABELS",
 				labels: nextProps.labels
 			});
+		}
+		// Allows a query update to be passed through the prop named query
+		if (nextProps.query && nextProps.query.facetValues &&
+			!isEqual(nextProps.query.facetValues, this.state.queries.last.facetValues)) {
+			this.store.dispatch(setFacetValues(nextProps.query.facetValues));
 		}
 	}
 
