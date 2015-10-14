@@ -5905,7 +5905,8 @@ exports["default"] = function (state, action) {
 
 		case "RECEIVE_NEXT_RESULTS":
 			var withConcatResults = _extends({}, action.response, {
-				refs: [].concat(_toConsumableArray(state.last.refs), _toConsumableArray(action.response.refs))
+				refs: [].concat(_toConsumableArray(state.last.refs), _toConsumableArray(action.response.refs)),
+				facets: updateFacetsWithReceivedCounts(state.last.facets, action.response.facets)
 			});
 			return addResponseToState(state, withConcatResults);
 
