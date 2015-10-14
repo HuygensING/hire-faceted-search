@@ -1,3 +1,8 @@
+### v3.10.1	(2015/10/14 16:17)
+* relaxed timeout of search component test
+* fix #3 facets will not disappear with RECEIVE_NEXT_RESULTS
+* removed commented out code from results reducers test
+
 ### v3.10.0	(2015/10/14 15:8)
 * allow facetValues to be changed with the query property
 
