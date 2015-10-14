@@ -10,6 +10,7 @@ describe("FacetedSearch", function() {
 	});
 
 	it("should update the query with componentWillReceiveProps", function() {
+		this.timeout(5000);
 		const FacetedSearch = require("../src/index");
 
 		const tree = sd.shallowRender(<FacetedSearch config={{}} />);
@@ -39,6 +40,7 @@ describe("FacetedSearch", function() {
 	});
 
 	it("should not update the query with componentWillReceiveProps when facetValues are the same", function() {
+		this.timeout(5000);
 		const FacetedSearch = require("../src/index");
 
 		const tree = sd.shallowRender(<FacetedSearch config={{}} />);
