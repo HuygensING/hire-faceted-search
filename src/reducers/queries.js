@@ -63,6 +63,14 @@ let addQueryToState = function(state, query) {
 	};
 };
 
+let setFullTextSearchParameter = function(field, value, last = []) {
+	let current = last.filter((param) => param.name !== field);
+	if(value.length) {
+		current.push({name: field, term: value});
+	}
+	return current;
+};
+
 let initialState = {
 	all: [],
 	default: {
@@ -136,7 +144,13 @@ export default function(state=initialState, action) {
 
 		case "CHANGE_SEARCH_TERM":
 			query = {...state.last, ...{term: action.value}};
+			return addQueryToState(state, query);
 
+		case "CHANGE_FULL_TEXT_SEARCH_TERM":
+			query = {...state.last, ...{
+				fullTextSearchParameters: setFullTextSearchParameter(action.field, action.value, state.last.fullTextSearchParameters)
+			}};
+			if(!query.fullTextSearchParameters.length) { delete query.fullTextSearchParameters; }
 			return addQueryToState(state, query);
 
 		case "NEW_SEARCH":

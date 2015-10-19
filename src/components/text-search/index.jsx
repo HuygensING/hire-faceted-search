@@ -17,7 +17,7 @@ class TextSearch extends React.Component {
 		this.state = {
 			value: "",
 			searching: false
-		}
+		};
 	}
 
 	componentWillReceiveProps(nextProps) {
@@ -48,11 +48,16 @@ class TextSearch extends React.Component {
 	}
 
 	render() {
+		let title = this.props.labels && this.props.labels.facetTitles.hasOwnProperty(this.props.field) ?
+			this.props.labels.facetTitles[this.props.field] :
+			this.props.field;
+
 		return (
 			<li className="hire-faceted-search-text-search">
+				<header><h3>{title}</h3></header>
 				<input
-					onKeyDown={this.handleInputKeyDown.bind(this)}
 					onChange={this.handleInputChange.bind(this)}
+					onKeyDown={this.handleInputKeyDown.bind(this)}
 					value={this.state.value} />
 				<div className={cx(
 					"search-icon", {
@@ -70,10 +75,12 @@ class TextSearch extends React.Component {
 }
 
 TextSearch.defaultProps = {
-
+	field: "term"
 };
 
 TextSearch.propTypes = {
+	field: React.PropTypes.string,
+	labels: React.PropTypes.object,
 	onChangeSearchTerm: React.PropTypes.func
 };
 

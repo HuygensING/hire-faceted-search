@@ -49,6 +49,14 @@ export function changeSearchTerm(value) {
 	});
 }
 
+export function changeFullTextSearchField(field, value) {
+	return createNewQuery({
+		type: "CHANGE_FULL_TEXT_SEARCH_TERM",
+		field: field,
+		value: value
+	});
+}
+
 export function setSort(field) {
 	return createNewQuery({
 		type: "SET_RESULTS_SORT",

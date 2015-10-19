@@ -36,6 +36,25 @@ let facetMap = {
 };
 
 class Facets extends React.Component {
+	onChangeFullTextField(field, value) {
+		this.props.onChangeFullTextField(field, value);
+	}
+
+	renderFullTextSearch(field, i) {
+		let foundFields = (this.props.queries.last.fullTextSearchParameters || []).filter((fld) => fld.name === field.name);
+		let value = foundFields.length ? foundFields[0].term : "";
+		return (
+			<TextSearch field={field.name} key={i} labels={this.props.labels} onChangeSearchTerm={this.onChangeFullTextField.bind(this, field.name)} value={value} />
+		);
+	}
+
+	renderFullTextSearches() {
+		return {
+			top: this.props.config.fullTextSearchFields.filter((field) => (field.position && field.position === "top") || !field.position).map(this.renderFullTextSearch.bind(this)),
+			bottom: this.props.config.fullTextSearchFields.filter((field) => (field.position && field.position === "bottom")).map(this.renderFullTextSearch.bind(this))
+		};
+	}
+
 	render() {
 		let updateCount = (facetName) => {
 			let found = this.props.results.last.facets.filter((facet) =>
@@ -44,6 +63,7 @@ class Facets extends React.Component {
 
 			return (found.length) ? found[0] : null;
 		};
+
 
 		let notNull = (facetName) =>
 			facetName !== null;
@@ -57,25 +77,36 @@ class Facets extends React.Component {
 				.filter(notNull) :
 			this.props.results.last.facets;
 
+		let freeTextSearch = this.props.config.hideFreeTextSearch ?
+			null :
+			<TextSearch	labels={this.props.labels} onChangeSearchTerm={this.props.onChangeSearchTerm} value={this.props.queries.last.term} />;
+
+		let fullTextSearches = this.props.config.fullTextSearchFields ?
+			this.renderFullTextSearches() :
+			{top: null, bottom: null};
+
 		return (
 			<ul className="hire-faceted-search-facets">
 				<button onClick={this.props.onNewSearch}>New search</button>
-				<TextSearch
-					onChangeSearchTerm={this.props.onChangeSearchTerm}
-					value={this.props.queries.last.term} />
+				{freeTextSearch}
+				{fullTextSearches.top}
 				{facets.map(toComponent)}
+				{fullTextSearches.bottom}
 			</ul>
 		);
 	}
 }
 
 Facets.defaultProps = {
+	config: {hideFreeTextSearch: false},
 	facetSortMap: {}
 };
 
 Facets.propTypes = {
+	config: React.PropTypes.object,
 	facetList: React.PropTypes.array,
 	labels: React.PropTypes.object,
+	onChangeFullTextField: React.PropTypes.func,
 	onChangeSearchTerm: React.PropTypes.func,
 	onNewSearch: React.PropTypes.func,
 	onSelectFacetRange: React.PropTypes.func,

@@ -85,6 +85,7 @@ class Results extends React.Component {
 
 					<CurrentQuery
 						labels={this.props.labels}
+						onChangeFullTextField={this.props.onChangeFullTextField}
 						onChangeSearchTerm={this.props.onChangeSearchTerm}
 						onSelectFacetValue={this.props.onSelectFacetValue}
 						queries={this.props.queries}
@@ -106,6 +107,7 @@ Results.propTypes = {
 	config: React.PropTypes.object,
 	labels: React.PropTypes.object,
 	metadataList: React.PropTypes.array,
+	onChangeFullTextField: React.PropTypes.func,
 	onChangeSearchTerm: React.PropTypes.func,
 	onFetchNextResults: React.PropTypes.func,
 	onSelect: React.PropTypes.func,

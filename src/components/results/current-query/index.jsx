@@ -14,14 +14,27 @@ class CurrentQuery extends React.Component {
 			name;
 	}
 
+	onChangeFullTextField(field, value) {
+		this.props.onChangeFullTextField(field, value);
+	}
+
 	render() {
 		let query = this.props.queries.last;
 
 		let searchTerm = (query.term !== "") ?
 			<li className="search-term">
-				<label>Search term</label>
+				<label>{this.toLabel("term")}</label>
 				<span onClick={this.props.onChangeSearchTerm.bind(this, "")}>{query.term}</span>
 			</li> :
+			null;
+
+		let extraSearchTerms = query.fullTextSearchParameters && query.fullTextSearchParameters.length ?
+			query.fullTextSearchParameters.map((fullTextSearchParameter, i) => (
+				<li className="search-term" key={i}>
+					<label>{this.toLabel(fullTextSearchParameter.name)}</label>
+					<span onClick={this.onChangeFullTextField.bind(this, fullTextSearchParameter.name, "")}>{fullTextSearchParameter.term}</span>
+				</li>
+			)) :
 			null;
 
 		let facets = query.facetValues
@@ -63,6 +76,7 @@ class CurrentQuery extends React.Component {
 		return (
 			<ul className="hire-faceted-search-current-query">
 				{searchTerm}
+				{extraSearchTerms}
 				{facets}
 			</ul>
 		);
@@ -71,6 +85,7 @@ class CurrentQuery extends React.Component {
 
 CurrentQuery.propTypes = {
 	labels: React.PropTypes.object,
+	onChangeFullTextField: React.PropTypes.func,
 	onChangeSearchTerm: React.PropTypes.func,
 	onSelectFacetValue: React.PropTypes.func,
 	queries: React.PropTypes.object,

@@ -265,6 +265,56 @@ describe('queries reducer', () => {
 		})).toEqual(expectedState);
 	});
 
+	it("should handle CHANGE_FULL_TEXT_SEARCH_TERM overwrite", () => {
+		let state = {
+			all: [{fullTextSearchParameters: [{name: "fieldname", term: ":val:"}]}],
+			last: {fullTextSearchParameters: [{name: "fieldname", term: ":val:"}]}
+		};
+		let expectedState = {
+			all: [{fullTextSearchParameters: [{name: "fieldname", term: ":val:"}]}, {fullTextSearchParameters: [{name: "fieldname", term: ":newVal:"}]}],
+			last: {fullTextSearchParameters: [{name: "fieldname", term: ":newVal:"}]}
+		};
+		expect(reducer(state, {
+			type: "CHANGE_FULL_TEXT_SEARCH_TERM",
+			field: "fieldname",
+			value: ":newVal:"
+		})).toEqual(expectedState);
+	});
+
+
+	it("should handle CHANGE_FULL_TEXT_SEARCH_TERM remove", () => {
+		let state = {
+			all: [{fullTextSearchParameters: [{name: "fieldname", term: ":val:"}]}],
+			last: {fullTextSearchParameters: [{name: "fieldname", term: ":val:"}]}
+		};
+		let expectedState = {
+			all: [{fullTextSearchParameters: [{name: "fieldname", term: ":val:"}]}, {}],
+			last: {}
+		};
+		expect(reducer(state, {
+			type: "CHANGE_FULL_TEXT_SEARCH_TERM",
+			field: "fieldname",
+			value: ""
+		})).toEqual(expectedState);
+	});
+
+	it("should handle CHANGE_FULL_TEXT_SEARCH_TERM add field", () => {
+		let state = {
+			all: [{fullTextSearchParameters: [{name: "fieldname", term: ":val:"}]}],
+			last: {fullTextSearchParameters: [{name: "fieldname", term: ":val:"}]}
+		};
+		let expectedState = {
+			all: [{fullTextSearchParameters: [{name: "fieldname", term: ":val:"}]}, {fullTextSearchParameters: [{name: "fieldname", term: ":val:"}, {name: "fieldname2", term: ":newVal:"}]}],
+			last: {fullTextSearchParameters: [{name: "fieldname", term: ":val:"}, {name: "fieldname2", term: ":newVal:"}]}
+		};
+		expect(reducer(state, {
+			type: "CHANGE_FULL_TEXT_SEARCH_TERM",
+			field: "fieldname2",
+			value: ":newVal:"
+		})).toEqual(expectedState);
+	});
+
+
 	it("should handle NEW_SEARCH", () => {
 
 		let state = {

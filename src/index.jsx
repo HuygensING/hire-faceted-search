@@ -6,7 +6,7 @@ import Results from "./components/results";
 import Loader from "./components/icons/loader-three-dots";
 
 import {fetchResults, fetchNextResults} from "./actions/results";
-import {selectFacetValue, selectFacetRange, newSearch, setSort, changeSearchTerm, setFacetValues} from "./actions/queries";
+import {selectFacetValue, selectFacetRange, newSearch, setSort, changeSearchTerm, changeFullTextSearchField, setFacetValues} from "./actions/queries";
 
 import {createStore, applyMiddleware} from "redux";
 import reducers from "./reducers";
@@ -114,9 +114,13 @@ class FacetedSearch extends React.Component {
 		return (
 			<div className={className}>
 				<Facets
+					config={this.state.config}
 					facetList={this.props.facetList}
 					facetSortMap={this.props.facetSortMap}
 					labels={this.state.labels}
+					onChangeFullTextField={(field, value) =>
+						this.store.dispatch(changeFullTextSearchField(field, value))
+					}
 					onChangeSearchTerm={(value) =>
 						this.store.dispatch(changeSearchTerm(value))
 					}
@@ -136,6 +140,9 @@ class FacetedSearch extends React.Component {
 					labels={this.state.labels}
 					metadataList={this.props.metadataList}
 					numberedResults={this.props.numberedResults}
+					onChangeFullTextField={(field, value) =>
+						this.store.dispatch(changeFullTextSearchField(field, value))
+					}
 					onChangeSearchTerm={(value) =>
 						this.store.dispatch(changeSearchTerm(value))
 					}

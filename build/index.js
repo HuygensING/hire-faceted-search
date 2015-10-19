@@ -2807,6 +2807,7 @@ exports.selectFacetValue = selectFacetValue;
 exports.setFacetValues = setFacetValues;
 exports.newSearch = newSearch;
 exports.changeSearchTerm = changeSearchTerm;
+exports.changeFullTextSearchField = changeFullTextSearchField;
 exports.setSort = setSort;
 
 var _results = _dereq_("./results");
@@ -2854,6 +2855,14 @@ function newSearch() {
 function changeSearchTerm(value) {
 	return createNewQuery({
 		type: "CHANGE_SEARCH_TERM",
+		value: value
+	});
+}
+
+function changeFullTextSearchField(field, value) {
+	return createNewQuery({
+		type: "CHANGE_FULL_TEXT_SEARCH_TERM",
+		field: field,
 		value: value
 	});
 }
@@ -3053,6 +3062,32 @@ var Facets = (function (_React$Component) {
 	}
 
 	_createClass(Facets, [{
+		key: "onChangeFullTextField",
+		value: function onChangeFullTextField(field, value) {
+			this.props.onChangeFullTextField(field, value);
+		}
+	}, {
+		key: "renderFullTextSearch",
+		value: function renderFullTextSearch(field, i) {
+			var foundFields = (this.props.queries.last.fullTextSearchParameters || []).filter(function (fld) {
+				return fld.name === field.name;
+			});
+			var value = foundFields.length ? foundFields[0].term : "";
+			return _react2["default"].createElement(_textSearch2["default"], { field: field.name, key: i, labels: this.props.labels, onChangeSearchTerm: this.onChangeFullTextField.bind(this, field.name), value: value });
+		}
+	}, {
+		key: "renderFullTextSearches",
+		value: function renderFullTextSearches() {
+			return {
+				top: this.props.config.fullTextSearchFields.filter(function (field) {
+					return field.position && field.position === "top" || !field.position;
+				}).map(this.renderFullTextSearch.bind(this)),
+				bottom: this.props.config.fullTextSearchFields.filter(function (field) {
+					return field.position && field.position === "bottom";
+				}).map(this.renderFullTextSearch.bind(this))
+			};
+		}
+	}, {
 		key: "render",
 		value: function render() {
 			var _this = this;
@@ -3075,6 +3110,10 @@ var Facets = (function (_React$Component) {
 
 			var facets = this.props.facetList.length ? this.props.facetList.map(updateCount).filter(notNull) : this.props.results.last.facets;
 
+			var freeTextSearch = this.props.config.hideFreeTextSearch ? null : _react2["default"].createElement(_textSearch2["default"], { labels: this.props.labels, onChangeSearchTerm: this.props.onChangeSearchTerm, value: this.props.queries.last.term });
+
+			var fullTextSearches = this.props.config.fullTextSearchFields ? this.renderFullTextSearches() : { top: null, bottom: null };
+
 			return _react2["default"].createElement(
 				"ul",
 				{ className: "hire-faceted-search-facets" },
@@ -3083,10 +3122,10 @@ var Facets = (function (_React$Component) {
 					{ onClick: this.props.onNewSearch },
 					"New search"
 				),
-				_react2["default"].createElement(_textSearch2["default"], {
-					onChangeSearchTerm: this.props.onChangeSearchTerm,
-					value: this.props.queries.last.term }),
-				facets.map(toComponent)
+				freeTextSearch,
+				fullTextSearches.top,
+				facets.map(toComponent),
+				fullTextSearches.bottom
 			);
 		}
 	}]);
@@ -3095,12 +3134,15 @@ var Facets = (function (_React$Component) {
 })(_react2["default"].Component);
 
 Facets.defaultProps = {
+	config: { hideFreeTextSearch: false },
 	facetSortMap: {}
 };
 
 Facets.propTypes = {
+	config: _react2["default"].PropTypes.object,
 	facetList: _react2["default"].PropTypes.array,
 	labels: _react2["default"].PropTypes.object,
+	onChangeFullTextField: _react2["default"].PropTypes.func,
 	onChangeSearchTerm: _react2["default"].PropTypes.func,
 	onNewSearch: _react2["default"].PropTypes.func,
 	onSelectFacetRange: _react2["default"].PropTypes.func,
@@ -4546,6 +4588,11 @@ var CurrentQuery = (function (_React$Component) {
 			return this.props.labels.facetTitles.hasOwnProperty(name) ? this.props.labels.facetTitles[name] : name;
 		}
 	}, {
+		key: "onChangeFullTextField",
+		value: function onChangeFullTextField(field, value) {
+			this.props.onChangeFullTextField(field, value);
+		}
+	}, {
 		key: "render",
 		value: function render() {
 			var _this = this;
@@ -4558,7 +4605,7 @@ var CurrentQuery = (function (_React$Component) {
 				_react2["default"].createElement(
 					"label",
 					null,
-					"Search term"
+					this.toLabel("term")
 				),
 				_react2["default"].createElement(
 					"span",
@@ -4566,6 +4613,23 @@ var CurrentQuery = (function (_React$Component) {
 					query.term
 				)
 			) : null;
+
+			var extraSearchTerms = query.fullTextSearchParameters && query.fullTextSearchParameters.length ? query.fullTextSearchParameters.map(function (fullTextSearchParameter, i) {
+				return _react2["default"].createElement(
+					"li",
+					{ className: "search-term", key: i },
+					_react2["default"].createElement(
+						"label",
+						null,
+						_this.toLabel(fullTextSearchParameter.name)
+					),
+					_react2["default"].createElement(
+						"span",
+						{ onClick: _this.onChangeFullTextField.bind(_this, fullTextSearchParameter.name, "") },
+						fullTextSearchParameter.term
+					)
+				);
+			}) : null;
 
 			var facets = query.facetValues.map(function (selectedFacet, index) {
 				var facetTitle = undefined;
@@ -4611,6 +4675,7 @@ var CurrentQuery = (function (_React$Component) {
 				"ul",
 				{ className: "hire-faceted-search-current-query" },
 				searchTerm,
+				extraSearchTerms,
 				facets
 			);
 		}
@@ -4621,6 +4686,7 @@ var CurrentQuery = (function (_React$Component) {
 
 CurrentQuery.propTypes = {
 	labels: _react2["default"].PropTypes.object,
+	onChangeFullTextField: _react2["default"].PropTypes.func,
 	onChangeSearchTerm: _react2["default"].PropTypes.func,
 	onSelectFacetValue: _react2["default"].PropTypes.func,
 	queries: _react2["default"].PropTypes.object,
@@ -4772,6 +4838,7 @@ var Results = (function (_React$Component) {
 						values: sortValues }),
 					_react2["default"].createElement(_currentQuery2["default"], {
 						labels: this.props.labels,
+						onChangeFullTextField: this.props.onChangeFullTextField,
 						onChangeSearchTerm: this.props.onChangeSearchTerm,
 						onSelectFacetValue: this.props.onSelectFacetValue,
 						queries: this.props.queries,
@@ -4794,6 +4861,7 @@ Results.propTypes = {
 	config: _react2["default"].PropTypes.object,
 	labels: _react2["default"].PropTypes.object,
 	metadataList: _react2["default"].PropTypes.array,
+	onChangeFullTextField: _react2["default"].PropTypes.func,
 	onChangeSearchTerm: _react2["default"].PropTypes.func,
 	onFetchNextResults: _react2["default"].PropTypes.func,
 	onSelect: _react2["default"].PropTypes.func,
@@ -5212,7 +5280,7 @@ var _insertCss2 = _interopRequireDefault(_insertCss);
 
 
 
-var css = Buffer("QC1tb3ota2V5ZnJhbWVzIHNwaW4gewoJMCUgewoJCS1tb3otdHJhbnNmb3JtOiByb3RhdGUoMGRlZyk7Cgl9CgkxMDAlIHsKCQktbW96LXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7Cgl9Cn0KQC13ZWJraXQta2V5ZnJhbWVzIHNwaW4gewoJMCUgewoJCS13ZWJraXQtdHJhbnNmb3JtOiByb3RhdGUoMGRlZyk7Cgl9CgkxMDAlIHsKCQktd2Via2l0LXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7Cgl9Cn0KQGtleWZyYW1lcyBzcGluIHsKCTAlIHsKCQl0cmFuc2Zvcm06IHJvdGF0ZSgwZGVnKTsKCX0KCTEwMCUgewoJCXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7Cgl9Cn0KCmxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggewoJaGVpZ2h0OiA0MHB4OwoJYmFja2dyb3VuZC1jb2xvcjogd2hpdGU7Cn0KCmxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggaW5wdXQsCmxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggLnNlYXJjaC1pY29uIHsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCWJveC1zaXppbmc6IGJvcmRlci1ib3g7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwp9CgpsaS5oaXJlLWZhY2V0ZWQtc2VhcmNoLXRleHQtc2VhcmNoIGlucHV0IHsKCWJvcmRlcjogbm9uZTsKCWZvbnQtc2l6ZTogMWVtOwoJb3V0bGluZTogbm9uZTsKCXBhZGRpbmctbGVmdDogMjBweDsKCXdpZHRoOiA5MCU7CgloZWlnaHQ6IDEwMCU7Cn0KCmxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggLnNlYXJjaC1pY29uIHsKCWZpbGw6ICNEREQ7CgloZWlnaHQ6IDEwMCU7Cgl3aWR0aDogMTAlOwoJdHJhbnNpdGlvbjogZmlsbCA0MDBtczsKfQoKbGkuaGlyZS1mYWNldGVkLXNlYXJjaC10ZXh0LXNlYXJjaCAuc2VhcmNoLWljb24uYWN0aXZlIHsKCWN1cnNvcjogcG9pbnRlcjsKCWZpbGw6ICM4ODg7Cn0KCmxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggLnNlYXJjaC1pY29uLnNlYXJjaGluZyBzdmcgewoJLW1vei1hbmltYXRpb246IHNwaW4gMS4ycyBlYXNlIGluZmluaXRlOwoJLXdlYmtpdC1hbmltYXRpb246IHNwaW4gMS4ycyBlYXNlIGluZmluaXRlOwoJYW5pbWF0aW9uOiBzcGluIDEuMnMgZWFzZSBpbmZpbml0ZTsKfQoKLyogVXNlcnMgd2l0aCBJRSA8IDExIHdpbGwgc2VlIHRoZSBzZWFyY2ggaWNvbiBhbGlnbmVkIG9uIHRvcC4gKi8KbGkuaGlyZS1mYWNldGVkLXNlYXJjaC10ZXh0LXNlYXJjaCAuc2VhcmNoLWljb24gLmNlbnRlci12ZXJ0aWNhbCB7CgloZWlnaHQ6IDEwMCU7CglkaXNwbGF5OiBmbGV4OwoJZGlzcGxheTogLXdlYmtpdC1mbGV4OwoJYWxpZ24taXRlbXM6IGNlbnRlcjsKCS13ZWJraXQtYWxpZ24taXRlbXM6IGNlbnRlcjsKfQoKbGkuaGlyZS1mYWNldGVkLXNlYXJjaC10ZXh0LXNlYXJjaCAuc2VhcmNoLWljb24gLmNlbnRlci12ZXJ0aWNhbCBzdmcgewoJd2lkdGg6IDcwJTsKCWhlaWdodDogNzAlOwp9","base64");
+var css = Buffer("QC1tb3ota2V5ZnJhbWVzIHNwaW4gewoJMCUgewoJCS1tb3otdHJhbnNmb3JtOiByb3RhdGUoMGRlZyk7Cgl9CgkxMDAlIHsKCQktbW96LXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7Cgl9Cn0KQC13ZWJraXQta2V5ZnJhbWVzIHNwaW4gewoJMCUgewoJCS13ZWJraXQtdHJhbnNmb3JtOiByb3RhdGUoMGRlZyk7Cgl9CgkxMDAlIHsKCQktd2Via2l0LXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7Cgl9Cn0KQGtleWZyYW1lcyBzcGluIHsKCTAlIHsKCQl0cmFuc2Zvcm06IHJvdGF0ZSgwZGVnKTsKCX0KCTEwMCUgewoJCXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7Cgl9Cn0KCmxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggewoJYmFja2dyb3VuZC1jb2xvcjogd2hpdGU7CglwYWRkaW5nOiAyMHB4OwoJbWFyZ2luLXRvcDogMjBweDsKfQoKIGxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggPiBoZWFkZXIgPiBoMyB7CiAJbWFyZ2luOiAwIDAgMTJweDsKICAgIHBhZGRpbmc6IDA7CiAgICB3aWR0aDogNjAlOwogfQoKbGkuaGlyZS1mYWNldGVkLXNlYXJjaC10ZXh0LXNlYXJjaCBpbnB1dCwKbGkuaGlyZS1mYWNldGVkLXNlYXJjaC10ZXh0LXNlYXJjaCAuc2VhcmNoLWljb24gewoJZGlzcGxheTogaW5saW5lLWJsb2NrOwoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCXZlcnRpY2FsLWFsaWduOiB0b3A7Cn0KCmxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggaW5wdXQgewoJYm9yZGVyOiAxcHggc29saWQgI2VlZTsKCWJvcmRlci1yaWdodDogbm9uZTsKCWJhY2tncm91bmQtY29sb3I6ICNmZmY7Cglmb250LXNpemU6IDFlbTsKCW91dGxpbmU6IG5vbmU7CglwYWRkaW5nLWxlZnQ6IDIwcHg7Cgl3aWR0aDogOTAlOwoJaGVpZ2h0OiA0MHB4Owp9CgpsaS5oaXJlLWZhY2V0ZWQtc2VhcmNoLXRleHQtc2VhcmNoIC5zZWFyY2gtaWNvbiB7CglmaWxsOiAjREREOwoJaGVpZ2h0OiA0MHB4OwoJd2lkdGg6IDEwJTsKCWJvcmRlcjogMXB4IHNvbGlkICNlZWU7Cglib3JkZXItbGVmdDogbm9uZTsKCXRyYW5zaXRpb246IGZpbGwgNDAwbXM7Cn0KCmxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggLnNlYXJjaC1pY29uLmFjdGl2ZSB7CgljdXJzb3I6IHBvaW50ZXI7CglmaWxsOiAjODg4Owp9CgpsaS5oaXJlLWZhY2V0ZWQtc2VhcmNoLXRleHQtc2VhcmNoIC5zZWFyY2gtaWNvbi5zZWFyY2hpbmcgc3ZnIHsKCS1tb3otYW5pbWF0aW9uOiBzcGluIDEuMnMgZWFzZSBpbmZpbml0ZTsKCS13ZWJraXQtYW5pbWF0aW9uOiBzcGluIDEuMnMgZWFzZSBpbmZpbml0ZTsKCWFuaW1hdGlvbjogc3BpbiAxLjJzIGVhc2UgaW5maW5pdGU7Cn0KCi8qIFVzZXJzIHdpdGggSUUgPCAxMSB3aWxsIHNlZSB0aGUgc2VhcmNoIGljb24gYWxpZ25lZCBvbiB0b3AuICovCmxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggLnNlYXJjaC1pY29uIC5jZW50ZXItdmVydGljYWwgewoJaGVpZ2h0OiAxMDAlOwoJZGlzcGxheTogZmxleDsKCWRpc3BsYXk6IC13ZWJraXQtZmxleDsKCWFsaWduLWl0ZW1zOiBjZW50ZXI7Cgktd2Via2l0LWFsaWduLWl0ZW1zOiBjZW50ZXI7Cn0KCmxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggLnNlYXJjaC1pY29uIC5jZW50ZXItdmVydGljYWwgc3ZnIHsKCXdpZHRoOiA3MCU7CgloZWlnaHQ6IDcwJTsKfQ==","base64");
 (0, _insertCss2["default"])(css, { prepend: true });
 
 var TextSearch = (function (_React$Component) {
@@ -5263,12 +5331,23 @@ var TextSearch = (function (_React$Component) {
 	}, {
 		key: "render",
 		value: function render() {
+			var title = this.props.labels && this.props.labels.facetTitles.hasOwnProperty(this.props.field) ? this.props.labels.facetTitles[this.props.field] : this.props.field;
+
 			return _react2["default"].createElement(
 				"li",
 				{ className: "hire-faceted-search-text-search" },
+				_react2["default"].createElement(
+					"header",
+					null,
+					_react2["default"].createElement(
+						"h3",
+						null,
+						title
+					)
+				),
 				_react2["default"].createElement("input", {
-					onKeyDown: this.handleInputKeyDown.bind(this),
 					onChange: this.handleInputChange.bind(this),
+					onKeyDown: this.handleInputKeyDown.bind(this),
 					value: this.state.value }),
 				_react2["default"].createElement(
 					"div",
@@ -5290,9 +5369,13 @@ var TextSearch = (function (_React$Component) {
 	return TextSearch;
 })(_react2["default"].Component);
 
-TextSearch.defaultProps = {};
+TextSearch.defaultProps = {
+	field: "term"
+};
 
 TextSearch.propTypes = {
+	field: _react2["default"].PropTypes.string,
+	labels: _react2["default"].PropTypes.object,
 	onChangeSearchTerm: _react2["default"].PropTypes.func
 };
 
@@ -5472,9 +5555,13 @@ var FacetedSearch = (function (_React$Component) {
 				"div",
 				{ className: className },
 				_react2["default"].createElement(_componentsFacets2["default"], {
+					config: this.state.config,
 					facetList: this.props.facetList,
 					facetSortMap: this.props.facetSortMap,
 					labels: this.state.labels,
+					onChangeFullTextField: function (field, value) {
+						return _this2.store.dispatch((0, _actionsQueries.changeFullTextSearchField)(field, value));
+					},
 					onChangeSearchTerm: function (value) {
 						return _this2.store.dispatch((0, _actionsQueries.changeSearchTerm)(value));
 					},
@@ -5502,6 +5589,9 @@ var FacetedSearch = (function (_React$Component) {
 					labels: this.state.labels,
 					metadataList: this.props.metadataList,
 					numberedResults: this.props.numberedResults,
+					onChangeFullTextField: function (field, value) {
+						return _this2.store.dispatch((0, _actionsQueries.changeFullTextSearchField)(field, value));
+					},
 					onChangeSearchTerm: function (value) {
 						return _this2.store.dispatch((0, _actionsQueries.changeSearchTerm)(value));
 					},
@@ -5719,6 +5809,18 @@ var addQueryToState = function addQueryToState(state, query) {
 	});
 };
 
+var setFullTextSearchParameter = function setFullTextSearchParameter(field, value) {
+	var last = arguments.length <= 2 || arguments[2] === undefined ? [] : arguments[2];
+
+	var current = last.filter(function (param) {
+		return param.name !== field;
+	});
+	if (value.length) {
+		current.push({ name: field, term: value });
+	}
+	return current;
+};
+
 var initialState = {
 	all: [],
 	"default": {
@@ -5804,7 +5906,15 @@ exports["default"] = function (state, action) {
 
 		case "CHANGE_SEARCH_TERM":
 			query = _extends({}, state.last, { term: action.value });
+			return addQueryToState(state, query);
 
+		case "CHANGE_FULL_TEXT_SEARCH_TERM":
+			query = _extends({}, state.last, {
+				fullTextSearchParameters: setFullTextSearchParameter(action.field, action.value, state.last.fullTextSearchParameters)
+			});
+			if (!query.fullTextSearchParameters.length) {
+				delete query.fullTextSearchParameters;
+			}
 			return addQueryToState(state, query);
 
 		case "NEW_SEARCH":

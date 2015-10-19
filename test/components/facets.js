@@ -47,8 +47,8 @@ describe("Facets", () => {
 		const { output } = setup();
 		expect(output.type).toBe("ul");
 		expect(output.props.className).toBe("hire-faceted-search-facets");
-		expect(output.props.children.length).toBe(3);
-		let [button, textSearch, childFacets] = output.props.children;
+		expect(output.props.children.length).toBe(5);
+		let [button, textSearch, ftSearchTop, childFacets, ftSearchBottom] = output.props.children;
 		expect(button.type).toBe("button");
 		expect(button.props.onClick()).toBe("new search clicked");
 		expect(textSearch.props.value).toBe("mock term");
