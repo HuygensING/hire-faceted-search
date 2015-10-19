@@ -4819,6 +4819,14 @@ var Results = (function (_React$Component) {
 				return { fieldname: f };
 			});
 
+			var currentQuery = this.props.config.currentQueryGroupFunc ? this.props.config.currentQueryGroupFunc(this.props, _currentQuery2["default"]) : _react2["default"].createElement(_currentQuery2["default"], {
+				labels: this.props.labels,
+				onChangeFullTextField: this.props.onChangeFullTextField,
+				onChangeSearchTerm: this.props.onChangeSearchTerm,
+				onSelectFacetValue: this.props.onSelectFacetValue,
+				queries: this.props.queries,
+				results: this.props.results });
+
 			return _react2["default"].createElement(
 				"div",
 				{ className: "hire-faceted-search-results" },
@@ -4836,13 +4844,7 @@ var Results = (function (_React$Component) {
 						labels: this.props.labels,
 						onSetSort: this.props.onSetSort,
 						values: sortValues }),
-					_react2["default"].createElement(_currentQuery2["default"], {
-						labels: this.props.labels,
-						onChangeFullTextField: this.props.onChangeFullTextField,
-						onChangeSearchTerm: this.props.onChangeSearchTerm,
-						onSelectFacetValue: this.props.onSelectFacetValue,
-						queries: this.props.queries,
-						results: this.props.results })
+					currentQuery
 				),
 				_react2["default"].createElement(
 					"ol",

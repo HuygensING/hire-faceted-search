@@ -73,6 +73,16 @@ class Results extends React.Component {
 			this.props.queries.last.sortParameters :
 			this.props.results.last.sortableFields.map(f => ({fieldname: f}));
 
+		let currentQuery = this.props.config.currentQueryGroupFunc ?
+			this.props.config.currentQueryGroupFunc(this.props, CurrentQuery) :
+			(<CurrentQuery
+				labels={this.props.labels}
+				onChangeFullTextField={this.props.onChangeFullTextField}
+				onChangeSearchTerm={this.props.onChangeSearchTerm}
+				onSelectFacetValue={this.props.onSelectFacetValue}
+				queries={this.props.queries}
+				results={this.props.results} />);
+
 		return (
 			<div className="hire-faceted-search-results">
 				<header>
@@ -82,14 +92,7 @@ class Results extends React.Component {
 						labels={this.props.labels}
 						onSetSort={this.props.onSetSort}
 						values={sortValues} />
-
-					<CurrentQuery
-						labels={this.props.labels}
-						onChangeFullTextField={this.props.onChangeFullTextField}
-						onChangeSearchTerm={this.props.onChangeSearchTerm}
-						onSelectFacetValue={this.props.onSelectFacetValue}
-						queries={this.props.queries}
-						results={this.props.results} />
+					{currentQuery}
 				</header>
 				<ol className={cx(
 						"hire-faceted-search-result-list",
