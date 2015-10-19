@@ -1,3 +1,6 @@
+### v4.1.0	(2015/10/19 16:28)
+* expose current query group map func through config
+
 ### v4.0.0	(2015/10/19 14:24)
 * added multiple full text search field support
 
