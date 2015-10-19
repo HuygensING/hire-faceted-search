@@ -1,3 +1,6 @@
+### v4.0.0	(2015/10/19 14:24)
+* added multiple full text search field support
+
 ### v3.10.1	(2015/10/14 16:17)
 * relaxed timeout of search component test
 * fix #3 facets will not disappear with RECEIVE_NEXT_RESULTS

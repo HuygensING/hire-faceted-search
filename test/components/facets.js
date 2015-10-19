@@ -9,7 +9,8 @@ describe("Facets", () => {
 		global.document = jsdom.jsdom('<!doctype html><html><body></body></html>');
 	});
 
-	it("should render properly", () => {
+	it("should render properly", function() {
+		this.timeout(4000);
 		// Can only import elements with insertCss after document is exposed as global
 		let Facets = require("../../src/components/facets");
 		let TextSearch = require("../../src/components/text-search");
