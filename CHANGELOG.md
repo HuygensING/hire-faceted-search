@@ -1,3 +1,6 @@
+### v4.3.0	(2015/10/20 14:23)
+* moved CurrentQuery component to external package hire-current-query
+
 ### v4.2.0	(2015/10/20 12:17)
 * added optional callback onSearchId, added last searchId to state
 
