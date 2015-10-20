@@ -4853,7 +4853,14 @@ var Results = (function (_React$Component) {
 				return { fieldname: f };
 			});
 
-			var currentQuery = this.props.config.currentQueryGroupFunc ? this.props.config.currentQueryGroupFunc(this.props, _hireCurrentQuery2["default"]) : _react2["default"].createElement(_hireCurrentQuery2["default"], {
+			var currentQuery = this.props.currentQueryComponent ? _react2["default"].createElement(this.props.currentQueryComponent, {
+				labels: this.props.labels,
+				onChangeFullTextField: this.props.onChangeFullTextField,
+				onChangeSearchTerm: this.props.onChangeSearchTerm,
+				onSelectFacetValue: this.props.onSelectFacetValue,
+				queries: this.props.queries,
+				results: this.props.results
+			}) : _react2["default"].createElement(_hireCurrentQuery2["default"], {
 				labels: this.props.labels,
 				onChangeFullTextField: this.props.onChangeFullTextField,
 				onChangeSearchTerm: this.props.onChangeSearchTerm,
@@ -4895,6 +4902,7 @@ var Results = (function (_React$Component) {
 
 Results.propTypes = {
 	config: _react2["default"].PropTypes.object,
+	currentQueryComponent: _react2["default"].PropTypes.func,
 	labels: _react2["default"].PropTypes.object,
 	metadataList: _react2["default"].PropTypes.array,
 	onChangeFullTextField: _react2["default"].PropTypes.func,
@@ -5625,6 +5633,7 @@ var FacetedSearch = (function (_React$Component) {
 					results: this.state.results }),
 				_react2["default"].createElement(_componentsResults2["default"], {
 					config: this.state.config,
+					currentQueryComponent: this.props.currentQueryComponent,
 					labels: this.state.labels,
 					metadataList: this.props.metadataList,
 					numberedResults: this.props.numberedResults,
@@ -5668,6 +5677,7 @@ FacetedSearch.defaultProps = {
 FacetedSearch.propTypes = {
 	className: _react2["default"].PropTypes.string,
 	config: _react2["default"].PropTypes.object.isRequired,
+	currentQueryComponent: _react2["default"].PropTypes.func,
 	facetList: _react2["default"].PropTypes.array,
 	facetSortMap: _react2["default"].PropTypes.object,
 	labels: _react2["default"].PropTypes.object,

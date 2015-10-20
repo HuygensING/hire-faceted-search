@@ -73,8 +73,15 @@ class Results extends React.Component {
 			this.props.queries.last.sortParameters :
 			this.props.results.last.sortableFields.map(f => ({fieldname: f}));
 
-		let currentQuery = this.props.config.currentQueryGroupFunc ?
-			this.props.config.currentQueryGroupFunc(this.props, CurrentQuery) :
+		let currentQuery = this.props.currentQueryComponent ?
+			React.createElement(this.props.currentQueryComponent, {
+				labels: this.props.labels,
+				onChangeFullTextField: this.props.onChangeFullTextField,
+				onChangeSearchTerm: this.props.onChangeSearchTerm,
+				onSelectFacetValue: this.props.onSelectFacetValue,
+				queries: this.props.queries,
+				results: this.props.results
+			}) :
 			(<CurrentQuery
 				labels={this.props.labels}
 				onChangeFullTextField={this.props.onChangeFullTextField}
@@ -108,6 +115,7 @@ class Results extends React.Component {
 
 Results.propTypes = {
 	config: React.PropTypes.object,
+	currentQueryComponent: React.PropTypes.func,
 	labels: React.PropTypes.object,
 	metadataList: React.PropTypes.array,
 	onChangeFullTextField: React.PropTypes.func,

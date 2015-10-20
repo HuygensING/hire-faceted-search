@@ -138,6 +138,7 @@ class FacetedSearch extends React.Component {
 					results={this.state.results} />
 				<Results
 					config={this.state.config}
+					currentQueryComponent={this.props.currentQueryComponent}
 					labels={this.state.labels}
 					metadataList={this.props.metadataList}
 					numberedResults={this.props.numberedResults}
@@ -175,6 +176,7 @@ FacetedSearch.defaultProps = {
 FacetedSearch.propTypes = {
 	className: React.PropTypes.string,
 	config: React.PropTypes.object.isRequired,
+	currentQueryComponent: React.PropTypes.func,
 	facetList: React.PropTypes.array,
 	facetSortMap: React.PropTypes.object,
 	labels: React.PropTypes.object,
