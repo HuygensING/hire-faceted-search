@@ -4,7 +4,7 @@ import debounce from "lodash.debounce";
 
 import Result from "./result";
 import ResultsSortMenu from "./sort-menu";
-import CurrentQuery from "./current-query";
+import CurrentQuery from "hire-current-query";
 
 import Loader from "../icons/loader-three-dots";
 

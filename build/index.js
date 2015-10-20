@@ -1,4 +1,253 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.HireFacetedSearch = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.HireFacetedSearch = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+var inserted = {};
+
+module.exports = function (css, options) {
+    if (inserted[css]) return;
+    inserted[css] = true;
+    
+    var elem = document.createElement('style');
+    elem.setAttribute('type', 'text/css');
+
+    if ('textContent' in elem) {
+      elem.textContent = css;
+    } else {
+      elem.styleSheet.cssText = css;
+    }
+    
+    var head = document.getElementsByTagName('head')[0];
+    if (options && options.prepend) {
+        head.insertBefore(elem, head.childNodes[0]);
+    } else {
+        head.appendChild(elem);
+    }
+};
+
+},{}],2:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = _dereq_("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var FacetValue = (function (_React$Component) {
+	_inherits(FacetValue, _React$Component);
+
+	function FacetValue() {
+		_classCallCheck(this, FacetValue);
+
+		_get(Object.getPrototypeOf(FacetValue.prototype), "constructor", this).apply(this, arguments);
+	}
+
+	_createClass(FacetValue, [{
+		key: "renderValue",
+		value: function renderValue() {
+			if (this.props.range) {
+				return Math.floor(this.props.range.lowerLimit * 0.0001) + " - " + Math.floor(this.props.range.upperLimit * 0.0001);
+			} else {
+				return this.props.value;
+			}
+		}
+	}, {
+		key: "render",
+		value: function render() {
+			return _react2["default"].createElement(
+				"li",
+				{
+					className: "hire-faceted-search-selected-facet-value",
+					onClick: this.props.onSelectFacetValue.bind(this, this.props.facetName, this.props.value, true) },
+				this.renderValue()
+			);
+		}
+	}]);
+
+	return FacetValue;
+})(_react2["default"].Component);
+
+FacetValue.propTypes = {
+	facetName: _react2["default"].PropTypes.string,
+	onSelectFacetValue: _react2["default"].PropTypes.func,
+	range: _react2["default"].PropTypes.object,
+	value: _react2["default"].PropTypes.string
+};
+
+exports["default"] = FacetValue;
+module.exports = exports["default"];
+
+},{"react":"react"}],3:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = _dereq_("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _facetValue = _dereq_("./facet-value");
+
+var _facetValue2 = _interopRequireDefault(_facetValue);
+
+var _insertCss = _dereq_("insert-css");
+
+var _insertCss2 = _interopRequireDefault(_insertCss);
+
+
+
+var css = Buffer("dWwuaGlyZS1mYWNldGVkLXNlYXJjaC1jdXJyZW50LXF1ZXJ5IHsKCWNvbG9yOiAjODg4OwoJZm9udC1zaXplOiAwLjdlbTsKfQoKdWwuaGlyZS1mYWNldGVkLXNlYXJjaC1jdXJyZW50LXF1ZXJ5ID4gbGkgPiBsYWJlbCwKdWwuaGlyZS1mYWNldGVkLXNlYXJjaC1jdXJyZW50LXF1ZXJ5ID4gbGkgPiBzcGFuLAp1bC5oaXJlLWZhY2V0ZWQtc2VhcmNoLWN1cnJlbnQtcXVlcnkgPiBsaSA+IHVsIHsKCWJveC1zaXppbmc6IGJvcmRlci1ib3g7CglkaXNwbGF5OiBpbmxpbmUtYmxvY2s7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwp9Cgp1bC5oaXJlLWZhY2V0ZWQtc2VhcmNoLWN1cnJlbnQtcXVlcnkgPiBsaSA+IGxhYmVsIHsKCXdpZHRoOiAxNTBweDsKfQoKdWwuaGlyZS1mYWNldGVkLXNlYXJjaC1jdXJyZW50LXF1ZXJ5ID4gbGkgPiB1bCB7Cgl3aWR0aDogY2FsYygxMDAlIC0gMTUwcHgpOwp9Cgp1bC5oaXJlLWZhY2V0ZWQtc2VhcmNoLWN1cnJlbnQtcXVlcnkgbGkuaGlyZS1mYWNldGVkLXNlYXJjaC1zZWxlY3RlZC1mYWNldC12YWx1ZSwKdWwuaGlyZS1mYWNldGVkLXNlYXJjaC1jdXJyZW50LXF1ZXJ5IGxpLnNlYXJjaC10ZXJtIHNwYW4gewoJYmFja2dyb3VuZC1jb2xvcjogI0RERDsKCWJvcmRlci1yYWRpdXM6IDRweDsKCWN1cnNvcjogcG9pbnRlcjsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCW1hcmdpbjogMCA0cHggNHB4IDA7CglwYWRkaW5nOiAwIDZweDsKfQoKdWwuaGlyZS1mYWNldGVkLXNlYXJjaC1jdXJyZW50LXF1ZXJ5IGxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtc2VsZWN0ZWQtZmFjZXQtdmFsdWU6YWZ0ZXIsCnVsLmhpcmUtZmFjZXRlZC1zZWFyY2gtY3VycmVudC1xdWVyeSBsaS5zZWFyY2gtdGVybSBzcGFuOmFmdGVyIHsKCWNvbnRlbnQ6ICLinJYiOwoJcGFkZGluZy1sZWZ0OiA4cHg7Cn0=","base64");
+(0, _insertCss2["default"])(css, { prepend: true });
+
+var CurrentQuery = (function (_React$Component) {
+	_inherits(CurrentQuery, _React$Component);
+
+	function CurrentQuery() {
+		_classCallCheck(this, CurrentQuery);
+
+		_get(Object.getPrototypeOf(CurrentQuery.prototype), "constructor", this).apply(this, arguments);
+	}
+
+	_createClass(CurrentQuery, [{
+		key: "toLabel",
+		value: function toLabel(name) {
+			return this.props.labels.facetTitles.hasOwnProperty(name) ? this.props.labels.facetTitles[name] : name;
+		}
+	}, {
+		key: "onChangeFullTextField",
+		value: function onChangeFullTextField(field, value) {
+			this.props.onChangeFullTextField(field, value);
+		}
+	}, {
+		key: "render",
+		value: function render() {
+			var _this = this;
+
+			var query = this.props.queries.last;
+
+			var searchTerm = query.term !== "" ? _react2["default"].createElement(
+				"li",
+				{ className: "search-term" },
+				_react2["default"].createElement(
+					"label",
+					null,
+					this.toLabel("term")
+				),
+				_react2["default"].createElement(
+					"span",
+					{ onClick: this.props.onChangeSearchTerm.bind(this, "") },
+					query.term
+				)
+			) : null;
+
+			var extraSearchTerms = query.fullTextSearchParameters && query.fullTextSearchParameters.length ? query.fullTextSearchParameters.map(function (fullTextSearchParameter, i) {
+				return _react2["default"].createElement(
+					"li",
+					{ className: "search-term", key: i },
+					_react2["default"].createElement(
+						"label",
+						null,
+						_this.toLabel(fullTextSearchParameter.name)
+					),
+					_react2["default"].createElement(
+						"span",
+						{ onClick: _this.onChangeFullTextField.bind(_this, fullTextSearchParameter.name, "") },
+						fullTextSearchParameter.term
+					)
+				);
+			}) : null;
+
+			var facets = query.facetValues.map(function (selectedFacet, index) {
+				var facetTitle = undefined;
+				var filteredFacets = _this.props.results.last.facets.filter(function (facet) {
+					return facet.name === selectedFacet.name;
+				});
+
+				if (filteredFacets.length) {
+					facetTitle = filteredFacets[0].name;
+				} else {
+					return new Error("CurrentQuery: facet not found!");
+				}
+
+				var facetValues = selectedFacet.values ? selectedFacet.values.map(function (value, index2) {
+					return _react2["default"].createElement(_facetValue2["default"], {
+						facetName: selectedFacet.name,
+						key: index2,
+						onSelectFacetValue: _this.props.onSelectFacetValue,
+						value: value });
+				}) : _react2["default"].createElement(_facetValue2["default"], {
+					facetName: selectedFacet.name,
+					onSelectFacetValue: _this.props.onSelectFacetValue,
+					range: { lowerLimit: selectedFacet.lowerLimit, upperLimit: selectedFacet.upperLimit } });
+				return _react2["default"].createElement(
+					"li",
+					{
+						className: "hire-faceted-search-selected-facet",
+						key: index },
+					_react2["default"].createElement(
+						"label",
+						null,
+						_this.toLabel(facetTitle)
+					),
+					_react2["default"].createElement(
+						"ul",
+						null,
+						facetValues
+					)
+				);
+			});
+
+			return _react2["default"].createElement(
+				"ul",
+				{ className: "hire-faceted-search-current-query" },
+				searchTerm,
+				extraSearchTerms,
+				facets
+			);
+		}
+	}]);
+
+	return CurrentQuery;
+})(_react2["default"].Component);
+
+CurrentQuery.propTypes = {
+	labels: _react2["default"].PropTypes.object,
+	onChangeFullTextField: _react2["default"].PropTypes.func,
+	onChangeSearchTerm: _react2["default"].PropTypes.func,
+	onSelectFacetValue: _react2["default"].PropTypes.func,
+	queries: _react2["default"].PropTypes.object,
+	results: _react2["default"].PropTypes.object
+};
+
+exports["default"] = CurrentQuery;
+module.exports = exports["default"];
+
+},{"./facet-value":2,"insert-css":1,"react":"react"}]},{},[3])(3)
+});
+},{}],2:[function(_dereq_,module,exports){
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.HireFormsInput = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 "use strict";
 
@@ -131,7 +380,7 @@ module.exports = exports["default"];
 },{"classnames":"classnames","react":"react"}]},{},[1])(1)
 });
 
-},{}],2:[function(_dereq_,module,exports){
+},{}],3:[function(_dereq_,module,exports){
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.RangeSlider = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 var inserted = {};
 
@@ -391,7 +640,7 @@ module.exports = exports["default"];
 
 },{"insert-css":1,"react":"react"}]},{},[2])(2)
 });
-},{}],3:[function(_dereq_,module,exports){
+},{}],4:[function(_dereq_,module,exports){
 var inserted = {};
 
 module.exports = function (css, options) {
@@ -415,7 +664,7 @@ module.exports = function (css, options) {
     }
 };
 
-},{}],4:[function(_dereq_,module,exports){
+},{}],5:[function(_dereq_,module,exports){
 /**
  * lodash 3.1.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -651,7 +900,7 @@ function isObject(value) {
 
 module.exports = debounce;
 
-},{"lodash._getnative":5}],5:[function(_dereq_,module,exports){
+},{"lodash._getnative":6}],6:[function(_dereq_,module,exports){
 /**
  * lodash 3.9.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -790,7 +1039,7 @@ function isNative(value) {
 
 module.exports = getNative;
 
-},{}],6:[function(_dereq_,module,exports){
+},{}],7:[function(_dereq_,module,exports){
 /**
  * lodash 3.0.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -854,7 +1103,7 @@ function isEqual(value, other, customizer, thisArg) {
 
 module.exports = isEqual;
 
-},{"lodash._baseisequal":7,"lodash._bindcallback":13}],7:[function(_dereq_,module,exports){
+},{"lodash._baseisequal":8,"lodash._bindcallback":14}],8:[function(_dereq_,module,exports){
 /**
  * lodash 3.0.7 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1198,7 +1447,7 @@ function isObject(value) {
 
 module.exports = baseIsEqual;
 
-},{"lodash.isarray":8,"lodash.istypedarray":9,"lodash.keys":10}],8:[function(_dereq_,module,exports){
+},{"lodash.isarray":9,"lodash.istypedarray":10,"lodash.keys":11}],9:[function(_dereq_,module,exports){
 /**
  * lodash 3.0.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1380,7 +1629,7 @@ function isNative(value) {
 
 module.exports = isArray;
 
-},{}],9:[function(_dereq_,module,exports){
+},{}],10:[function(_dereq_,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1492,7 +1741,7 @@ function isTypedArray(value) {
 
 module.exports = isTypedArray;
 
-},{}],10:[function(_dereq_,module,exports){
+},{}],11:[function(_dereq_,module,exports){
 /**
  * lodash 3.1.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1730,9 +1979,9 @@ function keysIn(object) {
 
 module.exports = keys;
 
-},{"lodash._getnative":11,"lodash.isarguments":12,"lodash.isarray":8}],11:[function(_dereq_,module,exports){
-arguments[4][5][0].apply(exports,arguments)
-},{"dup":5}],12:[function(_dereq_,module,exports){
+},{"lodash._getnative":12,"lodash.isarguments":13,"lodash.isarray":9}],12:[function(_dereq_,module,exports){
+arguments[4][6][0].apply(exports,arguments)
+},{"dup":6}],13:[function(_dereq_,module,exports){
 /**
  * lodash 3.0.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1840,7 +2089,7 @@ function isArguments(value) {
 
 module.exports = isArguments;
 
-},{}],13:[function(_dereq_,module,exports){
+},{}],14:[function(_dereq_,module,exports){
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1907,7 +2156,7 @@ function identity(value) {
 
 module.exports = bindCallback;
 
-},{}],14:[function(_dereq_,module,exports){
+},{}],15:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -1925,7 +2174,7 @@ function thunkMiddleware(_ref) {
 }
 
 module.exports = exports['default'];
-},{}],15:[function(_dereq_,module,exports){
+},{}],16:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2090,7 +2339,7 @@ function createStore(reducer, initialState) {
     replaceReducer: replaceReducer
   };
 }
-},{"./utils/isPlainObject":21}],16:[function(_dereq_,module,exports){
+},{"./utils/isPlainObject":22}],17:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2122,7 +2371,7 @@ exports.combineReducers = _utilsCombineReducers2['default'];
 exports.bindActionCreators = _utilsBindActionCreators2['default'];
 exports.applyMiddleware = _utilsApplyMiddleware2['default'];
 exports.compose = _utilsCompose2['default'];
-},{"./createStore":15,"./utils/applyMiddleware":17,"./utils/bindActionCreators":18,"./utils/combineReducers":19,"./utils/compose":20}],17:[function(_dereq_,module,exports){
+},{"./createStore":16,"./utils/applyMiddleware":18,"./utils/bindActionCreators":19,"./utils/combineReducers":20,"./utils/compose":21}],18:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2184,7 +2433,7 @@ function applyMiddleware() {
 }
 
 module.exports = exports['default'];
-},{"./compose":20}],18:[function(_dereq_,module,exports){
+},{"./compose":21}],19:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2239,7 +2488,7 @@ function bindActionCreators(actionCreators, dispatch) {
 }
 
 module.exports = exports['default'];
-},{"../utils/mapValues":22}],19:[function(_dereq_,module,exports){
+},{"../utils/mapValues":23}],20:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2357,7 +2606,7 @@ function combineReducers(reducers) {
 }
 
 module.exports = exports['default'];
-},{"../createStore":15,"../utils/isPlainObject":21,"../utils/mapValues":22,"../utils/pick":23}],20:[function(_dereq_,module,exports){
+},{"../createStore":16,"../utils/isPlainObject":22,"../utils/mapValues":23,"../utils/pick":24}],21:[function(_dereq_,module,exports){
 /**
  * Composes functions from left to right.
  *
@@ -2382,7 +2631,7 @@ function compose() {
 }
 
 module.exports = exports["default"];
-},{}],21:[function(_dereq_,module,exports){
+},{}],22:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2413,7 +2662,7 @@ function isPlainObject(obj) {
 }
 
 module.exports = exports['default'];
-},{}],22:[function(_dereq_,module,exports){
+},{}],23:[function(_dereq_,module,exports){
 /**
  * Applies a function to every key-value pair inside an object.
  *
@@ -2434,7 +2683,7 @@ function mapValues(obj, fn) {
 }
 
 module.exports = exports["default"];
-},{}],23:[function(_dereq_,module,exports){
+},{}],24:[function(_dereq_,module,exports){
 /**
  * Picks key-value pairs from an object where values satisfy a predicate.
  *
@@ -2457,7 +2706,7 @@ function pick(obj, fn) {
 }
 
 module.exports = exports["default"];
-},{}],24:[function(_dereq_,module,exports){
+},{}],25:[function(_dereq_,module,exports){
 "use strict";
 var window = _dereq_("global/window")
 var once = _dereq_("once")
@@ -2648,7 +2897,7 @@ function createXHR(options, callback) {
 
 function noop() {}
 
-},{"global/window":25,"once":26,"parse-headers":30}],25:[function(_dereq_,module,exports){
+},{"global/window":26,"once":27,"parse-headers":31}],26:[function(_dereq_,module,exports){
 if (typeof window !== "undefined") {
     module.exports = window;
 } else if (typeof global !== "undefined") {
@@ -2659,7 +2908,7 @@ if (typeof window !== "undefined") {
     module.exports = {};
 }
 
-},{}],26:[function(_dereq_,module,exports){
+},{}],27:[function(_dereq_,module,exports){
 module.exports = once
 
 once.proto = once(function () {
@@ -2680,7 +2929,7 @@ function once (fn) {
   }
 }
 
-},{}],27:[function(_dereq_,module,exports){
+},{}],28:[function(_dereq_,module,exports){
 var isFunction = _dereq_('is-function')
 
 module.exports = forEach
@@ -2728,7 +2977,7 @@ function forEachObject(object, iterator, context) {
     }
 }
 
-},{"is-function":28}],28:[function(_dereq_,module,exports){
+},{"is-function":29}],29:[function(_dereq_,module,exports){
 module.exports = isFunction
 
 var toString = Object.prototype.toString
@@ -2745,7 +2994,7 @@ function isFunction (fn) {
       fn === window.prompt))
 };
 
-},{}],29:[function(_dereq_,module,exports){
+},{}],30:[function(_dereq_,module,exports){
 
 exports = module.exports = trim;
 
@@ -2761,7 +3010,7 @@ exports.right = function(str){
   return str.replace(/\s*$/, '');
 };
 
-},{}],30:[function(_dereq_,module,exports){
+},{}],31:[function(_dereq_,module,exports){
 var trim = _dereq_('trim')
   , forEach = _dereq_('for-each')
   , isArray = function(arg) {
@@ -2793,7 +3042,7 @@ module.exports = function (headers) {
 
   return result
 }
-},{"for-each":27,"trim":29}],31:[function(_dereq_,module,exports){
+},{"for-each":28,"trim":30}],32:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2874,7 +3123,7 @@ function setSort(field) {
 	});
 }
 
-},{"./results":32}],32:[function(_dereq_,module,exports){
+},{"./results":33}],33:[function(_dereq_,module,exports){
 // TODO Fix caching
 
 "use strict";
@@ -2999,7 +3248,7 @@ function fetchNextResults(url) {
 	};
 }
 
-},{"xhr":24}],33:[function(_dereq_,module,exports){
+},{"xhr":25}],34:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3161,7 +3410,7 @@ Facets.propTypes = {
 exports["default"] = Facets;
 module.exports = exports["default"];
 
-},{"./list-facet":44,"./range-facet":47,"./text-search":54,"react":"react"}],34:[function(_dereq_,module,exports){
+},{"./list-facet":45,"./range-facet":48,"./text-search":53,"react":"react"}],35:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3269,7 +3518,7 @@ FilterMenu.propTypes = {
 exports["default"] = FilterMenu;
 module.exports = exports["default"];
 
-},{"../icons/filter":36,"classnames":"classnames","hire-forms-input":1,"insert-css":3,"react":"react"}],35:[function(_dereq_,module,exports){
+},{"../icons/filter":37,"classnames":"classnames","hire-forms-input":2,"insert-css":4,"react":"react"}],36:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3330,7 +3579,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],36:[function(_dereq_,module,exports){
+},{"react":"react"}],37:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3390,7 +3639,7 @@ FilterIcon.propTypes = {
 exports["default"] = FilterIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],37:[function(_dereq_,module,exports){
+},{"react":"react"}],38:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3555,7 +3804,7 @@ LoaderThreeDots.PropTypes = {
 exports["default"] = LoaderThreeDots;
 module.exports = exports["default"];
 
-},{"react":"react"}],38:[function(_dereq_,module,exports){
+},{"react":"react"}],39:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3615,7 +3864,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],39:[function(_dereq_,module,exports){
+},{"react":"react"}],40:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3686,7 +3935,7 @@ SortAlphabeticallyAscending.propTypes = {
 exports["default"] = SortAlphabeticallyAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],40:[function(_dereq_,module,exports){
+},{"react":"react"}],41:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3757,7 +4006,7 @@ SortAlphabeticallyDescending.propTypes = {
 exports["default"] = SortAlphabeticallyDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],41:[function(_dereq_,module,exports){
+},{"react":"react"}],42:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3826,7 +4075,7 @@ SortCountAscending.propTypes = {
 exports["default"] = SortCountAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],42:[function(_dereq_,module,exports){
+},{"react":"react"}],43:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3895,7 +4144,7 @@ SortCountDescending.propTypes = {
 exports["default"] = SortCountDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],43:[function(_dereq_,module,exports){
+},{"react":"react"}],44:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3954,7 +4203,7 @@ UncheckedIcon.propTypes = {
 exports["default"] = UncheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],44:[function(_dereq_,module,exports){
+},{"react":"react"}],45:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4165,7 +4414,7 @@ ListFacet.propTypes = {
 exports["default"] = ListFacet;
 module.exports = exports["default"];
 
-},{"../filter-menu":34,"../sort-menu":53,"./list-item":45,"./sort-function":46,"classnames":"classnames","insert-css":3,"react":"react"}],45:[function(_dereq_,module,exports){
+},{"../filter-menu":35,"../sort-menu":52,"./list-item":46,"./sort-function":47,"classnames":"classnames","insert-css":4,"react":"react"}],46:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4269,7 +4518,7 @@ ListFacetListItem.propTypes = {
 exports["default"] = ListFacetListItem;
 module.exports = exports["default"];
 
-},{"../icons/checked":35,"../icons/unchecked":43,"react":"react"}],46:[function(_dereq_,module,exports){
+},{"../icons/checked":36,"../icons/unchecked":44,"react":"react"}],47:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4333,7 +4582,7 @@ function sortFunction(type, direction) {
 
 module.exports = exports["default"];
 
-},{}],47:[function(_dereq_,module,exports){
+},{}],48:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4481,229 +4730,7 @@ RangeFacet.propTypes = {
 exports["default"] = RangeFacet;
 module.exports = exports["default"];
 
-},{"hire-range-slider":2,"insert-css":3,"react":"react"}],48:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = _dereq_("react");
-
-var _react2 = _interopRequireDefault(_react);
-
-var FacetValue = (function (_React$Component) {
-	_inherits(FacetValue, _React$Component);
-
-	function FacetValue() {
-		_classCallCheck(this, FacetValue);
-
-		_get(Object.getPrototypeOf(FacetValue.prototype), "constructor", this).apply(this, arguments);
-	}
-
-	_createClass(FacetValue, [{
-		key: "renderValue",
-		value: function renderValue() {
-			if (this.props.range) {
-				return Math.floor(this.props.range.lowerLimit * 0.0001) + " - " + Math.floor(this.props.range.upperLimit * 0.0001);
-			} else {
-				return this.props.value;
-			}
-		}
-	}, {
-		key: "render",
-		value: function render() {
-			return _react2["default"].createElement(
-				"li",
-				{
-					className: "hire-faceted-search-selected-facet-value",
-					onClick: this.props.onSelectFacetValue.bind(this, this.props.facetName, this.props.value, true) },
-				this.renderValue()
-			);
-		}
-	}]);
-
-	return FacetValue;
-})(_react2["default"].Component);
-
-FacetValue.propTypes = {
-	facetName: _react2["default"].PropTypes.string,
-	onSelectFacetValue: _react2["default"].PropTypes.func,
-	range: _react2["default"].PropTypes.object,
-	value: _react2["default"].PropTypes.string
-};
-
-exports["default"] = FacetValue;
-module.exports = exports["default"];
-
-},{"react":"react"}],49:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = _dereq_("react");
-
-var _react2 = _interopRequireDefault(_react);
-
-var _facetValue = _dereq_("./facet-value");
-
-var _facetValue2 = _interopRequireDefault(_facetValue);
-
-var _insertCss = _dereq_("insert-css");
-
-var _insertCss2 = _interopRequireDefault(_insertCss);
-
-
-
-var css = Buffer("dWwuaGlyZS1mYWNldGVkLXNlYXJjaC1jdXJyZW50LXF1ZXJ5IHsKCWNvbG9yOiAjODg4OwoJZm9udC1zaXplOiAwLjdlbTsKfQoKdWwuaGlyZS1mYWNldGVkLXNlYXJjaC1jdXJyZW50LXF1ZXJ5ID4gbGkgPiBsYWJlbCwKdWwuaGlyZS1mYWNldGVkLXNlYXJjaC1jdXJyZW50LXF1ZXJ5ID4gbGkgPiBzcGFuLAp1bC5oaXJlLWZhY2V0ZWQtc2VhcmNoLWN1cnJlbnQtcXVlcnkgPiBsaSA+IHVsIHsKCWJveC1zaXppbmc6IGJvcmRlci1ib3g7CglkaXNwbGF5OiBpbmxpbmUtYmxvY2s7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwp9Cgp1bC5oaXJlLWZhY2V0ZWQtc2VhcmNoLWN1cnJlbnQtcXVlcnkgPiBsaSA+IGxhYmVsIHsKCXdpZHRoOiAxNTBweDsKfQoKdWwuaGlyZS1mYWNldGVkLXNlYXJjaC1jdXJyZW50LXF1ZXJ5ID4gbGkgPiB1bCB7Cgl3aWR0aDogY2FsYygxMDAlIC0gMTUwcHgpOwp9Cgp1bC5oaXJlLWZhY2V0ZWQtc2VhcmNoLWN1cnJlbnQtcXVlcnkgbGkuaGlyZS1mYWNldGVkLXNlYXJjaC1zZWxlY3RlZC1mYWNldC12YWx1ZSwKdWwuaGlyZS1mYWNldGVkLXNlYXJjaC1jdXJyZW50LXF1ZXJ5IGxpLnNlYXJjaC10ZXJtIHNwYW4gewoJYmFja2dyb3VuZC1jb2xvcjogI0RERDsKCWJvcmRlci1yYWRpdXM6IDRweDsKCWN1cnNvcjogcG9pbnRlcjsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCW1hcmdpbjogMCA0cHggNHB4IDA7CglwYWRkaW5nOiAwIDZweDsKfQoKdWwuaGlyZS1mYWNldGVkLXNlYXJjaC1jdXJyZW50LXF1ZXJ5IGxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtc2VsZWN0ZWQtZmFjZXQtdmFsdWU6YWZ0ZXIsCnVsLmhpcmUtZmFjZXRlZC1zZWFyY2gtY3VycmVudC1xdWVyeSBsaS5zZWFyY2gtdGVybSBzcGFuOmFmdGVyIHsKCWNvbnRlbnQ6ICLinJYiOwoJcGFkZGluZy1sZWZ0OiA4cHg7Cn0=","base64");
-(0, _insertCss2["default"])(css, { prepend: true });
-
-var CurrentQuery = (function (_React$Component) {
-	_inherits(CurrentQuery, _React$Component);
-
-	function CurrentQuery() {
-		_classCallCheck(this, CurrentQuery);
-
-		_get(Object.getPrototypeOf(CurrentQuery.prototype), "constructor", this).apply(this, arguments);
-	}
-
-	_createClass(CurrentQuery, [{
-		key: "toLabel",
-		value: function toLabel(name) {
-			return this.props.labels.facetTitles.hasOwnProperty(name) ? this.props.labels.facetTitles[name] : name;
-		}
-	}, {
-		key: "onChangeFullTextField",
-		value: function onChangeFullTextField(field, value) {
-			this.props.onChangeFullTextField(field, value);
-		}
-	}, {
-		key: "render",
-		value: function render() {
-			var _this = this;
-
-			var query = this.props.queries.last;
-
-			var searchTerm = query.term !== "" ? _react2["default"].createElement(
-				"li",
-				{ className: "search-term" },
-				_react2["default"].createElement(
-					"label",
-					null,
-					this.toLabel("term")
-				),
-				_react2["default"].createElement(
-					"span",
-					{ onClick: this.props.onChangeSearchTerm.bind(this, "") },
-					query.term
-				)
-			) : null;
-
-			var extraSearchTerms = query.fullTextSearchParameters && query.fullTextSearchParameters.length ? query.fullTextSearchParameters.map(function (fullTextSearchParameter, i) {
-				return _react2["default"].createElement(
-					"li",
-					{ className: "search-term", key: i },
-					_react2["default"].createElement(
-						"label",
-						null,
-						_this.toLabel(fullTextSearchParameter.name)
-					),
-					_react2["default"].createElement(
-						"span",
-						{ onClick: _this.onChangeFullTextField.bind(_this, fullTextSearchParameter.name, "") },
-						fullTextSearchParameter.term
-					)
-				);
-			}) : null;
-
-			var facets = query.facetValues.map(function (selectedFacet, index) {
-				var facetTitle = undefined;
-				var filteredFacets = _this.props.results.last.facets.filter(function (facet) {
-					return facet.name === selectedFacet.name;
-				});
-
-				if (filteredFacets.length) {
-					facetTitle = filteredFacets[0].name;
-				} else {
-					return new Error("CurrentQuery: facet not found!");
-				}
-
-				var facetValues = selectedFacet.values ? selectedFacet.values.map(function (value, index2) {
-					return _react2["default"].createElement(_facetValue2["default"], {
-						facetName: selectedFacet.name,
-						key: index2,
-						onSelectFacetValue: _this.props.onSelectFacetValue,
-						value: value });
-				}) : _react2["default"].createElement(_facetValue2["default"], {
-					facetName: selectedFacet.name,
-					onSelectFacetValue: _this.props.onSelectFacetValue,
-					range: { lowerLimit: selectedFacet.lowerLimit, upperLimit: selectedFacet.upperLimit } });
-				return _react2["default"].createElement(
-					"li",
-					{
-						className: "hire-faceted-search-selected-facet",
-						key: index },
-					_react2["default"].createElement(
-						"label",
-						null,
-						_this.toLabel(facetTitle)
-					),
-					_react2["default"].createElement(
-						"ul",
-						null,
-						facetValues
-					)
-				);
-			});
-
-			return _react2["default"].createElement(
-				"ul",
-				{ className: "hire-faceted-search-current-query" },
-				searchTerm,
-				extraSearchTerms,
-				facets
-			);
-		}
-	}]);
-
-	return CurrentQuery;
-})(_react2["default"].Component);
-
-CurrentQuery.propTypes = {
-	labels: _react2["default"].PropTypes.object,
-	onChangeFullTextField: _react2["default"].PropTypes.func,
-	onChangeSearchTerm: _react2["default"].PropTypes.func,
-	onSelectFacetValue: _react2["default"].PropTypes.func,
-	queries: _react2["default"].PropTypes.object,
-	results: _react2["default"].PropTypes.object
-};
-
-exports["default"] = CurrentQuery;
-module.exports = exports["default"];
-
-},{"./facet-value":48,"insert-css":3,"react":"react"}],50:[function(_dereq_,module,exports){
+},{"hire-range-slider":3,"insert-css":4,"react":"react"}],49:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4740,9 +4767,9 @@ var _sortMenu = _dereq_("./sort-menu");
 
 var _sortMenu2 = _interopRequireDefault(_sortMenu);
 
-var _currentQuery = _dereq_("./current-query");
+var _hireCurrentQuery = _dereq_("hire-current-query");
 
-var _currentQuery2 = _interopRequireDefault(_currentQuery);
+var _hireCurrentQuery2 = _interopRequireDefault(_hireCurrentQuery);
 
 var _iconsLoaderThreeDots = _dereq_("../icons/loader-three-dots");
 
@@ -4826,7 +4853,7 @@ var Results = (function (_React$Component) {
 				return { fieldname: f };
 			});
 
-			var currentQuery = this.props.config.currentQueryGroupFunc ? this.props.config.currentQueryGroupFunc(this.props, _currentQuery2["default"]) : _react2["default"].createElement(_currentQuery2["default"], {
+			var currentQuery = this.props.config.currentQueryGroupFunc ? this.props.config.currentQueryGroupFunc(this.props, _hireCurrentQuery2["default"]) : _react2["default"].createElement(_hireCurrentQuery2["default"], {
 				labels: this.props.labels,
 				onChangeFullTextField: this.props.onChangeFullTextField,
 				onChangeSearchTerm: this.props.onChangeSearchTerm,
@@ -4885,7 +4912,7 @@ Results.propTypes = {
 exports["default"] = Results;
 module.exports = exports["default"];
 
-},{"../icons/loader-three-dots":37,"./current-query":49,"./result":51,"./sort-menu":52,"classnames":"classnames","insert-css":3,"lodash.debounce":4,"react":"react"}],51:[function(_dereq_,module,exports){
+},{"../icons/loader-three-dots":38,"./result":50,"./sort-menu":51,"classnames":"classnames","hire-current-query":1,"insert-css":4,"lodash.debounce":5,"react":"react"}],50:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4985,7 +5012,7 @@ Result.propTypes = {
 exports["default"] = Result;
 module.exports = exports["default"];
 
-},{"react":"react"}],52:[function(_dereq_,module,exports){
+},{"react":"react"}],51:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5117,7 +5144,7 @@ ResultsSortMenu.propTypes = {
 exports["default"] = ResultsSortMenu;
 module.exports = exports["default"];
 
-},{"classnames":"classnames","insert-css":3,"react":"react"}],53:[function(_dereq_,module,exports){
+},{"classnames":"classnames","insert-css":4,"react":"react"}],52:[function(_dereq_,module,exports){
 /* TODO Remove sort menu and move sort options (count/alpha) to facet schema.
 	A schema is needed, because different facets, should be able to have different
 	options set. */
@@ -5252,7 +5279,7 @@ SortMenu.propTypes = {
 exports["default"] = SortMenu;
 module.exports = exports["default"];
 
-},{"../icons/sort-alphabetically-ascending":39,"../icons/sort-alphabetically-descending":40,"../icons/sort-count-ascending":41,"../icons/sort-count-descending":42,"classnames":"classnames","insert-css":3,"react":"react"}],54:[function(_dereq_,module,exports){
+},{"../icons/sort-alphabetically-ascending":40,"../icons/sort-alphabetically-descending":41,"../icons/sort-count-ascending":42,"../icons/sort-count-descending":43,"classnames":"classnames","insert-css":4,"react":"react"}],53:[function(_dereq_,module,exports){
 // TODO add searching class to .search-icon when async query is busy
 
 "use strict";
@@ -5391,7 +5418,7 @@ TextSearch.propTypes = {
 exports["default"] = TextSearch;
 module.exports = exports["default"];
 
-},{"../icons/search":38,"classnames":"classnames","insert-css":3,"react":"react"}],55:[function(_dereq_,module,exports){
+},{"../icons/search":39,"classnames":"classnames","insert-css":4,"react":"react"}],54:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5655,7 +5682,7 @@ FacetedSearch.propTypes = {
 exports["default"] = FacetedSearch;
 module.exports = exports["default"];
 
-},{"./actions/queries":31,"./actions/results":32,"./components/facets":33,"./components/icons/loader-three-dots":37,"./components/results":50,"./reducers":57,"insert-css":3,"lodash.isequal":6,"react":"react","redux":16,"redux-thunk":14}],56:[function(_dereq_,module,exports){
+},{"./actions/queries":32,"./actions/results":33,"./components/facets":34,"./components/icons/loader-three-dots":38,"./components/results":49,"./reducers":56,"insert-css":4,"lodash.isequal":7,"react":"react","redux":17,"redux-thunk":15}],55:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5683,7 +5710,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}],57:[function(_dereq_,module,exports){
+},{}],56:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5718,7 +5745,7 @@ exports["default"] = (0, _redux.combineReducers)({
 });
 module.exports = exports["default"];
 
-},{"./config":56,"./labels":58,"./queries":59,"./results":60,"redux":16}],58:[function(_dereq_,module,exports){
+},{"./config":55,"./labels":57,"./queries":58,"./results":59,"redux":17}],57:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5749,7 +5776,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}],59:[function(_dereq_,module,exports){
+},{}],58:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5940,7 +5967,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}],60:[function(_dereq_,module,exports){
+},{}],59:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6047,5 +6074,5 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}]},{},[55])(55)
+},{}]},{},[54])(54)
 });
