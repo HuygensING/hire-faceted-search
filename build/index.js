@@ -2915,8 +2915,14 @@ var getResults = function getResults(url, headers, done) {
 		if (err) {
 			handleError(err, resp, body);
 		}
+		var searchId = url.replace(/.*\/([^?]+).*/, "$1");
 
-		done(JSON.parse(body));
+		body = JSON.parse(body);
+		if (body.results != null && body.refs == null) {
+			body.refs = body.results;
+		}
+
+		done(body, searchId);
 	};
 
 	server.performXhr(options, cb);
@@ -2945,10 +2951,11 @@ var postResults = function postResults(query, headers, url, rows, done) {
 	server.performXhr(options, cb);
 };
 
-var dispatchResponse = function dispatchResponse(dispatch, type, response) {
+var dispatchResponse = function dispatchResponse(dispatch, type, response, searchId) {
 	return dispatch({
 		type: type,
-		response: response
+		response: response,
+		searchId: searchId
 	});
 };
 
@@ -2967,10 +2974,10 @@ function fetchResults() {
 		// 	return dispatchResponse(dispatch, "RECEIVE_RESULTS", cache[stringifiedQuery]);
 		// }
 
-		return postResults(stringifiedQuery, state.config.headers || {}, state.config.baseURL + state.config.searchPath, state.config.rows, function (response) {
+		return postResults(stringifiedQuery, state.config.headers || {}, state.config.baseURL + state.config.searchPath, state.config.rows, function (response, searchId) {
 			cache[stringifiedQuery] = response;
 
-			return dispatchResponse(dispatch, "RECEIVE_RESULTS", response);
+			return dispatchResponse(dispatch, "RECEIVE_RESULTS", response, searchId);
 		});
 	};
 }
@@ -2984,10 +2991,10 @@ function fetchNextResults(url) {
 		// 	return dispatchResponse(dispatch, "RECEIVE_RESULTS_FROM_URL", cache[url]);
 		// }
 
-		return getResults(url, state.config.headers || {}, function (response) {
+		return getResults(url, state.config.headers || {}, function (response, searchId) {
 			cache[url] = response;
 
-			return dispatchResponse(dispatch, "RECEIVE_NEXT_RESULTS", response);
+			return dispatchResponse(dispatch, "RECEIVE_NEXT_RESULTS", response, searchId);
 		});
 	};
 }
@@ -5439,7 +5446,7 @@ var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 //	if (action.hasOwnProperty("type")) {
 //		console.log("[FACETED SEARCH] " + action.type, action);
 //	}
-
+//
 //   return next(action);
 //};
 
@@ -5514,6 +5521,9 @@ var FacetedSearch = (function (_React$Component) {
 			if (resultsChanged) {
 				if (this.props.onChange) {
 					this.props.onChange(nextState.results.last, nextState.queries.last);
+				}
+				if (this.props.onSearchId) {
+					this.props.onSearchId(nextState.results.searchId);
 				}
 				if (this.state.queries.last.sortParameters.length === 0) {
 					this.store.dispatch({
@@ -5637,6 +5647,7 @@ FacetedSearch.propTypes = {
 	metadataList: _react2["default"].PropTypes.array,
 	numberedResults: _react2["default"].PropTypes.bool,
 	onChange: _react2["default"].PropTypes.func,
+	onSearchId: _react2["default"].PropTypes.func,
 	onSelect: _react2["default"].PropTypes.func,
 	resultComponent: _react2["default"].PropTypes.func
 };
@@ -5986,7 +5997,8 @@ var initialState = {
 	facets: {},
 	first: null,
 	last: null,
-	requesting: false
+	requesting: false,
+	searchId: null
 };
 
 exports["default"] = function (state, action) {
@@ -6006,21 +6018,27 @@ exports["default"] = function (state, action) {
 
 		case "RECEIVE_RESULTS":
 			if (state.first == null) {
-				return _extends({}, addResponseToState(state, action.response), { first: action.response });
+				return _extends({}, addResponseToState(state, action.response), { first: action.response }, {
+					searchId: action.searchId
+				});
 			}
 
 			var response = _extends({}, action.response, {
 				facets: updateFacetsWithReceivedCounts(state.first.facets, action.response.facets)
 			});
 
-			return addResponseToState(state, response);
+			return _extends({}, addResponseToState(state, response), {
+				searchId: action.searchId
+			});
 
 		case "RECEIVE_NEXT_RESULTS":
 			var withConcatResults = _extends({}, action.response, {
 				refs: [].concat(_toConsumableArray(state.last.refs), _toConsumableArray(action.response.refs)),
 				facets: updateFacetsWithReceivedCounts(state.last.facets, action.response.facets)
 			});
-			return addResponseToState(state, withConcatResults);
+			return _extends({}, addResponseToState(state, withConcatResults), {
+				searchId: action.searchId
+			});
 
 		default:
 			return state;

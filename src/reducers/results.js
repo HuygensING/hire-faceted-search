@@ -46,7 +46,8 @@ let initialState = {
 	facets: {},
 	first: null,
 	last: null,
-	requesting: false
+	requesting: false,
+	searchId: null
 };
 
 export default function(state=initialState, action) {
@@ -64,7 +65,11 @@ export default function(state=initialState, action) {
 
 		case "RECEIVE_RESULTS":
 			if (state.first == null) {
-				return {...addResponseToState(state, action.response), ...{first: action.response}};
+				return {
+					...addResponseToState(state, action.response),
+					...{first: action.response},
+					searchId: action.searchId
+				};
 			}
 
 			let response = {...action.response, ...{
@@ -74,7 +79,10 @@ export default function(state=initialState, action) {
 				)
 			}};
 
-			return addResponseToState(state, response);
+			return {
+				...addResponseToState(state, response),
+					searchId: action.searchId
+			};
 
 		case "RECEIVE_NEXT_RESULTS":
 			let withConcatResults = {...action.response, ...{
@@ -84,8 +92,10 @@ export default function(state=initialState, action) {
 					action.response.facets
 				)
 			}};
-			return addResponseToState(state, withConcatResults);
-
+			return {
+				...addResponseToState(state, withConcatResults),
+				searchId: action.searchId
+			};
 
 		default:
 			return state;

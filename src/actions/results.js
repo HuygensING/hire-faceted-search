@@ -22,8 +22,15 @@ let getResults = function(url, headers, done) {
 
 	let cb = function(err, resp, body) {
 		if (err) { handleError(err, resp, body); }
+		let searchId = url.replace(/.*\/([^?]+).*/, "$1");
 
-		done(JSON.parse(body));
+
+		body = JSON.parse(body);
+		if (body.results != null && body.refs == null) {
+			body.refs = body.results;
+		}
+
+		done(body, searchId);
 	};
 
 	server.performXhr(options, cb);
@@ -50,10 +57,11 @@ let postResults = function(query, headers, url, rows, done) {
 	server.performXhr(options, cb);
 };
 
-let dispatchResponse = (dispatch, type, response) =>
+let dispatchResponse = (dispatch, type, response, searchId) =>
 	dispatch({
 		type: type,
-		response: response
+		response: response,
+		searchId: searchId
 	});
 
 let cache = {};
@@ -78,10 +86,10 @@ export function fetchResults() {
 			state.config.headers || {},
 			state.config.baseURL + state.config.searchPath,
 			state.config.rows,
-			(response) => {
+			(response, searchId) => {
 				cache[stringifiedQuery] = response;
 
-				return dispatchResponse(dispatch, "RECEIVE_RESULTS", response);
+				return dispatchResponse(dispatch, "RECEIVE_RESULTS", response, searchId);
 			}
 		);
 	};
@@ -99,10 +107,10 @@ export function fetchNextResults(url) {
 		return getResults(
 			url,
 			state.config.headers || {},
-			(response) => {
+			(response, searchId) => {
 				cache[url] = response;
 
-				return dispatchResponse(dispatch, "RECEIVE_NEXT_RESULTS", response);
+				return dispatchResponse(dispatch, "RECEIVE_NEXT_RESULTS", response, searchId);
 			}
 		);
 	};

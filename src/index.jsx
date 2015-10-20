@@ -16,7 +16,7 @@ import thunkMiddleware from "redux-thunk";
 //	if (action.hasOwnProperty("type")) {
 //		console.log("[FACETED SEARCH] " + action.type, action);
 //	}
-
+//
 //   return next(action);
 //};
 
@@ -77,6 +77,7 @@ class FacetedSearch extends React.Component {
 
 		if (resultsChanged) {
 			if(this.props.onChange) { this.props.onChange(nextState.results.last, nextState.queries.last); }
+			if(this.props.onSearchId) {	this.props.onSearchId(nextState.results.searchId); }
 			if(this.state.queries.last.sortParameters.length === 0) {
 				this.store.dispatch({
 					type: "INIT_SORT_PARAMS",
@@ -180,6 +181,7 @@ FacetedSearch.propTypes = {
 	metadataList: React.PropTypes.array,
 	numberedResults: React.PropTypes.bool,
 	onChange: React.PropTypes.func,
+	onSearchId: React.PropTypes.func,
 	onSelect: React.PropTypes.func,
 	resultComponent: React.PropTypes.func
 };

@@ -11,7 +11,8 @@ describe('results reducer', () => {
 			facets: {},
 			first: null,
 			last: null,
-			requesting: false
+			requesting: false,
+			searchId: null
 		});
 	});
 
@@ -54,7 +55,8 @@ describe('results reducer', () => {
 				{ refs: ["old", "refs", "new", "refs"], facets: []}
 			],
 			last: { refs: ["old", "refs", "new", "refs"], facets: []},
-			requesting: false
+			requesting: false,
+			searchId: undefined
 		});
 	});
 
@@ -83,7 +85,8 @@ describe('results reducer', () => {
 		let expectedState = {
 			all: [{facets: expectedFacets, refs: []}],
 			last: {facets: expectedFacets, refs: []},
-			requesting: false
+			requesting: false,
+			searchId: undefined
 		};
 
 		expect(reducer(state, {type: "RECEIVE_NEXT_RESULTS", response: response})).toEqual(expectedState);
@@ -101,7 +104,8 @@ describe('results reducer', () => {
 			requesting: false,
 			first: response,
 			all: [response],
-			last: response
+			last: response,
+			searchId: undefined
 		};
 		expect(reducer(state, {type: "RECEIVE_RESULTS", response: response})).toEqual(expectedState);
 	});
@@ -131,7 +135,8 @@ describe('results reducer', () => {
 			all: [{facets: expectedFacets}],
 			first: state.first,
 			last: {facets: expectedFacets},
-			requesting: false
+			requesting: false,
+			searchId: undefined
 		};
 
 
