@@ -1,3 +1,6 @@
+### v4.4.0	(2015/10/20 14:52)
+* expose currentQueryComponent as prop in stead of obscure render func in config
+
 ### v4.3.0	(2015/10/20 14:23)
 * moved CurrentQuery component to external package hire-current-query
 
