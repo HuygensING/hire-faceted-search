@@ -1,3 +1,6 @@
+### v4.2.0	(2015/10/20 12:17)
+* added optional callback onSearchId, added last searchId to state
+
 ### v4.1.0	(2015/10/19 16:28)
 * expose current query group map func through config
 
