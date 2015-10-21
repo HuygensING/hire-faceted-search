@@ -1,3 +1,6 @@
+### v4.5.1	(2015/10/21 8:24)
+* patch for missing config check in queries reducer
+
 ### v4.5.0	(2015/10/21 8:22)
 * expose queryDefaults through config props
 
