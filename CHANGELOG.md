@@ -1,3 +1,6 @@
+### v4.5.0	(2015/10/21 8:22)
+* expose queryDefaults through config props
+
 ### v4.4.0	(2015/10/20 14:52)
 * expose currentQueryComponent as prop in stead of obscure render func in config
 
