@@ -86,7 +86,7 @@ export default function(state=initialState, action) {
 	switch (action.type) {
 		case "SET_QUERY_DEFAULTS":
 			let defaultModel = {...initialState.default, ...{sortParameters: []}};
-			if (action.config.queryDefaults) {
+			if (action.config && action.config.queryDefaults) {
 				defaultModel = {...defaultModel, ...action.config.queryDefaults};
 			}
 			return {...state, ...{

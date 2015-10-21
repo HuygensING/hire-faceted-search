@@ -5888,7 +5888,7 @@ exports["default"] = function (state, action) {
 	switch (action.type) {
 		case "SET_QUERY_DEFAULTS":
 			var defaultModel = _extends({}, initialState["default"], { sortParameters: [] });
-			if (action.config.queryDefaults) {
+			if (action.config && action.config.queryDefaults) {
 				defaultModel = _extends({}, defaultModel, action.config.queryDefaults);
 			}
 			return _extends({}, state, {
