@@ -59,7 +59,7 @@ var FacetValue = (function (_React$Component) {
 			if (this.props.range) {
 				return Math.floor(this.props.range.lowerLimit * 0.0001) + " - " + Math.floor(this.props.range.upperLimit * 0.0001);
 			} else {
-				return this.props.value;
+				return this.props.labels && this.props.labels[this.props.value] ? this.props.labels[this.props.value] : this.props.value;
 			}
 		}
 	}, {
@@ -80,6 +80,7 @@ var FacetValue = (function (_React$Component) {
 
 FacetValue.propTypes = {
 	facetName: _react2["default"].PropTypes.string,
+	labels: _react2["default"].PropTypes.object,
 	onSelectFacetValue: _react2["default"].PropTypes.func,
 	range: _react2["default"].PropTypes.object,
 	value: _react2["default"].PropTypes.string
@@ -192,11 +193,14 @@ var CurrentQuery = (function (_React$Component) {
 					return new Error("CurrentQuery: facet not found!");
 				}
 
+				var valueLabels = _this.props.labels.facetValues && _this.props.labels.facetValues[selectedFacet.name] ? _this.props.labels.facetValues[selectedFacet.name] : null;
+
 				var facetValues = selectedFacet.values ? selectedFacet.values.map(function (value, index2) {
 					return _react2["default"].createElement(_facetValue2["default"], {
 						facetName: selectedFacet.name,
 						key: index2,
 						onSelectFacetValue: _this.props.onSelectFacetValue,
+						labels: valueLabels,
 						value: value });
 				}) : _react2["default"].createElement(_facetValue2["default"], {
 					facetName: selectedFacet.name,
@@ -4354,12 +4358,15 @@ var ListFacet = (function (_React$Component) {
 			var optionsToRender = this.state.showAll ? options : options.slice(0, INIT_SIZE - 1);
 
 			var selectedValues = this.selectedValues();
+			var valueLabels = this.props.labels.facetValues && this.props.labels.facetValues[this.props.data.name] ? this.props.labels.facetValues[this.props.data.name] : null;
+
 			var listItems = optionsToRender.map(function (option, index) {
 				return _react2["default"].createElement(_listItem2["default"], {
 					checked: selectedValues.indexOf(option.name) > -1,
 					count: option.count,
 					facetName: _this2.props.data.name,
 					key: index,
+					labels: valueLabels,
 					name: option.name,
 					onSelectFacetValue: _this2.props.onSelectFacetValue });
 			});
@@ -4488,6 +4495,11 @@ var ListFacetListItem = (function (_React$Component) {
 			});
 		}
 	}, {
+		key: "getLabel",
+		value: function getLabel() {
+			return this.props.labels && this.props.labels[this.props.name] ? this.props.labels[this.props.name] : this.props.name;
+		}
+	}, {
 		key: "render",
 		value: function render() {
 			var icon = this.state.checked ? _react2["default"].createElement(_iconsChecked2["default"], null) : _react2["default"].createElement(_iconsUnchecked2["default"], null);
@@ -4501,7 +4513,7 @@ var ListFacetListItem = (function (_React$Component) {
 				_react2["default"].createElement(
 					"label",
 					{ title: this.props.name },
-					this.props.name
+					this.getLabel()
 				),
 				_react2["default"].createElement(
 					"span",
@@ -4526,6 +4538,7 @@ ListFacetListItem.propTypes = {
 	checked: _react2["default"].PropTypes.bool,
 	count: _react2["default"].PropTypes.number,
 	facetName: _react2["default"].PropTypes.string,
+	labels: _react2["default"].PropTypes.object,
 	name: _react2["default"].PropTypes.string,
 	onSelectFacetValue: _react2["default"].PropTypes.func
 };
