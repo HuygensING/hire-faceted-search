@@ -57,6 +57,19 @@ export function changeFullTextSearchField(field, value) {
 	});
 }
 
+export function setFullTextSearchFields(fullTextSearchParameters) {
+	return createNewQuery({
+		type: "SET_FULL_TEXT_SEARCH_TERMS",
+		fullTextSearchParameters: fullTextSearchParameters
+	});
+}
+
+export function removeFullTextSearchFields() {
+	return createNewQuery({
+		type: "REMOVE_FULL_TEXT_SEARCH_TERMS"
+	});
+}
+
 export function setSort(field) {
 	return createNewQuery({
 		type: "SET_RESULTS_SORT",

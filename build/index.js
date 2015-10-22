@@ -3057,6 +3057,8 @@ exports.setFacetValues = setFacetValues;
 exports.newSearch = newSearch;
 exports.changeSearchTerm = changeSearchTerm;
 exports.changeFullTextSearchField = changeFullTextSearchField;
+exports.setFullTextSearchFields = setFullTextSearchFields;
+exports.removeFullTextSearchFields = removeFullTextSearchFields;
 exports.setSort = setSort;
 
 var _results = _dereq_("./results");
@@ -3113,6 +3115,19 @@ function changeFullTextSearchField(field, value) {
 		type: "CHANGE_FULL_TEXT_SEARCH_TERM",
 		field: field,
 		value: value
+	});
+}
+
+function setFullTextSearchFields(fullTextSearchParameters) {
+	return createNewQuery({
+		type: "SET_FULL_TEXT_SEARCH_TERMS",
+		fullTextSearchParameters: fullTextSearchParameters
+	});
+}
+
+function removeFullTextSearchFields() {
+	return createNewQuery({
+		type: "REMOVE_FULL_TEXT_SEARCH_TERMS"
 	});
 }
 
@@ -5544,8 +5559,17 @@ var FacetedSearch = (function (_React$Component) {
 				});
 			}
 			// Allows a query update to be passed through the prop named query
-			if (nextProps.query && nextProps.query.facetValues && !(0, _lodashIsequal2["default"])(nextProps.query.facetValues, this.state.queries.last.facetValues)) {
-				this.store.dispatch((0, _actionsQueries.setFacetValues)(nextProps.query.facetValues));
+			if (nextProps.query) {
+				if (nextProps.query.facetValues && !(0, _lodashIsequal2["default"])(nextProps.query.facetValues, this.state.queries.last.facetValues)) {
+					this.store.dispatch((0, _actionsQueries.setFacetValues)(nextProps.query.facetValues));
+				}
+				if (nextProps.query.fullTextSearchParameters && !(0, _lodashIsequal2["default"])(nextProps.query.fullTextSearchParameters, this.state.queries.last.fullTextSearchParameters)) {
+					if (nextProps.query.fullTextSearchParameters.length) {
+						this.store.dispatch((0, _actionsQueries.setFullTextSearchFields)(nextProps.query.fullTextSearchParameters));
+					} else if (this.state.queries.last.fullTextSearchParameters) {
+						this.store.dispatch((0, _actionsQueries.removeFullTextSearchFields)());
+					}
+				}
 			}
 		}
 	}, {
@@ -5967,6 +5991,17 @@ exports["default"] = function (state, action) {
 			if (!query.fullTextSearchParameters.length) {
 				delete query.fullTextSearchParameters;
 			}
+			return addQueryToState(state, query);
+
+		case "SET_FULL_TEXT_SEARCH_TERMS":
+			query = _extends({}, state.last, {
+				fullTextSearchParameters: action.fullTextSearchParameters
+			});
+			return addQueryToState(state, query);
+
+		case "REMOVE_FULL_TEXT_SEARCH_TERMS":
+			query = state.last;
+			delete query.fullTextSearchParameters;
 			return addQueryToState(state, query);
 
 		case "NEW_SEARCH":

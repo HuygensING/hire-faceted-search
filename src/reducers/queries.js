@@ -152,7 +152,18 @@ export default function(state=initialState, action) {
 			query = {...state.last, ...{
 				fullTextSearchParameters: setFullTextSearchParameter(action.field, action.value, state.last.fullTextSearchParameters)
 			}};
-			if(!query.fullTextSearchParameters.length) { delete query.fullTextSearchParameters; }
+			if (!query.fullTextSearchParameters.length) { delete query.fullTextSearchParameters; }
+			return addQueryToState(state, query);
+
+		case "SET_FULL_TEXT_SEARCH_TERMS":
+			query = {...state.last, ...{
+				fullTextSearchParameters: action.fullTextSearchParameters
+			}};
+			return addQueryToState(state, query);
+
+		case "REMOVE_FULL_TEXT_SEARCH_TERMS":
+			query = state.last;
+			delete query.fullTextSearchParameters;
 			return addQueryToState(state, query);
 
 		case "NEW_SEARCH":

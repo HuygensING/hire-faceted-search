@@ -6,7 +6,7 @@ import Results from "./components/results";
 import Loader from "./components/icons/loader-three-dots";
 
 import {fetchResults, fetchNextResults} from "./actions/results";
-import {selectFacetValue, selectFacetRange, newSearch, setSort, changeSearchTerm, changeFullTextSearchField, setFacetValues} from "./actions/queries";
+import {selectFacetValue, selectFacetRange, newSearch, setSort, changeSearchTerm, changeFullTextSearchField, setFacetValues, removeFullTextSearchFields, setFullTextSearchFields} from "./actions/queries";
 
 import {createStore, applyMiddleware} from "redux";
 import reducers from "./reducers";
@@ -66,9 +66,17 @@ class FacetedSearch extends React.Component {
 			});
 		}
 		// Allows a query update to be passed through the prop named query
-		if (nextProps.query && nextProps.query.facetValues &&
-			!isEqual(nextProps.query.facetValues, this.state.queries.last.facetValues)) {
-			this.store.dispatch(setFacetValues(nextProps.query.facetValues));
+		if (nextProps.query) {
+			if (nextProps.query.facetValues && !isEqual(nextProps.query.facetValues, this.state.queries.last.facetValues)) {
+				this.store.dispatch(setFacetValues(nextProps.query.facetValues));
+			}
+			if (nextProps.query.fullTextSearchParameters && !isEqual(nextProps.query.fullTextSearchParameters, this.state.queries.last.fullTextSearchParameters)) {
+				if (nextProps.query.fullTextSearchParameters.length) {
+					this.store.dispatch(setFullTextSearchFields(nextProps.query.fullTextSearchParameters));
+				} else if (this.state.queries.last.fullTextSearchParameters) {
+					this.store.dispatch(removeFullTextSearchFields());
+				}
+			}
 		}
 	}
 
