@@ -1,3 +1,6 @@
+### v4.6.0	(2015/10/22 9:36)
+* change fullTextSearchParameters through query prop
+
 ### v4.5.1	(2015/10/21 8:24)
 * patch for missing config check in queries reducer
 
