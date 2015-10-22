@@ -1,3 +1,6 @@
+### v4.7.0	(2015/10/22 10:32)
+* support labels for facetValues
+
 ### v4.6.0	(2015/10/22 9:36)
 * change fullTextSearchParameters through query prop
 
