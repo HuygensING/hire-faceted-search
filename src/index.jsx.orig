@@ -123,6 +123,10 @@ class FacetedSearch extends React.Component {
 		return (
 			<div className={className}>
 				<Facets
+<<<<<<< HEAD
+					{...this.props}
+					{...this.state}
+=======
 					config={this.state.config}
 					facetList={this.props.facetList}
 					facetSortMap={this.props.facetSortMap}
@@ -130,6 +134,7 @@ class FacetedSearch extends React.Component {
 					onChangeFullTextField={(field, value) =>
 						this.store.dispatch(changeFullTextSearchField(field, value))
 					}
+>>>>>>> f6a5fcddc16934721a6b49c188cb55ddebd07f2a
 					onChangeSearchTerm={(value) =>
 						this.store.dispatch(changeSearchTerm(value))
 					}
@@ -141,10 +146,12 @@ class FacetedSearch extends React.Component {
 					}
 					onSelectFacetValue={(...args) =>
 						this.store.dispatch(selectFacetValue(...args))
-					}
-					queries={this.state.queries}
-					results={this.state.results} />
+					} />
 				<Results
+<<<<<<< HEAD
+					{...this.props}
+					{...this.state}
+=======
 					config={this.state.config}
 					currentQueryComponent={this.props.currentQueryComponent}
 					labels={this.state.labels}
@@ -153,6 +160,7 @@ class FacetedSearch extends React.Component {
 					onChangeFullTextField={(field, value) =>
 						this.store.dispatch(changeFullTextSearchField(field, value))
 					}
+>>>>>>> f6a5fcddc16934721a6b49c188cb55ddebd07f2a
 					onChangeSearchTerm={(value) =>
 						this.store.dispatch(changeSearchTerm(value))
 					}
@@ -165,10 +173,7 @@ class FacetedSearch extends React.Component {
 					}
 					onSetSort={(field) =>
 						this.store.dispatch(setSort(field))
-					}
-					queries={this.state.queries}
-					resultComponent={this.props.resultComponent}
-					results={this.state.results} />
+					} />
 			</div>
 		);
 	}
@@ -177,6 +182,7 @@ class FacetedSearch extends React.Component {
 FacetedSearch.defaultProps = {
 	className: "",
 	facetList: [],
+	fullTextSearch: true,
 	metadataList: [],
 	labels: {}
 };
@@ -187,6 +193,7 @@ FacetedSearch.propTypes = {
 	currentQueryComponent: React.PropTypes.func,
 	facetList: React.PropTypes.array,
 	facetSortMap: React.PropTypes.object,
+	fullTextSearch: React.PropTypes.bool,
 	labels: React.PropTypes.object,
 	metadataList: React.PropTypes.array,
 	numberedResults: React.PropTypes.bool,

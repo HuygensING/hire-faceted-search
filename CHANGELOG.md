@@ -1,3 +1,43 @@
+### v4.7.0	(2015/10/22 10:32)
+* support labels for facetValues
+
+### v4.6.0	(2015/10/22 9:36)
+* change fullTextSearchParameters through query prop
+
+### v4.5.1	(2015/10/21 8:24)
+* patch for missing config check in queries reducer
+
+### v4.5.0	(2015/10/21 8:22)
+* expose queryDefaults through config props
+
+### v4.4.0	(2015/10/20 14:52)
+* expose currentQueryComponent as prop in stead of obscure render func in config
+
+### v4.3.0	(2015/10/20 14:23)
+* moved CurrentQuery component to external package hire-current-query
+
+### v4.2.0	(2015/10/20 12:17)
+* added optional callback onSearchId, added last searchId to state
+
+### v4.1.0	(2015/10/19 16:28)
+* expose current query group map func through config
+
+### v4.0.0	(2015/10/19 14:24)
+* added multiple full text search field support
+
+### v3.10.1	(2015/10/14 16:17)
+* relaxed timeout of search component test
+* fix #3 facets will not disappear with RECEIVE_NEXT_RESULTS
+* removed commented out code from results reducers test
+
+### v3.10.0	(2015/10/14 15:8)
+* allow facetValues to be changed with the query property
+
+### v3.9.0	(2015/10/6 12:28)
+* Merge pull request #2 from HuygensING/development
+* new range slider
+* now using range slider component
+
 ### v3.8.0	(2015/9/9 10:42)
 * Add custom className
 

@@ -3190,7 +3190,17 @@ var getResults = function getResults(url, headers, done) {
 			body.refs = body.results;
 		}
 
+<<<<<<< HEAD
+		body = JSON.parse(body);
+
+		if (body.results != null && body.refs == null) {
+			body.refs = body.results;
+		}
+
+		done(body);
+=======
 		done(body, searchId);
+>>>>>>> f6a5fcddc16934721a6b49c188cb55ddebd07f2a
 	};
 
 	server.performXhr(options, cb);
@@ -3385,9 +3395,15 @@ var Facets = (function (_React$Component) {
 
 			var facets = this.props.facetList.length ? this.props.facetList.map(updateCount).filter(notNull) : this.props.results.last.facets;
 
+<<<<<<< HEAD
+			var fullTextSearch = this.props.fullTextSearch ? _react2["default"].createElement(_textSearch2["default"], {
+				onChangeSearchTerm: this.props.onChangeSearchTerm,
+				value: this.props.queries.last.term }) : null;
+=======
 			var freeTextSearch = this.props.config.hideFreeTextSearch ? null : _react2["default"].createElement(_textSearch2["default"], { labels: this.props.labels, onChangeSearchTerm: this.props.onChangeSearchTerm, value: this.props.queries.last.term });
 
 			var fullTextSearches = this.props.config.fullTextSearchFields ? this.renderFullTextSearches() : { top: null, bottom: null };
+>>>>>>> f6a5fcddc16934721a6b49c188cb55ddebd07f2a
 
 			return _react2["default"].createElement(
 				"ul",
@@ -3397,10 +3413,15 @@ var Facets = (function (_React$Component) {
 					{ onClick: this.props.onNewSearch },
 					"New search"
 				),
+<<<<<<< HEAD
+				fullTextSearch,
+				facets.map(toComponent)
+=======
 				freeTextSearch,
 				fullTextSearches.top,
 				facets.map(toComponent),
 				fullTextSearches.bottom
+>>>>>>> f6a5fcddc16934721a6b49c188cb55ddebd07f2a
 			);
 		}
 	}]);
@@ -5461,6 +5482,8 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -5638,6 +5661,9 @@ var FacetedSearch = (function (_React$Component) {
 			return _react2["default"].createElement(
 				"div",
 				{ className: className },
+<<<<<<< HEAD
+				_react2["default"].createElement(_componentsFacets2["default"], _extends({}, this.props, this.state, {
+=======
 				_react2["default"].createElement(_componentsFacets2["default"], {
 					config: this.state.config,
 					facetList: this.props.facetList,
@@ -5646,6 +5672,7 @@ var FacetedSearch = (function (_React$Component) {
 					onChangeFullTextField: function (field, value) {
 						return _this2.store.dispatch((0, _actionsQueries.changeFullTextSearchField)(field, value));
 					},
+>>>>>>> f6a5fcddc16934721a6b49c188cb55ddebd07f2a
 					onChangeSearchTerm: function (value) {
 						return _this2.store.dispatch((0, _actionsQueries.changeSearchTerm)(value));
 					},
@@ -5665,6 +5692,10 @@ var FacetedSearch = (function (_React$Component) {
 						}
 
 						return _this2.store.dispatch(_actionsQueries.selectFacetValue.apply(undefined, args));
+<<<<<<< HEAD
+					} })),
+				_react2["default"].createElement(_componentsResults2["default"], _extends({}, this.props, this.state, {
+=======
 					},
 					queries: this.state.queries,
 					results: this.state.results }),
@@ -5677,6 +5708,7 @@ var FacetedSearch = (function (_React$Component) {
 					onChangeFullTextField: function (field, value) {
 						return _this2.store.dispatch((0, _actionsQueries.changeFullTextSearchField)(field, value));
 					},
+>>>>>>> f6a5fcddc16934721a6b49c188cb55ddebd07f2a
 					onChangeSearchTerm: function (value) {
 						return _this2.store.dispatch((0, _actionsQueries.changeSearchTerm)(value));
 					},
@@ -5693,10 +5725,7 @@ var FacetedSearch = (function (_React$Component) {
 					},
 					onSetSort: function (field) {
 						return _this2.store.dispatch((0, _actionsQueries.setSort)(field));
-					},
-					queries: this.state.queries,
-					resultComponent: this.props.resultComponent,
-					results: this.state.results })
+					} }))
 			);
 		}
 	}]);
@@ -5707,6 +5736,7 @@ var FacetedSearch = (function (_React$Component) {
 FacetedSearch.defaultProps = {
 	className: "",
 	facetList: [],
+	fullTextSearch: true,
 	metadataList: [],
 	labels: {}
 };
@@ -5717,6 +5747,7 @@ FacetedSearch.propTypes = {
 	currentQueryComponent: _react2["default"].PropTypes.func,
 	facetList: _react2["default"].PropTypes.array,
 	facetSortMap: _react2["default"].PropTypes.object,
+	fullTextSearch: _react2["default"].PropTypes.bool,
 	labels: _react2["default"].PropTypes.object,
 	metadataList: _react2["default"].PropTypes.array,
 	numberedResults: _react2["default"].PropTypes.bool,

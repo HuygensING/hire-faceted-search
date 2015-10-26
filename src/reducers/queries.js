@@ -63,6 +63,14 @@ let addQueryToState = function(state, query) {
 	};
 };
 
+let setFullTextSearchParameter = function(field, value, last = []) {
+	let current = last.filter((param) => param.name !== field);
+	if(value.length) {
+		current.push({name: field, term: value});
+	}
+	return current;
+};
+
 let initialState = {
 	all: [],
 	default: {
@@ -78,7 +86,9 @@ export default function(state=initialState, action) {
 	switch (action.type) {
 		case "SET_QUERY_DEFAULTS":
 			let defaultModel = {...initialState.default, ...{sortParameters: []}};
-
+			if (action.config && action.config.queryDefaults) {
+				defaultModel = {...defaultModel, ...action.config.queryDefaults};
+			}
 			return {...state, ...{
 				all: [defaultModel],
 				default: defaultModel,
@@ -127,9 +137,33 @@ export default function(state=initialState, action) {
 				facetValues: addRangeFacetValue(state.last.facetValues, action.facetName, action.value)
 			}};
 			return addQueryToState(state, query);
+
+		case "SET_FACET_VALUES":
+			query = {...state.last, ...{
+				facetValues: action.facetValues
+			}};
+			return addQueryToState(state, query);
+
 		case "CHANGE_SEARCH_TERM":
 			query = {...state.last, ...{term: action.value}};
+			return addQueryToState(state, query);
 
+		case "CHANGE_FULL_TEXT_SEARCH_TERM":
+			query = {...state.last, ...{
+				fullTextSearchParameters: setFullTextSearchParameter(action.field, action.value, state.last.fullTextSearchParameters)
+			}};
+			if (!query.fullTextSearchParameters.length) { delete query.fullTextSearchParameters; }
+			return addQueryToState(state, query);
+
+		case "SET_FULL_TEXT_SEARCH_TERMS":
+			query = {...state.last, ...{
+				fullTextSearchParameters: action.fullTextSearchParameters
+			}};
+			return addQueryToState(state, query);
+
+		case "REMOVE_FULL_TEXT_SEARCH_TERMS":
+			query = state.last;
+			delete query.fullTextSearchParameters;
 			return addQueryToState(state, query);
 
 		case "NEW_SEARCH":

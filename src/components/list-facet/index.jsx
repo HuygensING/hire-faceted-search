@@ -86,12 +86,17 @@ class ListFacet extends React.Component {
 
 
 		let selectedValues = this.selectedValues();
+		let valueLabels = this.props.labels.facetValues && this.props.labels.facetValues[this.props.data.name] ?
+			this.props.labels.facetValues[this.props.data.name] :
+			null;
+
 		let listItems = optionsToRender.map((option, index) =>
 			<ListItem
 				checked={selectedValues.indexOf(option.name) > -1}
 				count={option.count}
 				facetName={this.props.data.name}
 				key={index}
+				labels={valueLabels}
 				name={option.name}
 				onSelectFacetValue={this.props.onSelectFacetValue} />);
 

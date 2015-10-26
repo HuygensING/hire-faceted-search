@@ -11,7 +11,8 @@ describe('results reducer', () => {
 			facets: {},
 			first: null,
 			last: null,
-			requesting: false
+			requesting: false,
+			searchId: null
 		});
 	});
 
@@ -28,14 +29,12 @@ describe('results reducer', () => {
 	it('should handle CLEAR_LIST by emptying results and refs of last result state', () => {
 		expect(reducer({
 			last: {
-				refs: ["arr", "with", "content"] /*,
-				results: ["arr", "with", "content"]*/
+				refs: ["arr", "with", "content"]
 			},
 			requesting: false
 		}, {type: "CLEAR_LIST"})).toEqual({
 			last: {
-				refs: [] /*,
-				results: []*/
+				refs: []
 			},
 			requesting: true
 		});
@@ -44,21 +43,55 @@ describe('results reducer', () => {
 
 	it('should handle RECEIVE_NEXT_RESULTS by adding the refs and results to the last state and pushing the new state to all', () => {
 		expect(reducer({
-			all: [{/*results: ["old", "results"],*/ refs: ["old", "refs"]}],
-			last: { /*results: ["old", "results"],*/ refs: ["old", "refs"]},
+			all: [{refs: ["old", "refs"], facets: []}],
+			last: {refs: ["old", "refs"], facets: []},
 			requesting: true
 		}, {
 			type: "RECEIVE_NEXT_RESULTS",
-			response: {/*results: ["new", "results"],*/ refs: ["new", "refs"]}
+			response: {refs: ["new", "refs"], facets: []}
 		})).toEqual({
 			all: [
-				{ /*results: ["old", "results"],*/ refs: ["old", "refs"]},
-				{ /*results: ["old", "results", "new", "results"], */ refs: ["old", "refs", "new", "refs"]}
+				{ refs: ["old", "refs"], facets: []},
+				{ refs: ["old", "refs", "new", "refs"], facets: []}
 			],
-			last: { /*results: ["old", "results", "new", "results"], */ refs: ["old", "refs", "new", "refs"]},
-			requesting: false
+			last: { refs: ["old", "refs", "new", "refs"], facets: []},
+			requesting: false,
+			searchId: undefined
 		});
 	});
+
+	it('should should not remove facet counts which are now zero with RECEIVE_NEXT_RESULTS', () => {
+		let state = {
+			all: [],
+			last: {
+				facets: [
+					{name: "facetA", options: [{name: "foo", count: 5}, {name: "bar", count: 3}]},
+					{name: "facetB", options: [{name: "fooB", count: 5}, {name: "barB", count: 3}]}
+				],
+				refs: []
+			},
+			requesting: true
+		};
+		let response = {
+			facets: [
+				{name: "facetB", options: [{name: "fooB", count: 2}, {name: "barB", count: 1}]}
+			],
+			refs: []
+		};
+		let expectedFacets = [
+				{name: "facetA", options: [{name: "foo", count: 0}, {name: "bar", count: 0}] },
+				{name: "facetB", options: [{name: "fooB", count: 2}, {name: "barB", count: 1}]}
+		];
+		let expectedState = {
+			all: [{facets: expectedFacets, refs: []}],
+			last: {facets: expectedFacets, refs: []},
+			requesting: false,
+			searchId: undefined
+		};
+
+		expect(reducer(state, {type: "RECEIVE_NEXT_RESULTS", response: response})).toEqual(expectedState);
+	});
+
 
 	it('should handle RECEIVE_RESULTS by setting the first results, last results, facets and all', () => {
 		let state = {requesting: true, all: [], first: null};
@@ -71,7 +104,8 @@ describe('results reducer', () => {
 			requesting: false,
 			first: response,
 			all: [response],
-			last: response
+			last: response,
+			searchId: undefined
 		};
 		expect(reducer(state, {type: "RECEIVE_RESULTS", response: response})).toEqual(expectedState);
 	});
@@ -101,7 +135,8 @@ describe('results reducer', () => {
 			all: [{facets: expectedFacets}],
 			first: state.first,
 			last: {facets: expectedFacets},
-			requesting: false
+			requesting: false,
+			searchId: undefined
 		};
 
 

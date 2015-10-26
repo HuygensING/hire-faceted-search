@@ -111,7 +111,7 @@ describe('queries reducer', () => {
 	it("should REMOVE_FACET_VALUE and facet when list is empty", () => {
 		let initialFacets = {
 			facetValues: [
-				{name: "facet1", values: ["a"]},
+				{name: "facet1", values: ["a"]}
 			]
 		};
 		let state = {
@@ -224,6 +224,32 @@ describe('queries reducer', () => {
 	});
 
 
+	it("should overwrite the facetValues with SET_FACET_VALUES", () => {
+		let initialFacets = {
+			facetValues: [{name: "facet2", values: ["d", "e"]}]
+		};
+		let state = {
+			last: initialFacets,
+			all: [initialFacets]
+		};
+		let action = {
+			type: "SET_FACET_VALUES",
+			facetValues: [{name: "facet1", values: ["a", "b"]}]
+		};
+
+		let expectedFacets = {
+			facetValues: [
+				{name: "facet1", values: ["a", "b"]}
+			]
+		};
+		let expectedState = {
+			all: [initialFacets, expectedFacets],
+			last: expectedFacets
+		};
+
+		expect(reducer(state, action)).toEqual(expectedState);
+	});
+
 	it("should handle CHANGE_SEARCH_TERM", () => {
 		let state = {
 			all: [{term: "foo"}],
@@ -238,6 +264,93 @@ describe('queries reducer', () => {
 			value: "bar"
 		})).toEqual(expectedState);
 	});
+
+	it("should handle CHANGE_FULL_TEXT_SEARCH_TERM overwrite", () => {
+		let state = {
+			all: [{fullTextSearchParameters: [{name: "fieldname", term: ":val:"}]}],
+			last: {fullTextSearchParameters: [{name: "fieldname", term: ":val:"}]}
+		};
+		let expectedState = {
+			all: [{fullTextSearchParameters: [{name: "fieldname", term: ":val:"}]}, {fullTextSearchParameters: [{name: "fieldname", term: ":newVal:"}]}],
+			last: {fullTextSearchParameters: [{name: "fieldname", term: ":newVal:"}]}
+		};
+		expect(reducer(state, {
+			type: "CHANGE_FULL_TEXT_SEARCH_TERM",
+			field: "fieldname",
+			value: ":newVal:"
+		})).toEqual(expectedState);
+	});
+
+	it("should handle SET_FULL_TEXT_SEARCH_TERMS overwrite", () => {
+		let state = {
+			all: [{fullTextSearchParameters: [{name: "fieldname", term: ":val:"}, {name: "otherField", term: ":otherVal:"}]}],
+			last: {fullTextSearchParameters: [{name: "fieldname", term: ":val:"}, {name: "otherField", term: ":otherVal:"}]}
+		};
+		let expectedState = {
+			all: [
+				{fullTextSearchParameters: [{name: "fieldname", term: ":val:"}, {name: "otherField", term: ":otherVal:"}]},
+				{fullTextSearchParameters: [{name: "fieldname", term: ":newVal:"}]}
+			],
+			last: {fullTextSearchParameters: [{name: "fieldname", term: ":newVal:"}]}
+		};
+		expect(reducer(state, {
+			type: "SET_FULL_TEXT_SEARCH_TERMS",
+			field: "fieldname",
+			fullTextSearchParameters: [{name: "fieldname", term: ":newVal:"}]
+		})).toEqual(expectedState);
+	});
+
+	it("should handle REMOVE_FULL_TEXT_SEARCH_TERMS overwrite", () => {
+		let state = {
+			all: [{fullTextSearchParameters: [{name: "fieldname", term: ":val:"}, {name: "otherField", term: ":otherVal:"}]}],
+			last: {fullTextSearchParameters: [{name: "fieldname", term: ":val:"}, {name: "otherField", term: ":otherVal:"}]}
+		};
+		let expectedState = {
+			all: [
+				{fullTextSearchParameters: [{name: "fieldname", term: ":val:"}, {name: "otherField", term: ":otherVal:"}]},
+				{}
+			],
+			last: {}
+		};
+		expect(reducer(state, {
+			type: "REMOVE_FULL_TEXT_SEARCH_TERMS"
+		})).toEqual(expectedState);
+	});
+
+
+	it("should handle CHANGE_FULL_TEXT_SEARCH_TERM remove", () => {
+		let state = {
+			all: [{fullTextSearchParameters: [{name: "fieldname", term: ":val:"}]}],
+			last: {fullTextSearchParameters: [{name: "fieldname", term: ":val:"}]}
+		};
+		let expectedState = {
+			all: [{fullTextSearchParameters: [{name: "fieldname", term: ":val:"}]}, {}],
+			last: {}
+		};
+		expect(reducer(state, {
+			type: "CHANGE_FULL_TEXT_SEARCH_TERM",
+			field: "fieldname",
+			value: ""
+		})).toEqual(expectedState);
+	});
+
+	it("should handle CHANGE_FULL_TEXT_SEARCH_TERM add field", () => {
+		let state = {
+			all: [{fullTextSearchParameters: [{name: "fieldname", term: ":val:"}]}],
+			last: {fullTextSearchParameters: [{name: "fieldname", term: ":val:"}]}
+		};
+		let expectedState = {
+			all: [{fullTextSearchParameters: [{name: "fieldname", term: ":val:"}]}, {fullTextSearchParameters: [{name: "fieldname", term: ":val:"}, {name: "fieldname2", term: ":newVal:"}]}],
+			last: {fullTextSearchParameters: [{name: "fieldname", term: ":val:"}, {name: "fieldname2", term: ":newVal:"}]}
+		};
+		expect(reducer(state, {
+			type: "CHANGE_FULL_TEXT_SEARCH_TERM",
+			field: "fieldname2",
+			value: ":newVal:"
+		})).toEqual(expectedState);
+	});
+
+
 	it("should handle NEW_SEARCH", () => {
 
 		let state = {

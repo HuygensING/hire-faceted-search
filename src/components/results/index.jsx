@@ -4,7 +4,7 @@ import debounce from "lodash.debounce";
 
 import Result from "./result";
 import ResultsSortMenu from "./sort-menu";
-import CurrentQuery from "./current-query";
+import CurrentQuery from "hire-current-query";
 
 import Loader from "../icons/loader-three-dots";
 
@@ -73,6 +73,23 @@ class Results extends React.Component {
 			this.props.queries.last.sortParameters :
 			this.props.results.last.sortableFields.map(f => ({fieldname: f}));
 
+		let currentQuery = this.props.currentQueryComponent ?
+			React.createElement(this.props.currentQueryComponent, {
+				labels: this.props.labels,
+				onChangeFullTextField: this.props.onChangeFullTextField,
+				onChangeSearchTerm: this.props.onChangeSearchTerm,
+				onSelectFacetValue: this.props.onSelectFacetValue,
+				queries: this.props.queries,
+				results: this.props.results
+			}) :
+			(<CurrentQuery
+				labels={this.props.labels}
+				onChangeFullTextField={this.props.onChangeFullTextField}
+				onChangeSearchTerm={this.props.onChangeSearchTerm}
+				onSelectFacetValue={this.props.onSelectFacetValue}
+				queries={this.props.queries}
+				results={this.props.results} />);
+
 		return (
 			<div className="hire-faceted-search-results">
 				<header>
@@ -82,13 +99,7 @@ class Results extends React.Component {
 						labels={this.props.labels}
 						onSetSort={this.props.onSetSort}
 						values={sortValues} />
-
-					<CurrentQuery
-						labels={this.props.labels}
-						onChangeSearchTerm={this.props.onChangeSearchTerm}
-						onSelectFacetValue={this.props.onSelectFacetValue}
-						queries={this.props.queries}
-						results={this.props.results} />
+					{currentQuery}
 				</header>
 				<ol className={cx(
 						"hire-faceted-search-result-list",
@@ -104,8 +115,10 @@ class Results extends React.Component {
 
 Results.propTypes = {
 	config: React.PropTypes.object,
+	currentQueryComponent: React.PropTypes.func,
 	labels: React.PropTypes.object,
 	metadataList: React.PropTypes.array,
+	onChangeFullTextField: React.PropTypes.func,
 	onChangeSearchTerm: React.PropTypes.func,
 	onFetchNextResults: React.PropTypes.func,
 	onSelect: React.PropTypes.func,

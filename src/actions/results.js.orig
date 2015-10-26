@@ -24,13 +24,22 @@ let getResults = function(url, headers, done) {
 		if (err) { handleError(err, resp, body); }
 		let searchId = url.replace(/.*\/([^?]+).*/, "$1");
 
+<<<<<<< HEAD
+		body = JSON.parse(body);
+
+=======
 
 		body = JSON.parse(body);
+>>>>>>> f6a5fcddc16934721a6b49c188cb55ddebd07f2a
 		if (body.results != null && body.refs == null) {
 			body.refs = body.results;
 		}
 
+<<<<<<< HEAD
+		done(body);
+=======
 		done(body, searchId);
+>>>>>>> f6a5fcddc16934721a6b49c188cb55ddebd07f2a
 	};
 
 	server.performXhr(options, cb);
