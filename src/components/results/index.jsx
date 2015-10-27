@@ -45,8 +45,8 @@ class Results extends React.Component {
 
 	dataToComponents(results) {
 		return results.map((data, index) => {
-			if(this.props.resultComponent) {
-				return React.createElement(this.props.resultComponent, {
+			if(this.props.customComponents.result != null) {
+				return React.createElement(this.props.customComponents.result, {
 					data: data,
 					key: index + Math.random(),
 					labels: this.props.labels,
@@ -73,8 +73,8 @@ class Results extends React.Component {
 			this.props.queries.last.sortParameters :
 			this.props.results.last.sortableFields.map(f => ({fieldname: f}));
 
-		let currentQuery = this.props.currentQueryComponent ?
-			React.createElement(this.props.currentQueryComponent, {
+		let currentQuery = (this.props.customComponents.currentQuery != null) ?
+			React.createElement(this.props.customComponents.currentQuery, {
 				labels: this.props.labels,
 				onChangeFullTextField: this.props.onChangeFullTextField,
 				onChangeSearchTerm: this.props.onChangeSearchTerm,

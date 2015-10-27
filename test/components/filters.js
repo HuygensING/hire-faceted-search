@@ -5,8 +5,8 @@ const { TestUtils } = React.addons;
 
 describe("Facets", () => {
 	before(() => {
-		let jsdom = require('jsdom');
-		global.document = jsdom.jsdom('<!doctype html><html><body></body></html>');
+		let jsdom = require("jsdom");
+		global.document = jsdom.jsdom("<!doctype html><html><body></body></html>");
 	});
 
 	it("should render properly", function() {

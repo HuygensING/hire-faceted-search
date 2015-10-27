@@ -53,7 +53,8 @@ className              Add a custom className to root el.
 
 config                 Map of config options.
 
-currentQueryComponent  Component for overriding <CurrentQuery/>
+customComponents       Map of custom components. Currently supported:
+                       currentQuery, filters and result.
 
 facetList              List of facet names. Determines order.
 
@@ -75,8 +76,6 @@ onSearchId             Function. Called when a new search result
 
 onSelect               Function. Called when user click or touches
                        (selects) a search result.
-
-resultComponent        Component for overriding <Result/>
 ```
 
 ## Config

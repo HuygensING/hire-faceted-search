@@ -4898,8 +4898,8 @@ var Results = (function (_React$Component) {
 			var _this = this;
 
 			return results.map(function (data, index) {
-				if (_this.props.resultComponent) {
-					return _react2["default"].createElement(_this.props.resultComponent, {
+				if (_this.props.customComponents.result != null) {
+					return _react2["default"].createElement(_this.props.customComponents.result, {
 						data: data,
 						key: index + Math.random(),
 						labels: _this.props.labels,
@@ -4925,7 +4925,7 @@ var Results = (function (_React$Component) {
 				return { fieldname: f };
 			});
 
-			var currentQuery = this.props.currentQueryComponent ? _react2["default"].createElement(this.props.currentQueryComponent, {
+			var currentQuery = this.props.customComponents.currentQuery != null ? _react2["default"].createElement(this.props.customComponents.currentQuery, {
 				labels: this.props.labels,
 				onChangeFullTextField: this.props.onChangeFullTextField,
 				onChangeSearchTerm: this.props.onChangeSearchTerm,
@@ -5740,15 +5740,20 @@ var FacetedSearch = (function (_React$Component) {
 
 FacetedSearch.defaultProps = {
 	className: "",
+	customComponents: {
+		currentQuery: null,
+		filters: null,
+		result: null
+	},
 	facetList: [],
-	metadataList: [],
-	labels: {}
+	labels: {},
+	metadataList: []
 };
 
 FacetedSearch.propTypes = {
 	className: _react2["default"].PropTypes.string,
 	config: _react2["default"].PropTypes.object.isRequired,
-	currentQueryComponent: _react2["default"].PropTypes.func,
+	customComponents: _react2["default"].PropTypes.object,
 	facetList: _react2["default"].PropTypes.array,
 	facetSortMap: _react2["default"].PropTypes.object,
 	labels: _react2["default"].PropTypes.object,
@@ -5756,8 +5761,7 @@ FacetedSearch.propTypes = {
 	numberedResults: _react2["default"].PropTypes.bool,
 	onChange: _react2["default"].PropTypes.func,
 	onSearchId: _react2["default"].PropTypes.func,
-	onSelect: _react2["default"].PropTypes.func,
-	resultComponent: _react2["default"].PropTypes.func
+	onSelect: _react2["default"].PropTypes.func
 };
 
 exports["default"] = FacetedSearch;

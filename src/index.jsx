@@ -172,15 +172,20 @@ class FacetedSearch extends React.Component {
 
 FacetedSearch.defaultProps = {
 	className: "",
+	customComponents: {
+		currentQuery: null,
+		filters: null,
+		result: null
+	},
 	facetList: [],
-	metadataList: [],
-	labels: {}
+	labels: {},
+	metadataList: []
 };
 
 FacetedSearch.propTypes = {
 	className: React.PropTypes.string,
 	config: React.PropTypes.object.isRequired,
-	currentQueryComponent: React.PropTypes.func,
+	customComponents: React.PropTypes.object,
 	facetList: React.PropTypes.array,
 	facetSortMap: React.PropTypes.object,
 	labels: React.PropTypes.object,
@@ -188,8 +193,7 @@ FacetedSearch.propTypes = {
 	numberedResults: React.PropTypes.bool,
 	onChange: React.PropTypes.func,
 	onSearchId: React.PropTypes.func,
-	onSelect: React.PropTypes.func,
-	resultComponent: React.PropTypes.func
+	onSelect: React.PropTypes.func
 };
 
 export default FacetedSearch;
