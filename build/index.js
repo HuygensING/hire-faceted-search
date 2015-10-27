@@ -3296,6 +3296,55 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+var _react = _dereq_("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _listFacet = _dereq_("./list-facet");
+
+var _listFacet2 = _interopRequireDefault(_listFacet);
+
+var _rangeFacet = _dereq_("./range-facet");
+
+var _rangeFacet2 = _interopRequireDefault(_rangeFacet);
+
+exports["default"] = {
+	LIST: function LIST(data, props, key) {
+		var sort = props.facetSortMap.hasOwnProperty(data.name) ? props.facetSortMap[data.name] : null;
+
+		return _react2["default"].createElement(_listFacet2["default"], {
+			data: data,
+			key: key,
+			labels: props.labels,
+			onSelectFacetValue: props.onSelectFacetValue,
+			queries: props.queries,
+			sort: sort });
+	},
+
+	BOOLEAN: function BOOLEAN() {
+		return this.LIST.apply(this, arguments);
+	},
+
+	RANGE: function RANGE(data, props, key) {
+		return _react2["default"].createElement(_rangeFacet2["default"], {
+			data: data,
+			key: key,
+			labels: props.labels,
+			onSelectFacetRange: props.onSelectFacetRange,
+			queries: props.queries });
+	}
+};
+module.exports = exports["default"];
+
+},{"./list-facet":46,"./range-facet":49,"react":"react"}],35:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -3397,7 +3446,7 @@ FilterMenu.propTypes = {
 exports["default"] = FilterMenu;
 module.exports = exports["default"];
 
-},{"../icons/filter":37,"classnames":"classnames","hire-forms-input":2,"insert-css":4,"react":"react"}],35:[function(_dereq_,module,exports){
+},{"../icons/filter":38,"classnames":"classnames","hire-forms-input":2,"insert-css":4,"react":"react"}],36:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3422,40 +3471,9 @@ var _textSearch = _dereq_("./text-search");
 
 var _textSearch2 = _interopRequireDefault(_textSearch);
 
-var _listFacet = _dereq_("./list-facet");
+var _facetMap = _dereq_("./facet-map");
 
-var _listFacet2 = _interopRequireDefault(_listFacet);
-
-var _rangeFacet = _dereq_("./range-facet");
-
-var _rangeFacet2 = _interopRequireDefault(_rangeFacet);
-
-var facetMap = {
-	LIST: function LIST(data, props, key) {
-		var sort = props.facetSortMap.hasOwnProperty(data.name) ? props.facetSortMap[data.name] : null;
-
-		return _react2["default"].createElement(_listFacet2["default"], {
-			data: data,
-			key: key,
-			labels: props.labels,
-			onSelectFacetValue: props.onSelectFacetValue,
-			queries: props.queries,
-			sort: sort });
-	},
-
-	BOOLEAN: function BOOLEAN() {
-		return this.LIST.apply(this, arguments);
-	},
-
-	RANGE: function RANGE(data, props, key) {
-		return _react2["default"].createElement(_rangeFacet2["default"], {
-			data: data,
-			key: key,
-			labels: props.labels,
-			onSelectFacetRange: props.onSelectFacetRange,
-			queries: props.queries });
-	}
-};
+var _facetMap2 = _interopRequireDefault(_facetMap);
 
 var Filters = (function (_React$Component) {
 	_inherits(Filters, _React$Component);
@@ -3510,7 +3528,7 @@ var Filters = (function (_React$Component) {
 			};
 
 			var toComponent = function toComponent(data, index) {
-				return facetMap[data.type](data, _this.props, index);
+				return _facetMap2["default"][data.type](data, _this.props, index);
 			};
 
 			var facets = this.props.facetList.length ? this.props.facetList.map(updateCount).filter(notNull) : this.props.results.last.facets;
@@ -3559,7 +3577,7 @@ Filters.propTypes = {
 exports["default"] = Filters;
 module.exports = exports["default"];
 
-},{"./list-facet":45,"./range-facet":48,"./text-search":53,"react":"react"}],36:[function(_dereq_,module,exports){
+},{"./facet-map":34,"./text-search":54,"react":"react"}],37:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3620,7 +3638,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],37:[function(_dereq_,module,exports){
+},{"react":"react"}],38:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3680,7 +3698,7 @@ FilterIcon.propTypes = {
 exports["default"] = FilterIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],38:[function(_dereq_,module,exports){
+},{"react":"react"}],39:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3845,7 +3863,7 @@ LoaderThreeDots.PropTypes = {
 exports["default"] = LoaderThreeDots;
 module.exports = exports["default"];
 
-},{"react":"react"}],39:[function(_dereq_,module,exports){
+},{"react":"react"}],40:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3905,7 +3923,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],40:[function(_dereq_,module,exports){
+},{"react":"react"}],41:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3976,7 +3994,7 @@ SortAlphabeticallyAscending.propTypes = {
 exports["default"] = SortAlphabeticallyAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],41:[function(_dereq_,module,exports){
+},{"react":"react"}],42:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4047,7 +4065,7 @@ SortAlphabeticallyDescending.propTypes = {
 exports["default"] = SortAlphabeticallyDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],42:[function(_dereq_,module,exports){
+},{"react":"react"}],43:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4116,7 +4134,7 @@ SortCountAscending.propTypes = {
 exports["default"] = SortCountAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],43:[function(_dereq_,module,exports){
+},{"react":"react"}],44:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4185,7 +4203,7 @@ SortCountDescending.propTypes = {
 exports["default"] = SortCountDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],44:[function(_dereq_,module,exports){
+},{"react":"react"}],45:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4244,7 +4262,7 @@ UncheckedIcon.propTypes = {
 exports["default"] = UncheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],45:[function(_dereq_,module,exports){
+},{"react":"react"}],46:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4462,7 +4480,7 @@ ListFacet.propTypes = {
 exports["default"] = ListFacet;
 module.exports = exports["default"];
 
-},{"../filter-menu":34,"../sort-menu":52,"./list-item":46,"./sort-function":47,"classnames":"classnames","insert-css":4,"react":"react"}],46:[function(_dereq_,module,exports){
+},{"../filter-menu":35,"../sort-menu":53,"./list-item":47,"./sort-function":48,"classnames":"classnames","insert-css":4,"react":"react"}],47:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4572,7 +4590,7 @@ ListFacetListItem.propTypes = {
 exports["default"] = ListFacetListItem;
 module.exports = exports["default"];
 
-},{"../icons/checked":36,"../icons/unchecked":44,"react":"react"}],47:[function(_dereq_,module,exports){
+},{"../icons/checked":37,"../icons/unchecked":45,"react":"react"}],48:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4636,7 +4654,7 @@ function sortFunction(type, direction) {
 
 module.exports = exports["default"];
 
-},{}],48:[function(_dereq_,module,exports){
+},{}],49:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4784,7 +4802,7 @@ RangeFacet.propTypes = {
 exports["default"] = RangeFacet;
 module.exports = exports["default"];
 
-},{"hire-range-slider":3,"insert-css":4,"react":"react"}],49:[function(_dereq_,module,exports){
+},{"hire-range-slider":3,"insert-css":4,"react":"react"}],50:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4974,7 +4992,7 @@ Results.propTypes = {
 exports["default"] = Results;
 module.exports = exports["default"];
 
-},{"../icons/loader-three-dots":38,"./result":50,"./sort-menu":51,"classnames":"classnames","hire-current-query":1,"insert-css":4,"lodash.debounce":5,"react":"react"}],50:[function(_dereq_,module,exports){
+},{"../icons/loader-three-dots":39,"./result":51,"./sort-menu":52,"classnames":"classnames","hire-current-query":1,"insert-css":4,"lodash.debounce":5,"react":"react"}],51:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5074,7 +5092,7 @@ Result.propTypes = {
 exports["default"] = Result;
 module.exports = exports["default"];
 
-},{"react":"react"}],51:[function(_dereq_,module,exports){
+},{"react":"react"}],52:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5206,7 +5224,7 @@ ResultsSortMenu.propTypes = {
 exports["default"] = ResultsSortMenu;
 module.exports = exports["default"];
 
-},{"classnames":"classnames","insert-css":4,"react":"react"}],52:[function(_dereq_,module,exports){
+},{"classnames":"classnames","insert-css":4,"react":"react"}],53:[function(_dereq_,module,exports){
 /* TODO Remove sort menu and move sort options (count/alpha) to facet schema.
 	A schema is needed, because different facets, should be able to have different
 	options set. */
@@ -5341,7 +5359,7 @@ SortMenu.propTypes = {
 exports["default"] = SortMenu;
 module.exports = exports["default"];
 
-},{"../icons/sort-alphabetically-ascending":40,"../icons/sort-alphabetically-descending":41,"../icons/sort-count-ascending":42,"../icons/sort-count-descending":43,"classnames":"classnames","insert-css":4,"react":"react"}],53:[function(_dereq_,module,exports){
+},{"../icons/sort-alphabetically-ascending":41,"../icons/sort-alphabetically-descending":42,"../icons/sort-count-ascending":43,"../icons/sort-count-descending":44,"classnames":"classnames","insert-css":4,"react":"react"}],54:[function(_dereq_,module,exports){
 // TODO add searching class to .search-icon when async query is busy
 
 "use strict";
@@ -5480,7 +5498,7 @@ TextSearch.propTypes = {
 exports["default"] = TextSearch;
 module.exports = exports["default"];
 
-},{"../icons/search":39,"classnames":"classnames","insert-css":4,"react":"react"}],54:[function(_dereq_,module,exports){
+},{"../icons/search":40,"classnames":"classnames","insert-css":4,"react":"react"}],55:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5757,7 +5775,7 @@ FacetedSearch.propTypes = {
 exports["default"] = FacetedSearch;
 module.exports = exports["default"];
 
-},{"./actions/queries":32,"./actions/results":33,"./components/filters":35,"./components/icons/loader-three-dots":38,"./components/results":49,"./reducers":56,"insert-css":4,"lodash.isequal":7,"react":"react","redux":17,"redux-thunk":15}],55:[function(_dereq_,module,exports){
+},{"./actions/queries":32,"./actions/results":33,"./components/filters":36,"./components/icons/loader-three-dots":39,"./components/results":50,"./reducers":57,"insert-css":4,"lodash.isequal":7,"react":"react","redux":17,"redux-thunk":15}],56:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5785,7 +5803,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}],56:[function(_dereq_,module,exports){
+},{}],57:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5820,7 +5838,7 @@ exports["default"] = (0, _redux.combineReducers)({
 });
 module.exports = exports["default"];
 
-},{"./config":55,"./labels":57,"./queries":58,"./results":59,"redux":17}],57:[function(_dereq_,module,exports){
+},{"./config":56,"./labels":58,"./queries":59,"./results":60,"redux":17}],58:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5851,7 +5869,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}],58:[function(_dereq_,module,exports){
+},{}],59:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6055,7 +6073,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}],59:[function(_dereq_,module,exports){
+},{}],60:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6162,5 +6180,5 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}]},{},[54])(54)
+},{}]},{},[55])(55)
 });
