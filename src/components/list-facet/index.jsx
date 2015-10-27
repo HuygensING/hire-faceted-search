@@ -149,7 +149,11 @@ ListFacet.propTypes = {
 	onSelectFacetValue: React.PropTypes.func,
 	queries: React.PropTypes.object,
 	showFilterMenu: React.PropTypes.bool,
-	showSortMenu: React.PropTypes.bool
+	showSortMenu: React.PropTypes.bool,
+	sort: React.PropTypes.shape({
+		direction: React.PropTypes.oneOf(["ascending", "descending"]),
+		type: React.PropTypes.oneOf(["alphabet", "count"])
+	})
 };
 
 export default ListFacet;

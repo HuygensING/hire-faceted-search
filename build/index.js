@@ -4452,7 +4452,11 @@ ListFacet.propTypes = {
 	onSelectFacetValue: _react2["default"].PropTypes.func,
 	queries: _react2["default"].PropTypes.object,
 	showFilterMenu: _react2["default"].PropTypes.bool,
-	showSortMenu: _react2["default"].PropTypes.bool
+	showSortMenu: _react2["default"].PropTypes.bool,
+	sort: _react2["default"].PropTypes.shape({
+		direction: _react2["default"].PropTypes.oneOf(["ascending", "descending"]),
+		type: _react2["default"].PropTypes.oneOf(["alphabet", "count"])
+	})
 };
 
 exports["default"] = ListFacet;
