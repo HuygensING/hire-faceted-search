@@ -12,7 +12,7 @@ describe("Facets", () => {
 	it("should render properly", function() {
 		this.timeout(4000);
 		// Can only import elements with insertCss after document is exposed as global
-		let Facets = require("../../src/components/facets");
+		let Facets = require("../../src/components/filters");
 		let TextSearch = require("../../src/components/text-search");
 		let ListFacet = require("../../src/components/list-facet");
 		let RangeFacet = require("../../src/components/range-facet");
@@ -47,7 +47,7 @@ describe("Facets", () => {
 
 		const { output } = setup();
 		expect(output.type).toBe("ul");
-		expect(output.props.className).toBe("hire-faceted-search-facets");
+		expect(output.props.className).toBe("hire-faceted-search-filters");
 		expect(output.props.children.length).toBe(5);
 		let [button, textSearch, ftSearchTop, childFacets, ftSearchBottom] = output.props.children;
 		expect(button.type).toBe("button");

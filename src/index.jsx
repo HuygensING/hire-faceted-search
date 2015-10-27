@@ -1,7 +1,7 @@
 import React from "react";
 import isEqual from "lodash.isequal";
 
-import Facets from "./components/facets";
+import Filters from "./components/filters";
 import Results from "./components/results";
 import Loader from "./components/icons/loader-three-dots";
 
@@ -122,7 +122,7 @@ class FacetedSearch extends React.Component {
 
 		return (
 			<div className={className}>
-				<Facets
+				<Filters
 					config={this.state.config}
 					facetList={this.props.facetList}
 					facetSortMap={this.props.facetSortMap}

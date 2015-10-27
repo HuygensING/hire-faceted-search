@@ -35,7 +35,7 @@ let facetMap = {
 	}
 };
 
-class Facets extends React.Component {
+class Filters extends React.Component {
 	onChangeFullTextField(field, value) {
 		this.props.onChangeFullTextField(field, value);
 	}
@@ -86,7 +86,7 @@ class Facets extends React.Component {
 			{top: null, bottom: null};
 
 		return (
-			<ul className="hire-faceted-search-facets">
+			<ul className="hire-faceted-search-filters">
 				<button onClick={this.props.onNewSearch}>New search</button>
 				{freeTextSearch}
 				{fullTextSearches.top}
@@ -97,12 +97,12 @@ class Facets extends React.Component {
 	}
 }
 
-Facets.defaultProps = {
+Filters.defaultProps = {
 	config: {hideFreeTextSearch: false},
 	facetSortMap: {}
 };
 
-Facets.propTypes = {
+Filters.propTypes = {
 	config: React.PropTypes.object,
 	facetList: React.PropTypes.array,
 	labels: React.PropTypes.object,
@@ -115,4 +115,4 @@ Facets.propTypes = {
 	results: React.PropTypes.object
 };
 
-export default Facets;
+export default Filters;

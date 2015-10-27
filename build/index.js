@@ -326,9 +326,33 @@ var Input = (function (_React$Component) {
 			return this.props.value !== nextProps.value;
 		}
 	}, {
+		key: "handleBlur",
+		value: function handleBlur(ev) {
+			this.props.onBlur(ev);
+		}
+	}, {
+		key: "handleFocus",
+		value: function handleFocus(ev) {
+			this.props.onFocus(ev);
+		}
+	}, {
 		key: "handleChange",
 		value: function handleChange(ev) {
 			this.props.onChange(ev.currentTarget.value, ev);
+		}
+	}, {
+		key: "handleKeyDown",
+		value: function handleKeyDown(ev) {
+			if (this.props.onKeyDown) {
+				this.props.onKeyDown(ev);
+			}
+		}
+	}, {
+		key: "handleKeyUp",
+		value: function handleKeyUp(ev) {
+			if (this.props.onKeyUp) {
+				this.props.onKeyUp(ev);
+			}
 		}
 	}, {
 		key: "render",
@@ -344,11 +368,11 @@ var Input = (function (_React$Component) {
 				{
 					className: (0, _classnames2["default"])("hire-input", { invalid: !this.state.valid }) },
 				_react2["default"].createElement("input", {
-					onBlur: this.props.onBlur,
+					onBlur: this.handleBlur.bind(this),
 					onChange: this.handleChange.bind(this),
-					onFocus: this.props.onFocus,
-					onKeyDown: this.props.onKeyDown,
-					onKeyUp: this.props.onKeyUp,
+					onFocus: this.handleFocus.bind(this),
+					onKeyDown: this.handleKeyDown.bind(this),
+					onKeyUp: this.handleKeyUp.bind(this),
 					placeholder: this.props.placeholder,
 					style: this.props.style,
 					value: this.props.value }),
@@ -2755,7 +2779,7 @@ function createXHR(options, callback) {
 
         return body
     }
-
+    
     var failureResponse = {
                 body: undefined,
                 headers: {},
@@ -2764,11 +2788,11 @@ function createXHR(options, callback) {
                 url: uri,
                 rawRequest: xhr
             }
-
+    
     function errorFunc(evt) {
         clearTimeout(timeoutTimer)
         if(!(evt instanceof Error)){
-            evt = new Error("" + (evt || "Unknown XMLHttpRequest Error") )
+            evt = new Error("" + (evt || "unknown") )
         }
         evt.statusCode = 0
         callback(evt, failureResponse)
@@ -2787,7 +2811,7 @@ function createXHR(options, callback) {
         }
         var response = failureResponse
         var err = null
-
+        
         if (status !== 0){
             response = {
                 body: getBody(),
@@ -2804,9 +2828,9 @@ function createXHR(options, callback) {
             err = new Error("Internal XMLHttpRequest Error")
         }
         callback(err, response, response.body)
-
+        
     }
-
+    
     if (typeof options === "string") {
         options = { uri: options }
     }
@@ -2841,7 +2865,7 @@ function createXHR(options, callback) {
         isJson = true
         headers["accept"] || headers["Accept"] || (headers["Accept"] = "application/json") //Don't override existing accept header declared by user
         if (method !== "GET" && method !== "HEAD") {
-            headers["content-type"] || headers["Content-Type"] || (headers["Content-Type"] = "application/json") //Don't override existing accept header declared by user
+            headers["Content-Type"] = "application/json"
             body = JSON.stringify(options.json)
         }
     }
@@ -2866,9 +2890,7 @@ function createXHR(options, callback) {
         timeoutTimer = setTimeout(function(){
             aborted=true//IE9 may still call readystatechange
             xhr.abort("timeout")
-            var e = new Error("XMLHttpRequest timeout")
-            e.code = "ETIMEDOUT"
-            errorFunc(e)
+            errorFunc();
         }, options.timeout )
     }
 
@@ -2885,8 +2907,8 @@ function createXHR(options, callback) {
     if ("responseType" in options) {
         xhr.responseType = options.responseType
     }
-
-    if ("beforeSend" in options &&
+    
+    if ("beforeSend" in options && 
         typeof options.beforeSend === "function"
     ) {
         options.beforeSend(xhr)
@@ -3288,168 +3310,6 @@ var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
 
-var _textSearch = _dereq_("./text-search");
-
-var _textSearch2 = _interopRequireDefault(_textSearch);
-
-var _listFacet = _dereq_("./list-facet");
-
-var _listFacet2 = _interopRequireDefault(_listFacet);
-
-var _rangeFacet = _dereq_("./range-facet");
-
-var _rangeFacet2 = _interopRequireDefault(_rangeFacet);
-
-var facetMap = {
-	LIST: function LIST(data, props, key) {
-		var sort = props.facetSortMap.hasOwnProperty(data.name) ? props.facetSortMap[data.name] : null;
-
-		return _react2["default"].createElement(_listFacet2["default"], {
-			data: data,
-			key: key,
-			labels: props.labels,
-			onSelectFacetValue: props.onSelectFacetValue,
-			queries: props.queries,
-			sort: sort });
-	},
-
-	BOOLEAN: function BOOLEAN() {
-		return this.LIST.apply(this, arguments);
-	},
-
-	RANGE: function RANGE(data, props, key) {
-		return _react2["default"].createElement(_rangeFacet2["default"], {
-			data: data,
-			key: key,
-			labels: props.labels,
-			onSelectFacetRange: props.onSelectFacetRange,
-			queries: props.queries });
-	}
-};
-
-var Facets = (function (_React$Component) {
-	_inherits(Facets, _React$Component);
-
-	function Facets() {
-		_classCallCheck(this, Facets);
-
-		_get(Object.getPrototypeOf(Facets.prototype), "constructor", this).apply(this, arguments);
-	}
-
-	_createClass(Facets, [{
-		key: "onChangeFullTextField",
-		value: function onChangeFullTextField(field, value) {
-			this.props.onChangeFullTextField(field, value);
-		}
-	}, {
-		key: "renderFullTextSearch",
-		value: function renderFullTextSearch(field, i) {
-			var foundFields = (this.props.queries.last.fullTextSearchParameters || []).filter(function (fld) {
-				return fld.name === field.name;
-			});
-			var value = foundFields.length ? foundFields[0].term : "";
-			return _react2["default"].createElement(_textSearch2["default"], { field: field.name, key: i, labels: this.props.labels, onChangeSearchTerm: this.onChangeFullTextField.bind(this, field.name), value: value });
-		}
-	}, {
-		key: "renderFullTextSearches",
-		value: function renderFullTextSearches() {
-			return {
-				top: this.props.config.fullTextSearchFields.filter(function (field) {
-					return field.position && field.position === "top" || !field.position;
-				}).map(this.renderFullTextSearch.bind(this)),
-				bottom: this.props.config.fullTextSearchFields.filter(function (field) {
-					return field.position && field.position === "bottom";
-				}).map(this.renderFullTextSearch.bind(this))
-			};
-		}
-	}, {
-		key: "render",
-		value: function render() {
-			var _this = this;
-
-			var updateCount = function updateCount(facetName) {
-				var found = _this.props.results.last.facets.filter(function (facet) {
-					return facet.name === facetName;
-				});
-
-				return found.length ? found[0] : null;
-			};
-
-			var notNull = function notNull(facetName) {
-				return facetName !== null;
-			};
-
-			var toComponent = function toComponent(data, index) {
-				return facetMap[data.type](data, _this.props, index);
-			};
-
-			var facets = this.props.facetList.length ? this.props.facetList.map(updateCount).filter(notNull) : this.props.results.last.facets;
-
-			var freeTextSearch = this.props.config.hideFreeTextSearch ? null : _react2["default"].createElement(_textSearch2["default"], { labels: this.props.labels, onChangeSearchTerm: this.props.onChangeSearchTerm, value: this.props.queries.last.term });
-
-			var fullTextSearches = this.props.config.fullTextSearchFields ? this.renderFullTextSearches() : { top: null, bottom: null };
-
-			return _react2["default"].createElement(
-				"ul",
-				{ className: "hire-faceted-search-facets" },
-				_react2["default"].createElement(
-					"button",
-					{ onClick: this.props.onNewSearch },
-					"New search"
-				),
-				freeTextSearch,
-				fullTextSearches.top,
-				facets.map(toComponent),
-				fullTextSearches.bottom
-			);
-		}
-	}]);
-
-	return Facets;
-})(_react2["default"].Component);
-
-Facets.defaultProps = {
-	config: { hideFreeTextSearch: false },
-	facetSortMap: {}
-};
-
-Facets.propTypes = {
-	config: _react2["default"].PropTypes.object,
-	facetList: _react2["default"].PropTypes.array,
-	labels: _react2["default"].PropTypes.object,
-	onChangeFullTextField: _react2["default"].PropTypes.func,
-	onChangeSearchTerm: _react2["default"].PropTypes.func,
-	onNewSearch: _react2["default"].PropTypes.func,
-	onSelectFacetRange: _react2["default"].PropTypes.func,
-	onSelectFacetValue: _react2["default"].PropTypes.func,
-	queries: _react2["default"].PropTypes.object,
-	results: _react2["default"].PropTypes.object
-};
-
-exports["default"] = Facets;
-module.exports = exports["default"];
-
-},{"./list-facet":45,"./range-facet":48,"./text-search":53,"react":"react"}],35:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _react = _dereq_("react");
-
-var _react2 = _interopRequireDefault(_react);
-
 var _classnames = _dereq_("classnames");
 
 var _classnames2 = _interopRequireDefault(_classnames);
@@ -3537,7 +3397,169 @@ FilterMenu.propTypes = {
 exports["default"] = FilterMenu;
 module.exports = exports["default"];
 
-},{"../icons/filter":37,"classnames":"classnames","hire-forms-input":2,"insert-css":4,"react":"react"}],36:[function(_dereq_,module,exports){
+},{"../icons/filter":37,"classnames":"classnames","hire-forms-input":2,"insert-css":4,"react":"react"}],35:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = _dereq_("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var _textSearch = _dereq_("./text-search");
+
+var _textSearch2 = _interopRequireDefault(_textSearch);
+
+var _listFacet = _dereq_("./list-facet");
+
+var _listFacet2 = _interopRequireDefault(_listFacet);
+
+var _rangeFacet = _dereq_("./range-facet");
+
+var _rangeFacet2 = _interopRequireDefault(_rangeFacet);
+
+var facetMap = {
+	LIST: function LIST(data, props, key) {
+		var sort = props.facetSortMap.hasOwnProperty(data.name) ? props.facetSortMap[data.name] : null;
+
+		return _react2["default"].createElement(_listFacet2["default"], {
+			data: data,
+			key: key,
+			labels: props.labels,
+			onSelectFacetValue: props.onSelectFacetValue,
+			queries: props.queries,
+			sort: sort });
+	},
+
+	BOOLEAN: function BOOLEAN() {
+		return this.LIST.apply(this, arguments);
+	},
+
+	RANGE: function RANGE(data, props, key) {
+		return _react2["default"].createElement(_rangeFacet2["default"], {
+			data: data,
+			key: key,
+			labels: props.labels,
+			onSelectFacetRange: props.onSelectFacetRange,
+			queries: props.queries });
+	}
+};
+
+var Filters = (function (_React$Component) {
+	_inherits(Filters, _React$Component);
+
+	function Filters() {
+		_classCallCheck(this, Filters);
+
+		_get(Object.getPrototypeOf(Filters.prototype), "constructor", this).apply(this, arguments);
+	}
+
+	_createClass(Filters, [{
+		key: "onChangeFullTextField",
+		value: function onChangeFullTextField(field, value) {
+			this.props.onChangeFullTextField(field, value);
+		}
+	}, {
+		key: "renderFullTextSearch",
+		value: function renderFullTextSearch(field, i) {
+			var foundFields = (this.props.queries.last.fullTextSearchParameters || []).filter(function (fld) {
+				return fld.name === field.name;
+			});
+			var value = foundFields.length ? foundFields[0].term : "";
+			return _react2["default"].createElement(_textSearch2["default"], { field: field.name, key: i, labels: this.props.labels, onChangeSearchTerm: this.onChangeFullTextField.bind(this, field.name), value: value });
+		}
+	}, {
+		key: "renderFullTextSearches",
+		value: function renderFullTextSearches() {
+			return {
+				top: this.props.config.fullTextSearchFields.filter(function (field) {
+					return field.position && field.position === "top" || !field.position;
+				}).map(this.renderFullTextSearch.bind(this)),
+				bottom: this.props.config.fullTextSearchFields.filter(function (field) {
+					return field.position && field.position === "bottom";
+				}).map(this.renderFullTextSearch.bind(this))
+			};
+		}
+	}, {
+		key: "render",
+		value: function render() {
+			var _this = this;
+
+			var updateCount = function updateCount(facetName) {
+				var found = _this.props.results.last.facets.filter(function (facet) {
+					return facet.name === facetName;
+				});
+
+				return found.length ? found[0] : null;
+			};
+
+			var notNull = function notNull(facetName) {
+				return facetName !== null;
+			};
+
+			var toComponent = function toComponent(data, index) {
+				return facetMap[data.type](data, _this.props, index);
+			};
+
+			var facets = this.props.facetList.length ? this.props.facetList.map(updateCount).filter(notNull) : this.props.results.last.facets;
+
+			var freeTextSearch = this.props.config.hideFreeTextSearch ? null : _react2["default"].createElement(_textSearch2["default"], { labels: this.props.labels, onChangeSearchTerm: this.props.onChangeSearchTerm, value: this.props.queries.last.term });
+
+			var fullTextSearches = this.props.config.fullTextSearchFields ? this.renderFullTextSearches() : { top: null, bottom: null };
+
+			return _react2["default"].createElement(
+				"ul",
+				{ className: "hire-faceted-search-filters" },
+				_react2["default"].createElement(
+					"button",
+					{ onClick: this.props.onNewSearch },
+					"New search"
+				),
+				freeTextSearch,
+				fullTextSearches.top,
+				facets.map(toComponent),
+				fullTextSearches.bottom
+			);
+		}
+	}]);
+
+	return Filters;
+})(_react2["default"].Component);
+
+Filters.defaultProps = {
+	config: { hideFreeTextSearch: false },
+	facetSortMap: {}
+};
+
+Filters.propTypes = {
+	config: _react2["default"].PropTypes.object,
+	facetList: _react2["default"].PropTypes.array,
+	labels: _react2["default"].PropTypes.object,
+	onChangeFullTextField: _react2["default"].PropTypes.func,
+	onChangeSearchTerm: _react2["default"].PropTypes.func,
+	onNewSearch: _react2["default"].PropTypes.func,
+	onSelectFacetRange: _react2["default"].PropTypes.func,
+	onSelectFacetValue: _react2["default"].PropTypes.func,
+	queries: _react2["default"].PropTypes.object,
+	results: _react2["default"].PropTypes.object
+};
+
+exports["default"] = Filters;
+module.exports = exports["default"];
+
+},{"./list-facet":45,"./range-facet":48,"./text-search":53,"react":"react"}],36:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4436,7 +4458,7 @@ ListFacet.propTypes = {
 exports["default"] = ListFacet;
 module.exports = exports["default"];
 
-},{"../filter-menu":35,"../sort-menu":52,"./list-item":46,"./sort-function":47,"classnames":"classnames","insert-css":4,"react":"react"}],46:[function(_dereq_,module,exports){
+},{"../filter-menu":34,"../sort-menu":52,"./list-item":46,"./sort-function":47,"classnames":"classnames","insert-css":4,"react":"react"}],46:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5479,9 +5501,9 @@ var _lodashIsequal = _dereq_("lodash.isequal");
 
 var _lodashIsequal2 = _interopRequireDefault(_lodashIsequal);
 
-var _componentsFacets = _dereq_("./components/facets");
+var _componentsFilters = _dereq_("./components/filters");
 
-var _componentsFacets2 = _interopRequireDefault(_componentsFacets);
+var _componentsFilters2 = _interopRequireDefault(_componentsFilters);
 
 var _componentsResults = _dereq_("./components/results");
 
@@ -5521,7 +5543,7 @@ var createStoreWithMiddleware = (0, _redux.applyMiddleware)(_reduxThunk2["defaul
 
 
 
-var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2ggewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCXBhZGRpbmc6IDUlOwoJd2lkdGg6IDEwMCU7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoIGlucHV0IHsKCS1tb3otYXBwZWFyYW5jZTogbm9uZTsKCS13ZWJraXQtYXBwZWFyYW5jZTogbm9uZTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1mYWNldHMsCi5oaXJlLWZhY2V0ZWQtc2VhcmNoID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyB7Cglib3gtc2l6aW5nOiBib3JkZXItYm94OwoJZGlzcGxheTogaW5saW5lLWJsb2NrOwoJdmVydGljYWwtYWxpZ246IHRvcDsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1mYWNldHMgewoJd2lkdGg6IDM1JTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1mYWNldHMgPiBidXR0b24gewoJYmFja2dyb3VuZDogd2hpdGU7Cglib3JkZXI6IG5vbmU7CgljdXJzb3I6IHBvaW50ZXI7CgloZWlnaHQ6IDQwcHg7CgltYXJnaW4tYm90dG9tOiAyMHB4OwoJb3V0bGluZTogbm9uZTsKCXBhZGRpbmc6IDAgMjBweDsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzIHsKCXBhZGRpbmc6IDAgMCAxMCUgNSU7Cgl3aWR0aDogNjAlOwp9","base64");
+var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2ggewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCXBhZGRpbmc6IDUlOwoJd2lkdGg6IDEwMCU7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoIGlucHV0IHsKCS1tb3otYXBwZWFyYW5jZTogbm9uZTsKCS13ZWJraXQtYXBwZWFyYW5jZTogbm9uZTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1maWx0ZXJzLAouaGlyZS1mYWNldGVkLXNlYXJjaCA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCXZlcnRpY2FsLWFsaWduOiB0b3A7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtZmlsdGVycyB7Cgl3aWR0aDogMzUlOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaCA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLWZpbHRlcnMgPiBidXR0b24gewoJYmFja2dyb3VuZDogd2hpdGU7Cglib3JkZXI6IG5vbmU7CgljdXJzb3I6IHBvaW50ZXI7CgloZWlnaHQ6IDQwcHg7CgltYXJnaW4tYm90dG9tOiAyMHB4OwoJb3V0bGluZTogbm9uZTsKCXBhZGRpbmc6IDAgMjBweDsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzIHsKCXBhZGRpbmc6IDAgMCAxMCUgNSU7Cgl3aWR0aDogNjAlOwp9","base64");
 (0, _insertCss2["default"])(css, { prepend: true });
 
 var FacetedSearch = (function (_React$Component) {
@@ -5638,7 +5660,7 @@ var FacetedSearch = (function (_React$Component) {
 			return _react2["default"].createElement(
 				"div",
 				{ className: className },
-				_react2["default"].createElement(_componentsFacets2["default"], {
+				_react2["default"].createElement(_componentsFilters2["default"], {
 					config: this.state.config,
 					facetList: this.props.facetList,
 					facetSortMap: this.props.facetSortMap,
@@ -5729,7 +5751,7 @@ FacetedSearch.propTypes = {
 exports["default"] = FacetedSearch;
 module.exports = exports["default"];
 
-},{"./actions/queries":32,"./actions/results":33,"./components/facets":34,"./components/icons/loader-three-dots":38,"./components/results":49,"./reducers":56,"insert-css":4,"lodash.isequal":7,"react":"react","redux":17,"redux-thunk":15}],55:[function(_dereq_,module,exports){
+},{"./actions/queries":32,"./actions/results":33,"./components/filters":35,"./components/icons/loader-three-dots":38,"./components/results":49,"./reducers":56,"insert-css":4,"lodash.isequal":7,"react":"react","redux":17,"redux-thunk":15}],55:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
