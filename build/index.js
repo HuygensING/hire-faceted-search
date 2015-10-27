@@ -5620,9 +5620,11 @@ var FacetedSearch = (function (_React$Component) {
 				if (this.props.onChange) {
 					this.props.onChange(nextState.results.last, nextState.queries.last);
 				}
+
 				if (this.props.onSearchId) {
 					this.props.onSearchId(nextState.results.searchId);
 				}
+
 				if (this.state.queries.last.sortParameters.length === 0) {
 					this.store.dispatch({
 						type: "INIT_SORT_PARAMS",
