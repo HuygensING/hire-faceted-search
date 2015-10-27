@@ -129,10 +129,8 @@ class FacetedSearch extends React.Component {
 		return (
 			<div className={className}>
 				<Filters
-					config={this.state.config}
-					facetList={this.props.facetList}
-					facetSortMap={this.props.facetSortMap}
-					labels={this.state.labels}
+					{...this.props}
+					{...this.state}
 					onChangeFullTextField={(field, value) =>
 						this.store.dispatch(changeFullTextSearchField(field, value))
 					}
@@ -147,15 +145,10 @@ class FacetedSearch extends React.Component {
 					}
 					onSelectFacetValue={(...args) =>
 						this.store.dispatch(selectFacetValue(...args))
-					}
-					queries={this.state.queries}
-					results={this.state.results} />
+					} />
 				<Results
-					config={this.state.config}
-					currentQueryComponent={this.props.currentQueryComponent}
-					labels={this.state.labels}
-					metadataList={this.props.metadataList}
-					numberedResults={this.props.numberedResults}
+					{...this.props}
+					{...this.state}
 					onChangeFullTextField={(field, value) =>
 						this.store.dispatch(changeFullTextSearchField(field, value))
 					}
@@ -171,10 +164,7 @@ class FacetedSearch extends React.Component {
 					}
 					onSetSort={(field) =>
 						this.store.dispatch(setSort(field))
-					}
-					queries={this.state.queries}
-					resultComponent={this.props.resultComponent}
-					results={this.state.results} />
+					}/>
 			</div>
 		);
 	}
