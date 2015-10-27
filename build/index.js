@@ -5551,6 +5551,10 @@ var _reduxThunk = _dereq_("redux-thunk");
 
 var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 
+var _componentsFacetMap = _dereq_("./components/facet-map");
+
+var _componentsFacetMap2 = _interopRequireDefault(_componentsFacetMap);
+
 //const logger = store => next => action => {
 //	if (action.hasOwnProperty("type")) {
 //		console.log("[FACETED SEARCH] " + action.type, action);
@@ -5683,10 +5687,12 @@ var FacetedSearch = (function (_React$Component) {
 				);
 			}
 
+			var FiltersComponent = this.props.customComponents.filters != null ? this.props.customComponents.filters : _componentsFilters2["default"];
+
 			return _react2["default"].createElement(
 				"div",
 				{ className: className },
-				_react2["default"].createElement(_componentsFilters2["default"], _extends({}, this.props, this.state, {
+				_react2["default"].createElement(FiltersComponent, _extends({}, this.props, this.state, {
 					onChangeFullTextField: function (field, value) {
 						return _this2.store.dispatch((0, _actionsQueries.changeFullTextSearchField)(field, value));
 					},
@@ -5764,10 +5770,10 @@ FacetedSearch.propTypes = {
 	onSelect: _react2["default"].PropTypes.func
 };
 
+exports.facetMap = _componentsFacetMap2["default"];
 exports["default"] = FacetedSearch;
-module.exports = exports["default"];
 
-},{"./actions/queries":32,"./actions/results":33,"./components/filters":36,"./components/icons/loader-three-dots":39,"./components/results":50,"./reducers":57,"insert-css":4,"lodash.isequal":7,"react":"react","redux":17,"redux-thunk":15}],56:[function(_dereq_,module,exports){
+},{"./actions/queries":32,"./actions/results":33,"./components/facet-map":34,"./components/filters":36,"./components/icons/loader-three-dots":39,"./components/results":50,"./reducers":57,"insert-css":4,"lodash.isequal":7,"react":"react","redux":17,"redux-thunk":15}],56:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

@@ -12,6 +12,8 @@ import {createStore, applyMiddleware} from "redux";
 import reducers from "./reducers";
 import thunkMiddleware from "redux-thunk";
 
+import facetMap from "./components/facet-map";
+
 //const logger = store => next => action => {
 //	if (action.hasOwnProperty("type")) {
 //		console.log("[FACETED SEARCH] " + action.type, action);
@@ -126,9 +128,13 @@ class FacetedSearch extends React.Component {
 			);
 		}
 
+		let FiltersComponent = (this.props.customComponents.filters != null) ?
+			this.props.customComponents.filters :
+			Filters;
+
 		return (
 			<div className={className}>
-				<Filters
+				<FiltersComponent
 					{...this.props}
 					{...this.state}
 					onChangeFullTextField={(field, value) =>
@@ -196,4 +202,5 @@ FacetedSearch.propTypes = {
 	onSelect: React.PropTypes.func
 };
 
+export {facetMap};
 export default FacetedSearch;
