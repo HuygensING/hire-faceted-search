@@ -1,3 +1,18 @@
+### v5.0.1	(2015/10/28 15:9)
+* Remove config and labels test
+* Only insert-css when window and document present
+* Add config and labels to store default
+* Bump redux deps
+* Remove dead code (two methods)
+* Move props.query handling to separate method
+* Add query to props
+* Add query to propTypes
+* Make code more readable
+* Remove WET code (keep it DRY)
+* Add shouldComponentUpdate to prevent unnecessary rerenders
+* Replace manually className manipulation with classnames dep
+* Remove WET code (keep it DRY)
+
 ### v5.0.0	(2015/10/28 9:25)
 * Fix tests due to added named export
 * Make custom filters component possible
