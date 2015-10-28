@@ -5659,16 +5659,6 @@ var FacetedSearch = (function (_React$Component) {
 			}
 		}
 	}, {
-		key: "handleFetchNextResults",
-		value: function handleFetchNextResults(url) {
-			this.store.dispatch((0, _actionsResults.fetchNextResults)(url));
-		}
-	}, {
-		key: "handleSelectFacetValue",
-		value: function handleSelectFacetValue(facetName, value, remove) {
-			this.store.dispatch((0, _actionsQueries.selectFacetValue)(facetName, value, remove));
-		}
-	}, {
 		key: "render",
 		value: function render() {
 			var _this2 = this;

@@ -117,14 +117,6 @@ class FacetedSearch extends React.Component {
 		}
 	}
 
-	handleFetchNextResults(url) {
-		this.store.dispatch(fetchNextResults(url));
-	}
-
-	handleSelectFacetValue(facetName, value, remove) {
-		this.store.dispatch(selectFacetValue(facetName, value, remove));
-	}
-
 	render() {
 		let loader, filters, results;
 
