@@ -47,7 +47,7 @@ class SortMenu extends React.Component {
 			current: type,
 			[type]: direction
 		});
-		console.log(type, direction);
+
 		this.props.onChange(type, direction);
 	}
 
