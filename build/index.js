@@ -3074,9 +3074,6 @@ module.exports = function (headers) {
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 exports.selectFacetRange = selectFacetRange;
 exports.selectFacetValue = selectFacetValue;
 exports.setFacetValues = setFacetValues;
@@ -3106,14 +3103,13 @@ function selectFacetRange(facetName, value) {
 }
 
 function selectFacetValue(facetName, value, remove) {
-	var part1 = {
+	var addition = remove ? "REMOVE" : "ADD";
+
+	return createNewQuery({
 		facetName: facetName,
+		type: addition + "_FACET_VALUE",
 		value: value
-	};
-
-	var part2 = remove ? { type: "REMOVE_FACET_VALUE" } : { type: "ADD_FACET_VALUE" };
-
-	return createNewQuery(_extends(part1, part2));
+	});
 }
 
 function setFacetValues(facetValues) {

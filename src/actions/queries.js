@@ -17,16 +17,15 @@ export function selectFacetRange(facetName, value) {
 }
 
 export function selectFacetValue(facetName, value, remove) {
-	let part1 = {
+	let addition = remove ?
+		"REMOVE" :
+		"ADD";
+
+	return createNewQuery({
 		facetName: facetName,
+		type: `${addition}_FACET_VALUE`,
 		value: value
-	};
-
-	let part2 = remove ?
-		{type: "REMOVE_FACET_VALUE"} :
-		{type: "ADD_FACET_VALUE"};
-
-	return createNewQuery(Object.assign(part1, part2));
+	});
 }
 
 export function setFacetValues(facetValues) {
