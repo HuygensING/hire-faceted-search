@@ -5640,25 +5640,26 @@ var FacetedSearch = (function (_React$Component) {
 			}
 		}
 	}, {
+		key: "shouldComponentUpdate",
+		value: function shouldComponentUpdate(nextProps, nextState) {
+			return this.state.results.last !== nextState.results.last;
+		}
+	}, {
 		key: "componentWillUpdate",
 		value: function componentWillUpdate(nextProps, nextState) {
-			var resultsChanged = this.state.results.last !== nextState.results.last;
+			if (this.props.onChange) {
+				this.props.onChange(nextState.results.last, nextState.queries.last);
+			}
 
-			if (resultsChanged) {
-				if (this.props.onChange) {
-					this.props.onChange(nextState.results.last, nextState.queries.last);
-				}
+			if (this.props.onSearchId) {
+				this.props.onSearchId(nextState.results.searchId);
+			}
 
-				if (this.props.onSearchId) {
-					this.props.onSearchId(nextState.results.searchId);
-				}
-
-				if (this.state.queries.last.sortParameters.length === 0) {
-					this.store.dispatch({
-						type: "INIT_SORT_PARAMS",
-						sortableFields: nextState.results.last.sortableFields
-					});
-				}
+			if (this.state.queries.last.sortParameters.length === 0) {
+				this.store.dispatch({
+					type: "INIT_SORT_PARAMS",
+					sortableFields: nextState.results.last.sortableFields
+				});
 			}
 		}
 	}, {
