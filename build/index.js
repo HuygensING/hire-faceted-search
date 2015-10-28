@@ -2275,8 +2275,14 @@ function createStore(reducer, initialState) {
    */
   function subscribe(listener) {
     listeners.push(listener);
+    var isSubscribed = true;
 
     return function unsubscribe() {
+      if (!isSubscribed) {
+        return;
+      }
+
+      isSubscribed = false;
       var index = listeners.indexOf(listener);
       listeners.splice(index, 1);
     };
@@ -2298,7 +2304,9 @@ function createStore(reducer, initialState) {
    *
    * @param {Object} action A plain object representing “what changed”. It is
    * a good idea to keep actions serializable so you can record and replay user
-   * sessions, or use the time travelling `redux-devtools`.
+   * sessions, or use the time travelling `redux-devtools`. An action must have
+   * a `type` property which may not be `undefined`. It is a good idea to use
+   * string constants for action types.
    *
    * @returns {Object} For convenience, the same action object you dispatched.
    *
@@ -2307,7 +2315,11 @@ function createStore(reducer, initialState) {
    */
   function dispatch(action) {
     if (!_utilsIsPlainObject2['default'](action)) {
-      throw new Error('Actions must be plain objects. Use custom middleware for async actions.');
+      throw new Error('Actions must be plain objects. ' + 'Use custom middleware for async actions.');
+    }
+
+    if (typeof action.type === 'undefined') {
+      throw new Error('Actions may not have an undefined "type" property. ' + 'Have you misspelled a constant?');
     }
 
     if (isDispatching) {
@@ -2325,18 +2337,6 @@ function createStore(reducer, initialState) {
       return listener();
     });
     return action;
-  }
-
-  /**
-   * Returns the reducer currently used by the store to calculate the state.
-   *
-   * It is likely that you will only need this function if you implement a hot
-   * reloading mechanism for Redux.
-   *
-   * @returns {Function} The reducer used by the current store.
-   */
-  function getReducer() {
-    return currentReducer;
   }
 
   /**
@@ -2363,7 +2363,6 @@ function createStore(reducer, initialState) {
     dispatch: dispatch,
     subscribe: subscribe,
     getState: getState,
-    getReducer: getReducer,
     replaceReducer: replaceReducer
   };
 }
@@ -2451,7 +2450,7 @@ function applyMiddleware() {
       chain = middlewares.map(function (middleware) {
         return middleware(middlewareAPI);
       });
-      _dispatch = _compose2['default'].apply(undefined, chain.concat([store.dispatch]));
+      _dispatch = _compose2['default'].apply(undefined, chain)(store.dispatch);
 
       return _extends({}, store, {
         dispatch: _dispatch
@@ -2506,8 +2505,9 @@ function bindActionCreators(actionCreators, dispatch) {
     return bindActionCreator(actionCreators, dispatch);
   }
 
-  if (typeof actionCreators !== 'object' || actionCreators == null) {
-    throw new Error('bindActionCreators expected an object or a function, instead received ' + typeof actionCreators + '. ' + 'Did you write "import ActionCreators from" instead of "import * as ActionCreators from"?');
+  if (typeof actionCreators !== 'object' || actionCreators === null || actionCreators === undefined) {
+    // eslint-disable-line no-eq-null
+    throw new Error('bindActionCreators expected an object or a function, instead received ' + (actionCreators === null ? 'null' : typeof actionCreators) + '. ' + 'Did you write "import ActionCreators from" instead of "import * as ActionCreators from"?');
   }
 
   return _utilsMapValues2['default'](actionCreators, function (actionCreator) {
@@ -2538,33 +2538,50 @@ var _utilsPick = _dereq_('../utils/pick');
 
 var _utilsPick2 = _interopRequireDefault(_utilsPick);
 
-function getErrorMessage(key, action) {
+/* eslint-disable no-console */
+
+function getUndefinedStateErrorMessage(key, action) {
   var actionType = action && action.type;
   var actionName = actionType && '"' + actionType.toString() + '"' || 'an action';
 
   return 'Reducer "' + key + '" returned undefined handling ' + actionName + '. ' + 'To ignore an action, you must explicitly return the previous state.';
 }
 
-function verifyStateShape(initialState, currentState) {
-  var reducerKeys = Object.keys(currentState);
+function getUnexpectedStateKeyWarningMessage(inputState, outputState, action) {
+  var reducerKeys = Object.keys(outputState);
+  var argumentName = action && action.type === _createStore.ActionTypes.INIT ? 'initialState argument passed to createStore' : 'previous state received by the reducer';
 
   if (reducerKeys.length === 0) {
-    console.error('Store does not have a valid reducer. Make sure the argument passed ' + 'to combineReducers is an object whose values are reducers.');
-    return;
+    return 'Store does not have a valid reducer. Make sure the argument passed ' + 'to combineReducers is an object whose values are reducers.';
   }
 
-  if (!_utilsIsPlainObject2['default'](initialState)) {
-    console.error('initialState has unexpected type of "' + ({}).toString.call(initialState).match(/\s([a-z|A-Z]+)/)[1] + '". Expected initialState to be an object with the following ' + ('keys: "' + reducerKeys.join('", "') + '"'));
-    return;
+  if (!_utilsIsPlainObject2['default'](inputState)) {
+    return 'The ' + argumentName + ' has unexpected type of "' + ({}).toString.call(inputState).match(/\s([a-z|A-Z]+)/)[1] + '". Expected argument to be an object with the following ' + ('keys: "' + reducerKeys.join('", "') + '"');
   }
 
-  var unexpectedKeys = Object.keys(initialState).filter(function (key) {
+  var unexpectedKeys = Object.keys(inputState).filter(function (key) {
     return reducerKeys.indexOf(key) < 0;
   });
 
   if (unexpectedKeys.length > 0) {
-    console.error('Unexpected ' + (unexpectedKeys.length > 1 ? 'keys' : 'key') + ' ' + ('"' + unexpectedKeys.join('", "') + '" in initialState will be ignored. ') + ('Expected to find one of the known reducer keys instead: "' + reducerKeys.join('", "') + '"'));
+    return 'Unexpected ' + (unexpectedKeys.length > 1 ? 'keys' : 'key') + ' ' + ('"' + unexpectedKeys.join('", "') + '" found in ' + argumentName + '. ') + 'Expected to find one of the known reducer keys instead: ' + ('"' + reducerKeys.join('", "') + '". Unexpected keys will be ignored.');
   }
+}
+
+function assertReducerSanity(reducers) {
+  Object.keys(reducers).forEach(function (key) {
+    var reducer = reducers[key];
+    var initialState = reducer(undefined, { type: _createStore.ActionTypes.INIT });
+
+    if (typeof initialState === 'undefined') {
+      throw new Error('Reducer "' + key + '" returned undefined during initialization. ' + 'If the state passed to the reducer is undefined, you must ' + 'explicitly return the initial state. The initial state may ' + 'not be undefined.');
+    }
+
+    var type = '@@redux/PROBE_UNKNOWN_ACTION_' + Math.random().toString(36).substring(7).split('').join('.');
+    if (typeof reducer(undefined, { type: type }) === 'undefined') {
+      throw new Error('Reducer "' + key + '" returned undefined when probed with a random type. ' + ('Don\'t try to handle ' + _createStore.ActionTypes.INIT + ' or other actions in "redux/*" ') + 'namespace. They are considered private. Instead, you must return the ' + 'current state for any unknown actions, unless it is undefined, ' + 'in which case you must return the initial state, regardless of the ' + 'action type. The initial state may not be undefined.');
+    }
+  });
 }
 
 /**
@@ -2588,60 +2605,56 @@ function combineReducers(reducers) {
   var finalReducers = _utilsPick2['default'](reducers, function (val) {
     return typeof val === 'function';
   });
+  var sanityError;
 
-  Object.keys(finalReducers).forEach(function (key) {
-    var reducer = finalReducers[key];
-    if (typeof reducer(undefined, { type: _createStore.ActionTypes.INIT }) === 'undefined') {
-      throw new Error('Reducer "' + key + '" returned undefined during initialization. ' + 'If the state passed to the reducer is undefined, you must ' + 'explicitly return the initial state. The initial state may ' + 'not be undefined.');
-    }
-
-    var type = Math.random().toString(36).substring(7).split('').join('.');
-    if (typeof reducer(undefined, { type: type }) === 'undefined') {
-      throw new Error('Reducer "' + key + '" returned undefined when probed with a random type. ' + ('Don\'t try to handle ' + _createStore.ActionTypes.INIT + ' or other actions in "redux/*" ') + 'namespace. They are considered private. Instead, you must return the ' + 'current state for any unknown actions, unless it is undefined, ' + 'in which case you must return the initial state, regardless of the ' + 'action type. The initial state may not be undefined.');
-    }
-  });
+  try {
+    assertReducerSanity(finalReducers);
+  } catch (e) {
+    sanityError = e;
+  }
 
   var defaultState = _utilsMapValues2['default'](finalReducers, function () {
     return undefined;
   });
-  var stateShapeVerified;
 
   return function combination(state, action) {
     if (state === undefined) state = defaultState;
 
+    if (sanityError) {
+      throw sanityError;
+    }
+
+    var hasChanged = false;
     var finalState = _utilsMapValues2['default'](finalReducers, function (reducer, key) {
-      var newState = reducer(state[key], action);
-      if (typeof newState === 'undefined') {
-        throw new Error(getErrorMessage(key, action));
+      var previousStateForKey = state[key];
+      var nextStateForKey = reducer(previousStateForKey, action);
+      if (typeof nextStateForKey === 'undefined') {
+        var errorMessage = getUndefinedStateErrorMessage(key, action);
+        throw new Error(errorMessage);
       }
-      return newState;
+      hasChanged = hasChanged || nextStateForKey !== previousStateForKey;
+      return nextStateForKey;
     });
 
-    if (
-    // Node-like CommonJS environments (Browserify, Webpack)
-    typeof process !== 'undefined' && typeof process.env !== 'undefined' && process.env.NODE_ENV !== 'production' ||
-    // React Native
-    typeof __DEV__ !== 'undefined' && __DEV__ //eslint-disable-line no-undef
-    ) {
-      if (!stateShapeVerified) {
-        verifyStateShape(state, finalState);
-        stateShapeVerified = true;
+    if (process.env.NODE_ENV !== 'production') {
+      var warningMessage = getUnexpectedStateKeyWarningMessage(state, finalState, action);
+      if (warningMessage) {
+        console.error(warningMessage);
       }
     }
 
-    return finalState;
+    return hasChanged ? finalState : state;
   };
 }
 
 module.exports = exports['default'];
 },{"../createStore":16,"../utils/isPlainObject":22,"../utils/mapValues":23,"../utils/pick":24}],21:[function(_dereq_,module,exports){
 /**
- * Composes functions from left to right.
+ * Composes single-argument functions from right to left.
  *
- * @param {...Function} funcs - The functions to compose. Each is expected to
- * accept a function as an argument and to return a function.
- * @returns {Function} A function obtained by composing functions from left to
- * right.
+ * @param {...Function} funcs The functions to compose.
+ * @returns {Function} A function obtained by composing functions from right to
+ * left. For example, compose(f, g, h) is identical to arg => f(g(h(arg))).
  */
 "use strict";
 
@@ -2653,9 +2666,11 @@ function compose() {
     funcs[_key] = arguments[_key];
   }
 
-  return funcs.reduceRight(function (composed, f) {
-    return f(composed);
-  });
+  return function (arg) {
+    return funcs.reduceRight(function (composed, f) {
+      return f(composed);
+    }, arg);
+  };
 }
 
 module.exports = exports["default"];
@@ -2695,7 +2710,7 @@ module.exports = exports['default'];
  * Applies a function to every key-value pair inside an object.
  *
  * @param {Object} obj The source object.
- * @param {Function} fn The mapper function taht receives the value and the key.
+ * @param {Function} fn The mapper function that receives the value and the key.
  * @returns {Object} A new object that contains the mapped values for the keys.
  */
 "use strict";

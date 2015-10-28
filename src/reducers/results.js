@@ -1,4 +1,3 @@
-
 let updateFacetsWithReceivedCounts = function(initFacets, receivedFacets) {
 	receivedFacets = receivedFacets || [];
 	receivedFacets = receivedFacets.reduce((prev, current) => {
