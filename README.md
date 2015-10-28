@@ -76,6 +76,12 @@ onSearchId             Function. Called when a new search result
 
 onSelect               Function. Called when user click or touches
                        (selects) a search result.
+
+query                  Map of query parameters. Usually the query
+                       parameters are internal. In case of a forced
+                       rerender or when passing queries from one
+                       search to the other, passing a query via
+                       props becomes necessary.
 ```
 
 ## Config
