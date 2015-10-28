@@ -1,10 +1,12 @@
 import React from "react";
 import cx from "classnames";
+import insertCss from "insert-css";
 
 let fs = require("fs");
-import insertCss from "insert-css";
 let css = fs.readFileSync(__dirname + "/index.css");
-insertCss(css, {prepend: true});
+if (typeof window != 'undefined' && window.document) {
+	insertCss(css, {prepend: true});
+}
 
 class ResultsSortMenu extends React.Component {
 

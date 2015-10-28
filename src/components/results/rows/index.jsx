@@ -1,11 +1,13 @@
 import React from "react";
+import insertCss from "insert-css";
 
 import configActions from "../../../actions/config";
 
 let fs = require("fs");
-import insertCss from "insert-css";
 let css = fs.readFileSync(__dirname + "/index.css");
-insertCss(css, {prepend: true});
+if (typeof window != 'undefined' && window.document) {
+	insertCss(css, {prepend: true});
+}
 
 class ResultsRows extends React.Component {
 	constructor(props) {

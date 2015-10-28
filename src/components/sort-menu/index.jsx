@@ -4,6 +4,7 @@
 
 import React from "react";
 import cx from "classnames";
+import insertCss from "insert-css";
 
 import SortCountAscendingIcon from "../icons/sort-count-ascending";
 import SortCountDescendingIcon from "../icons/sort-count-descending";
@@ -11,9 +12,10 @@ import SortAlphabeticallyAscendingIcon from "../icons/sort-alphabetically-ascend
 import SortAlphabeticallyDescendingIcon from "../icons/sort-alphabetically-descending";
 
 let fs = require("fs");
-import insertCss from "insert-css";
 let css = fs.readFileSync(__dirname + "/index.css");
-insertCss(css, {prepend: true});
+if (typeof window != 'undefined' && window.document) {
+	insertCss(css, {prepend: true});
+}
 
 class SortMenu extends React.Component {
 	constructor(props) {

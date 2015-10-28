@@ -1,9 +1,12 @@
 import React from "react";
 import RangeSlider from "hire-range-slider";
-let fs = require("fs");
 import insertCss from "insert-css";
+
+let fs = require("fs");
 let css = fs.readFileSync(__dirname + "/index.css");
-insertCss(css, {prepend: true});
+if (typeof window != 'undefined' && window.document) {
+	insertCss(css, {prepend: true});
+}
 
 const MOUSE_DOWN = 0;
 const MOUSE_UP = 1;

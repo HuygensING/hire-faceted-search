@@ -1,26 +1,25 @@
 import expect from "expect";
 import reducer from "../../src/reducers/queries";
+import {queryDefaults} from "../../src/defaults";
 
 describe('queries reducer', () => {
 	it("should handle SET_QUERY_DEFAULTS", () => {
-		expect(reducer(undefined, {
-			type: "SET_QUERY_DEFAULTS"
-		})).toEqual({
-			all: [{
-				"facetValues": [],
-				"sortParameters": [],
-				"term": ""
-			}],
-			default: {
-				"facetValues": [],
-				"sortParameters": [],
-				"term": ""
-			},
-			last: {
-				"facetValues": [],
-				"sortParameters": [],
-				"term": ""
-			}
+		const queryProps = {
+			some: "extra",
+			props: "here"
+		};
+
+		const expectedQueryDefaults = Object.assign(queryDefaults, queryProps);
+
+		const nextState = reducer(undefined, {
+			type: "SET_QUERY_DEFAULTS",
+			queryDefaults: queryProps
+		});
+
+		expect(nextState).toEqual({
+			all: [expectedQueryDefaults],
+			default: expectedQueryDefaults,
+			last: expectedQueryDefaults
 		});
 	});
 
@@ -134,7 +133,7 @@ describe('queries reducer', () => {
 		};
 
 		expect(reducer(state, action)).toEqual(expectedState);
-	});	
+	});
 
 
 	it("should ADD_FACET_VALUE with existing facets", () => {

@@ -674,7 +674,7 @@ var inserted = {};
 module.exports = function (css, options) {
     if (inserted[css]) return;
     inserted[css] = true;
-    
+
     var elem = document.createElement('style');
     elem.setAttribute('type', 'text/css');
 
@@ -683,7 +683,7 @@ module.exports = function (css, options) {
     } else {
       elem.styleSheet.cssText = css;
     }
-    
+
     var head = document.getElementsByTagName('head')[0];
     if (options && options.prepend) {
         head.insertBefore(elem, head.childNodes[0]);
@@ -3374,6 +3374,10 @@ var _classnames = _dereq_("classnames");
 
 var _classnames2 = _interopRequireDefault(_classnames);
 
+var _insertCss = _dereq_("insert-css");
+
+var _insertCss2 = _interopRequireDefault(_insertCss);
+
 var _hireFormsInput = _dereq_("hire-forms-input");
 
 var _hireFormsInput2 = _interopRequireDefault(_hireFormsInput);
@@ -3382,14 +3386,12 @@ var _iconsFilter = _dereq_("../icons/filter");
 
 var _iconsFilter2 = _interopRequireDefault(_iconsFilter);
 
-var _insertCss = _dereq_("insert-css");
-
-var _insertCss2 = _interopRequireDefault(_insertCss);
-
-
 
 var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2gtZmlsdGVyLW1lbnUgewoJcG9zaXRpb246IHJlbGF0aXZlOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1maWx0ZXItbWVudSBzdmcgewoJZmlsbDogI0VFRTsKCWhlaWdodDogMTJweDsKCXBvc2l0aW9uOiBhYnNvbHV0ZTsKCXRvcDogN3B4OwoJdHJhbnNpdGlvbjogZmlsbCAzNTBtczsKCXJpZ2h0OiA0cHg7Cgl3aWR0aDogMTJweDsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtZmlsdGVyLW1lbnUuYWN0aXZlIHN2ZyB7CglmaWxsOiAjQUFBOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1maWx0ZXItbWVudSA+IC5oaXJlLWlucHV0IHsKCXdpZHRoOiA1MCU7CglmbG9hdDogcmlnaHQ7Cgl0cmFuc2l0aW9uOiB3aWR0aCAzNTBtczsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtZmlsdGVyLW1lbnUuYWN0aXZlID4gLmhpcmUtaW5wdXQgewoJd2lkdGg6IDEwMCU7Cgp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1maWx0ZXItbWVudSA+IC5oaXJlLWlucHV0ID4gaW5wdXQgewoJYm9yZGVyOiAxcHggc29saWQgI0VFRTsKCWJveC1zaXppbmc6IGJvcmRlci1ib3g7CglvdXRsaW5lOiBub25lOwoJcGFkZGluZy1sZWZ0OiA0cHg7Cgl0cmFuc2l0aW9uOiBib3JkZXIgMzUwbXM7Cgl3aWR0aDogMTAwJTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtZmlsdGVyLW1lbnUuYWN0aXZlID4gLmhpcmUtaW5wdXQgPiBpbnB1dCB7Cglib3JkZXI6IDFweCBzb2xpZCAjQUFBOwp9","base64");
-(0, _insertCss2["default"])(css, { prepend: true });
+
+if (typeof window != 'undefined' && window.document) {
+	(0, _insertCss2["default"])(css, { prepend: true });
+}
 
 var FilterMenu = (function (_React$Component) {
 	_inherits(FilterMenu, _React$Component);
@@ -4298,6 +4300,10 @@ var _classnames = _dereq_("classnames");
 
 var _classnames2 = _interopRequireDefault(_classnames);
 
+var _insertCss = _dereq_("insert-css");
+
+var _insertCss2 = _interopRequireDefault(_insertCss);
+
 var _sortMenu = _dereq_("../sort-menu");
 
 var _sortMenu2 = _interopRequireDefault(_sortMenu);
@@ -4314,14 +4320,11 @@ var _sortFunction = _dereq_("./sort-function");
 
 var _sortFunction2 = _interopRequireDefault(_sortFunction);
 
-var _insertCss = _dereq_("insert-css");
-
-var _insertCss2 = _interopRequireDefault(_insertCss);
-
-
 
 var css = Buffer("bGkuaGlyZS1saXN0LWZhY2V0IHsKCWJhY2tncm91bmQtY29sb3I6IHdoaXRlOwoJbWFyZ2luLXRvcDogMjBweDsKCXBhZGRpbmc6IDIwcHggMjBweCAyMHB4IDIwcHg7Cn0KCmxpLmhpcmUtbGlzdC1mYWNldC5zaG93LWFsbCB7CglwYWRkaW5nOiAyMHB4IDAgMCAyMHB4Owp9CgpsaS5oaXJlLWxpc3QtZmFjZXQuc2hvdy1hbGwgPiBoZWFkZXIgewoJcGFkZGluZy1yaWdodDogMjBweDsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gaGVhZGVyID4gaDMsCmxpLmhpcmUtbGlzdC1mYWNldCA+IGhlYWRlciA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLWZpbHRlci1tZW51IHsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCXZlcnRpY2FsLWFsaWduOiB0b3A7Cglib3gtc2l6aW5nOiBib3JkZXItYm94Owp9CgpsaS5oaXJlLWxpc3QtZmFjZXQgPiBoZWFkZXIgPiBoMyB7CgltYXJnaW46IDAgMCAxMnB4IDA7CglwYWRkaW5nOiAwOwoJd2lkdGg6IDYwJTsKfQpsaS5oaXJlLWxpc3QtZmFjZXQgPiBoZWFkZXIgPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1maWx0ZXItbWVudSB7Cgl3aWR0aDogNDAlOwp9CgpsaS5oaXJlLWxpc3QtZmFjZXQgPiB1bCB7CgltYXgtaGVpZ2h0OiAyNjRweDsKfQoKbGkuaGlyZS1saXN0LWZhY2V0LnNob3ctYWxsID4gdWwgewoJLypoZWlnaHQ6IGF1dG87Ki8KCW1heC1oZWlnaHQ6IDMxNnB4OyAvKiAyNjRweCAodWwuaGVpZ2h0KSArIDE2cHggKGJ1dHRvbi5saW5lSGVpZ2h0KSArIDE2cHggKGJ1dHRvbi5wYWRkaW5nVG9wICsgMjBweCAoLmhpcmUtbGlzdC1mYWNldC5wYWRkaW5nQm90dG9tKSAqLwoJb3ZlcmZsb3cteTogc2Nyb2xsOwp9CgpsaS5oaXJlLWxpc3QtZmFjZXQgPiBidXR0b24gewoJYmFja2dyb3VuZDogbm9uZTsKCWJvcmRlcjogbm9uZTsKCWNvbG9yOiAjQUFBOwoJY3Vyc29yOiBwb2ludGVyOwoJZm9udC1zaXplOiAwLjhlbTsKCWZvbnQtc3R5bGU6IGl0YWxpYzsKCWxpbmUtaGVpZ2h0OiAxNnB4OwoJbWFyZ2luOiAwOwoJb3V0bGluZTogbm9uZTsKCXBhZGRpbmc6IDE2cHggMCAwIDA7Cn0KCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkuaGlyZS1saXN0LWZhY2V0LWxpc3QtaXRlbSB7CgljdXJzb3I6IHBvaW50ZXI7Cglwb3NpdGlvbjogcmVsYXRpdmU7Cn0KCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkubm8tb3B0aW9ucy1mb3VuZCB7Cgljb2xvcjogI0FBQTsKCWZvbnQtc2l6ZTogMC44ZW07Cglmb250LXN0eWxlOiBpdGFsaWM7CgltYXJnaW46IDIwcHggMDsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtID4gc3ZnLApsaS5oaXJlLWxpc3QtZmFjZXQgPiB1bCA+IGxpLmhpcmUtbGlzdC1mYWNldC1saXN0LWl0ZW0gPiBsYWJlbCwKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtID4gc3Bhbi5jb3VudCB7Cglib3gtc2l6aW5nOiBib3JkZXItYm94OwoJZGlzcGxheTogaW5saW5lLWJsb2NrOwoJdmVydGljYWwtYWxpZ246IHRvcDsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtIHN2Zy51bmNoZWNrZWQsCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkuaGlyZS1saXN0LWZhY2V0LWxpc3QtaXRlbSBzdmcuY2hlY2tlZCB7CgloZWlnaHQ6IDEycHg7CglmaWxsOiAjQUFBOwoJbWFyZ2luLXRvcDogNXB4OwoJd2lkdGg6IDEycHg7Cn0KCmxpLmhpcmUtbGlzdC1mYWNldCA+IHVsID4gbGkuaGlyZS1saXN0LWZhY2V0LWxpc3QtaXRlbSBsYWJlbCB7CgljdXJzb3I6IHBvaW50ZXI7CglvdmVyZmxvdy14OiBoaWRkZW47CglwYWRkaW5nOiAwIDRweDsKCXRleHQtb3ZlcmZsb3c6IGVsbGlwc2lzOwoJd2hpdGUtc3BhY2U6IG5vd3JhcDsKCXdpZHRoOiBjYWxjKDEwMCUgLSA0NHB4KTsKfQoKbGkuaGlyZS1saXN0LWZhY2V0ID4gdWwgPiBsaS5oaXJlLWxpc3QtZmFjZXQtbGlzdC1pdGVtID4gc3Bhbi5jb3VudCB7Cgl0ZXh0LWFsaWduOiByaWdodDsKCXdpZHRoOiAzMnB4Owp9CgoKLyoJCQlsaQoJCQkJcG9zaXRpb24gcmVsYXRpdmUKCQkJCWN1cnNvciBwb2ludGVyCgoJCQkJJjpob3ZlcgoJCQkJCWJhY2tncm91bmQtY29sb3Igd3dZZWxsb3cKCgkJCQlsYWJlbAoJCQkJCWN1cnNvciBwb2ludGVyCgkJCQkJbWF4LXdpZHRoIGNhbGMoMTAwJSAtIDZweCkKCgkJCQlzcGFuLmNvdW50CgkJCQkJcG9zaXRpb24gYWJzb2x1dGUKCQkJCQlyaWdodCA2cHgqLw==","base64");
-(0, _insertCss2["default"])(css, { prepend: true });
+if (typeof window != 'undefined' && window.document) {
+	(0, _insertCss2["default"])(css, { prepend: true });
+}
 
 var INIT_SIZE = 12;
 
@@ -4697,9 +4700,10 @@ var _insertCss = _dereq_("insert-css");
 var _insertCss2 = _interopRequireDefault(_insertCss);
 
 
-
 var css = Buffer("LmhpcmUtcmFuZ2UtZmFjZXQgPiBkaXYgPiBsYWJlbDpudGgtb2YtdHlwZSgyKSB7CglmbG9hdDogcmlnaHQ7Cn0=","base64");
-(0, _insertCss2["default"])(css, { prepend: true });
+if (typeof window != 'undefined' && window.document) {
+	(0, _insertCss2["default"])(css, { prepend: true });
+}
 
 var MOUSE_DOWN = 0;
 var MOUSE_UP = 1;
@@ -4842,6 +4846,10 @@ var _lodashDebounce = _dereq_("lodash.debounce");
 
 var _lodashDebounce2 = _interopRequireDefault(_lodashDebounce);
 
+var _insertCss = _dereq_("insert-css");
+
+var _insertCss2 = _interopRequireDefault(_insertCss);
+
 var _result = _dereq_("./result");
 
 var _result2 = _interopRequireDefault(_result);
@@ -4858,14 +4866,12 @@ var _iconsLoaderThreeDots = _dereq_("../icons/loader-three-dots");
 
 var _iconsLoaderThreeDots2 = _interopRequireDefault(_iconsLoaderThreeDots);
 
-var _insertCss = _dereq_("insert-css");
-
-var _insertCss2 = _interopRequireDefault(_insertCss);
-
-
 
 var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciB7Cglib3JkZXItYm90dG9tOiAxcHggc29saWQgI0FBQTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciA+IGgzLAouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gaGVhZGVyID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1zb3J0LW1lbnUgewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCXZlcnRpY2FsLWFsaWduOiB0b3A7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiBoZWFkZXIgPiBoMyB7CgltYXJnaW4tdG9wOiAwOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gaGVhZGVyID4gaDMgewoJd2lkdGg6IDYwJTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IGhlYWRlciA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMtc29ydC1tZW51IHsKCXRleHQtYWxpZ246IHJpZ2h0OwoJd2lkdGg6IDQwJTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cyA+IG9sLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0LWxpc3QgewoJbGlzdC1zdHlsZTogbm9uZTsKCW1hcmdpbjogMDsKCXBhZGRpbmc6IDIwcHggMCAwIDA7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiBvbC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdC1saXN0Lm51bWJlcmVkIHsKCWxpc3Qtc3R5bGU6IGRlY2ltYWw7CglwYWRkaW5nLWxlZnQ6IDQwcHg7Cn0KCgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gb2wuaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHQtbGlzdCA+IGxpIHsKCWN1cnNvcjogcG9pbnRlcjsKCW1hcmdpbi1ib3R0b206IDIwcHg7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgPiBvbC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdC1saXN0ID4gbGkgPiBsYWJlbCB7CgljdXJzb3I6IHBvaW50ZXI7Cglmb250LXNpemU6IDEuMWVtOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gb2wuaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHQtbGlzdCA+IGxpID4gdWwubWV0YWRhdGEgewoJY29sb3I6ICM4ODg7Cglmb250LXNpemU6IDAuN2VtOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzID4gb2wuaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHQtbGlzdCA+IGxpID4gdWwubWV0YWRhdGEgPiBsaSA+IGxhYmVsIHsKCWJveC1zaXppbmc6IGJvcmRlci1ib3g7CglkaXNwbGF5OiBpbmxpbmUtYmxvY2s7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwoJd2lkdGg6IDE1MHB4Owp9CgouaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzIHN2Zy5sb2FkZXIgewoJcGFkZGluZzogNjBweCAwIDQwcHggMDsKCXdpZHRoOiAxMDAlCn0=","base64");
-(0, _insertCss2["default"])(css, { prepend: true });
+
+if (typeof window != 'undefined' && window.document) {
+	(0, _insertCss2["default"])(css, { prepend: true });
+}
 
 var inViewport = function inViewport(el) {
 	var rect = el.getBoundingClientRect();
@@ -5118,9 +5124,10 @@ var _insertCss = _dereq_("insert-css");
 var _insertCss2 = _interopRequireDefault(_insertCss);
 
 
-
 var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1zb3J0LW1lbnUgewoJZm9udC1zaXplOiAwLjhlbTsKCXBvc2l0aW9uOiByZWxhdGl2ZTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1zb3J0LW1lbnUgPiBidXR0b24gewoJYmFja2dyb3VuZC1jb2xvcjogI0RERDsKCWJvcmRlcjogMXB4IHNvbGlkICM4ODg7Cglib3gtc2l6aW5nOiBib3JkZXItYm94OwoJY3Vyc29yOiBwb2ludGVyOwoJaGVpZ2h0OiAyMnB4OwoJb3V0bGluZTogbm9uZTsKCXBhZGRpbmc6IDAgNnB4OwoJdmVydGljYWwtYWxpZ246IHRvcDsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1zb3J0LW1lbnUgPiB1bCB7CgliYWNrZ3JvdW5kLWNvbG9yOiB3aGl0ZTsKCWN1cnNvcjogcG9pbnRlcjsKCWRpc3BsYXk6IG5vbmU7CgltYXgtd2lkdGg6IDE4MHB4OwoJcGFkZGluZzogMCA2cHg7Cglwb3NpdGlvbjogYWJzb2x1dGU7Cgl0ZXh0LWFsaWduOiBsZWZ0OwoJcmlnaHQ6IDA7Cgl3aWR0aDogMTUwJTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2gtcmVzdWx0cy1zb3J0LW1lbnUgPiB1bC52aXNpYmxlIHsKCWRpc3BsYXk6IGJsb2NrOwp9","base64");
-(0, _insertCss2["default"])(css, { prepend: true });
+if (typeof window != 'undefined' && window.document) {
+	(0, _insertCss2["default"])(css, { prepend: true });
+}
 
 var ResultsSortMenu = (function (_React$Component) {
 	_inherits(ResultsSortMenu, _React$Component);
@@ -5251,6 +5258,10 @@ var _classnames = _dereq_("classnames");
 
 var _classnames2 = _interopRequireDefault(_classnames);
 
+var _insertCss = _dereq_("insert-css");
+
+var _insertCss2 = _interopRequireDefault(_insertCss);
+
 var _iconsSortCountAscending = _dereq_("../icons/sort-count-ascending");
 
 var _iconsSortCountAscending2 = _interopRequireDefault(_iconsSortCountAscending);
@@ -5267,14 +5278,11 @@ var _iconsSortAlphabeticallyDescending = _dereq_("../icons/sort-alphabetically-d
 
 var _iconsSortAlphabeticallyDescending2 = _interopRequireDefault(_iconsSortAlphabeticallyDescending);
 
-var _insertCss = _dereq_("insert-css");
-
-var _insertCss2 = _interopRequireDefault(_insertCss);
-
-
 
 var css = Buffer("dWwuaGlyZS1mYWNldGVkLXNlYXJjaC1zb3J0LW1lbnUgewoJbGlzdC1zdHlsZTogbm9uZTsKfQoKdWwuaGlyZS1mYWNldGVkLXNlYXJjaC1zb3J0LW1lbnUgbGkgewoJZGlzcGxheTogaW5saW5lLWJsb2NrOwoJY3Vyc29yOiBwb2ludGVyOwp9Cgp1bC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXNvcnQtbWVudSBsaSBzdmcgewoJZmlsbDogI0FBQTsKfQoKdWwuaGlyZS1mYWNldGVkLXNlYXJjaC1zb3J0LW1lbnUgbGkuYWN0aXZlIHN2ZyB7CglmaWxsOiBibGFjazsKfQoKdWwuaGlyZS1mYWNldGVkLXNlYXJjaC1zb3J0LW1lbnUgbGkgc3ZnLmhpcmUtaWNvbiB7Cgl2ZXJ0aWNhbC1hbGlnbjogdG9wOwoJd2lkdGg6IDE0cHg7CgloZWlnaHQ6IDE0cHg7CgltYXJnaW4tbGVmdDogMnB4Owp9Cgp1bC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXNvcnQtbWVudSBsaSBzdmcuaGlyZS1pY29uLmZpbHRlciB7Cgl3aWR0aDogMTJweDsKCWhlaWdodDogMTJweDsKCW1hcmdpbi10b3A6IDFweDsKfQ==","base64");
-(0, _insertCss2["default"])(css, { prepend: true });
+if (typeof window != 'undefined' && window.document) {
+	(0, _insertCss2["default"])(css, { prepend: true });
+}
 
 var SortMenu = (function (_React$Component) {
 	_inherits(SortMenu, _React$Component);
@@ -5382,18 +5390,20 @@ var _classnames = _dereq_("classnames");
 
 var _classnames2 = _interopRequireDefault(_classnames);
 
-var _iconsSearch = _dereq_("../icons/search");
-
-var _iconsSearch2 = _interopRequireDefault(_iconsSearch);
-
 var _insertCss = _dereq_("insert-css");
 
 var _insertCss2 = _interopRequireDefault(_insertCss);
 
+var _iconsSearch = _dereq_("../icons/search");
+
+var _iconsSearch2 = _interopRequireDefault(_iconsSearch);
 
 
 var css = Buffer("QC1tb3ota2V5ZnJhbWVzIHNwaW4gewoJMCUgewoJCS1tb3otdHJhbnNmb3JtOiByb3RhdGUoMGRlZyk7Cgl9CgkxMDAlIHsKCQktbW96LXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7Cgl9Cn0KQC13ZWJraXQta2V5ZnJhbWVzIHNwaW4gewoJMCUgewoJCS13ZWJraXQtdHJhbnNmb3JtOiByb3RhdGUoMGRlZyk7Cgl9CgkxMDAlIHsKCQktd2Via2l0LXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7Cgl9Cn0KQGtleWZyYW1lcyBzcGluIHsKCTAlIHsKCQl0cmFuc2Zvcm06IHJvdGF0ZSgwZGVnKTsKCX0KCTEwMCUgewoJCXRyYW5zZm9ybTogcm90YXRlKDM2MGRlZyk7Cgl9Cn0KCmxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggewoJYmFja2dyb3VuZC1jb2xvcjogd2hpdGU7CglwYWRkaW5nOiAyMHB4OwoJbWFyZ2luLXRvcDogMjBweDsKfQoKIGxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggPiBoZWFkZXIgPiBoMyB7CiAJbWFyZ2luOiAwIDAgMTJweDsKICAgIHBhZGRpbmc6IDA7CiAgICB3aWR0aDogNjAlOwogfQoKbGkuaGlyZS1mYWNldGVkLXNlYXJjaC10ZXh0LXNlYXJjaCBpbnB1dCwKbGkuaGlyZS1mYWNldGVkLXNlYXJjaC10ZXh0LXNlYXJjaCAuc2VhcmNoLWljb24gewoJZGlzcGxheTogaW5saW5lLWJsb2NrOwoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCXZlcnRpY2FsLWFsaWduOiB0b3A7Cn0KCmxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggaW5wdXQgewoJYm9yZGVyOiAxcHggc29saWQgI2VlZTsKCWJvcmRlci1yaWdodDogbm9uZTsKCWJhY2tncm91bmQtY29sb3I6ICNmZmY7Cglmb250LXNpemU6IDFlbTsKCW91dGxpbmU6IG5vbmU7CglwYWRkaW5nLWxlZnQ6IDIwcHg7Cgl3aWR0aDogOTAlOwoJaGVpZ2h0OiA0MHB4Owp9CgpsaS5oaXJlLWZhY2V0ZWQtc2VhcmNoLXRleHQtc2VhcmNoIC5zZWFyY2gtaWNvbiB7CglmaWxsOiAjREREOwoJaGVpZ2h0OiA0MHB4OwoJd2lkdGg6IDEwJTsKCWJvcmRlcjogMXB4IHNvbGlkICNlZWU7Cglib3JkZXItbGVmdDogbm9uZTsKCXRyYW5zaXRpb246IGZpbGwgNDAwbXM7Cn0KCmxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggLnNlYXJjaC1pY29uLmFjdGl2ZSB7CgljdXJzb3I6IHBvaW50ZXI7CglmaWxsOiAjODg4Owp9CgpsaS5oaXJlLWZhY2V0ZWQtc2VhcmNoLXRleHQtc2VhcmNoIC5zZWFyY2gtaWNvbi5zZWFyY2hpbmcgc3ZnIHsKCS1tb3otYW5pbWF0aW9uOiBzcGluIDEuMnMgZWFzZSBpbmZpbml0ZTsKCS13ZWJraXQtYW5pbWF0aW9uOiBzcGluIDEuMnMgZWFzZSBpbmZpbml0ZTsKCWFuaW1hdGlvbjogc3BpbiAxLjJzIGVhc2UgaW5maW5pdGU7Cn0KCi8qIFVzZXJzIHdpdGggSUUgPCAxMSB3aWxsIHNlZSB0aGUgc2VhcmNoIGljb24gYWxpZ25lZCBvbiB0b3AuICovCmxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggLnNlYXJjaC1pY29uIC5jZW50ZXItdmVydGljYWwgewoJaGVpZ2h0OiAxMDAlOwoJZGlzcGxheTogZmxleDsKCWRpc3BsYXk6IC13ZWJraXQtZmxleDsKCWFsaWduLWl0ZW1zOiBjZW50ZXI7Cgktd2Via2l0LWFsaWduLWl0ZW1zOiBjZW50ZXI7Cn0KCmxpLmhpcmUtZmFjZXRlZC1zZWFyY2gtdGV4dC1zZWFyY2ggLnNlYXJjaC1pY29uIC5jZW50ZXItdmVydGljYWwgc3ZnIHsKCXdpZHRoOiA3MCU7CgloZWlnaHQ6IDcwJTsKfQ==","base64");
-(0, _insertCss2["default"])(css, { prepend: true });
+
+if (typeof window != 'undefined' && window.document) {
+	(0, _insertCss2["default"])(css, { prepend: true });
+}
 
 var TextSearch = (function (_React$Component) {
 	_inherits(TextSearch, _React$Component);
@@ -5500,6 +5510,34 @@ module.exports = exports["default"];
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
+var queryDefaults = {
+	facetValues: [],
+	sortParameters: [],
+	term: ""
+};
+
+var configDefaults = {
+	rows: 50
+};
+
+var labelsDefaults = {
+	facetTitles: {},
+	newSearch: "New search",
+	resultsFound: "results",
+	showAll: "Show all",
+	sortBy: "Sort by"
+};
+
+exports.configDefaults = configDefaults;
+exports.labelsDefaults = labelsDefaults;
+exports.queryDefaults = queryDefaults;
+
+},{}],56:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -5555,6 +5593,8 @@ var _componentsFacetMap = _dereq_("./components/facet-map");
 
 var _componentsFacetMap2 = _interopRequireDefault(_componentsFacetMap);
 
+var _defaults = _dereq_("./defaults");
+
 //const logger = store => next => action => {
 //	if (action.hasOwnProperty("type")) {
 //		console.log("[FACETED SEARCH] " + action.type, action);
@@ -5570,9 +5610,11 @@ var _insertCss2 = _interopRequireDefault(_insertCss);
 var createStoreWithMiddleware = (0, _redux.applyMiddleware)(_reduxThunk2["default"])(_redux.createStore);
 
 
-
 var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2ggewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCXBhZGRpbmc6IDUlOwoJd2lkdGg6IDEwMCU7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoIGlucHV0IHsKCS1tb3otYXBwZWFyYW5jZTogbm9uZTsKCS13ZWJraXQtYXBwZWFyYW5jZTogbm9uZTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1maWx0ZXJzLAouaGlyZS1mYWNldGVkLXNlYXJjaCA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCXZlcnRpY2FsLWFsaWduOiB0b3A7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtZmlsdGVycyB7Cgl3aWR0aDogMzUlOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaCA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLWZpbHRlcnMgPiBidXR0b24gewoJYmFja2dyb3VuZDogd2hpdGU7Cglib3JkZXI6IG5vbmU7CgljdXJzb3I6IHBvaW50ZXI7CgloZWlnaHQ6IDQwcHg7CgltYXJnaW4tYm90dG9tOiAyMHB4OwoJb3V0bGluZTogbm9uZTsKCXBhZGRpbmc6IDAgMjBweDsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzIHsKCXBhZGRpbmc6IDAgMCAxMCUgNSU7Cgl3aWR0aDogNjAlOwp9","base64");
-(0, _insertCss2["default"])(css, { prepend: true });
+
+if (typeof window != 'undefined' && window.document) {
+	(0, _insertCss2["default"])(css, { prepend: true });
+}
 
 var FacetedSearch = (function (_React$Component) {
 	_inherits(FacetedSearch, _React$Component);
@@ -5581,22 +5623,18 @@ var FacetedSearch = (function (_React$Component) {
 		_classCallCheck(this, FacetedSearch);
 
 		_get(Object.getPrototypeOf(FacetedSearch.prototype), "constructor", this).call(this, props);
-		this.store = createStoreWithMiddleware(_reducers2["default"]);
 
-		this.store.dispatch({
-			type: "SET_QUERY_DEFAULTS",
-			config: this.props.config
+		this.store = createStoreWithMiddleware(_reducers2["default"], {
+			config: _extends({}, _defaults.configDefaults, this.props.config),
+			labels: _extends({}, _defaults.labelsDefaults, this.props.labels)
 		});
 
-		this.store.dispatch({
-			type: "SET_CONFIG_DEFAULTS",
-			config: this.props.config
-		});
-
-		this.store.dispatch({
-			type: "SET_LABELS",
-			labels: this.props.labels
-		});
+		if (this.props.config.hasOwnProperty("queryDefaults")) {
+			this.store.dispatch({
+				type: "SET_QUERY_DEFAULTS",
+				queryDefaults: this.props.config.queryDefaults
+			});
+		}
 
 		this.state = this.store.getState();
 	}
@@ -5778,35 +5816,7 @@ FacetedSearch.propTypes = {
 exports.facetMap = _componentsFacetMap2["default"];
 exports["default"] = FacetedSearch;
 
-},{"./actions/queries":32,"./actions/results":33,"./components/facet-map":34,"./components/filters":36,"./components/icons/loader-three-dots":39,"./components/results":50,"./reducers":57,"classnames":"classnames","insert-css":4,"lodash.isequal":7,"react":"react","redux":17,"redux-thunk":15}],56:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var initialState = {
-	rows: 50
-};
-
-exports["default"] = function (state, action) {
-	if (state === undefined) state = {};
-
-	switch (action.type) {
-		case "SET_CONFIG_DEFAULTS":
-			var initConfig = _extends({}, initialState, action.config);
-
-			return _extends({}, state, initConfig);
-		default:
-			return state;
-	}
-};
-
-module.exports = exports["default"];
-
-},{}],57:[function(_dereq_,module,exports){
+},{"./actions/queries":32,"./actions/results":33,"./components/facet-map":34,"./components/filters":36,"./components/icons/loader-three-dots":39,"./components/results":50,"./defaults":55,"./reducers":57,"classnames":"classnames","insert-css":4,"lodash.isequal":7,"react":"react","redux":17,"redux-thunk":15}],57:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5817,14 +5827,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 var _redux = _dereq_("redux");
 
-var _config = _dereq_("./config");
-
-var _config2 = _interopRequireDefault(_config);
-
-var _labels = _dereq_("./labels");
-
-var _labels2 = _interopRequireDefault(_labels);
-
 var _queries = _dereq_("./queries");
 
 var _queries2 = _interopRequireDefault(_queries);
@@ -5834,45 +5836,20 @@ var _results = _dereq_("./results");
 var _results2 = _interopRequireDefault(_results);
 
 exports["default"] = (0, _redux.combineReducers)({
-	config: _config2["default"],
-	labels: _labels2["default"],
+	config: function config() {
+		var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+		return state;
+	},
+	labels: function labels() {
+		var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+		return state;
+	},
 	queries: _queries2["default"],
 	results: _results2["default"]
 });
 module.exports = exports["default"];
 
-},{"./config":56,"./labels":58,"./queries":59,"./results":60,"redux":17}],58:[function(_dereq_,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var initialState = {
-	facetTitles: {},
-	newSearch: "New search",
-	resultsFound: "results",
-	showAll: "Show all",
-	sortBy: "Sort by"
-};
-
-exports["default"] = function (state, action) {
-	if (state === undefined) state = initialState;
-
-	switch (action.type) {
-		case "SET_LABELS":
-			return _extends({}, state, action.labels);
-
-		default:
-			return state;
-	}
-};
-
-module.exports = exports["default"];
-
-},{}],59:[function(_dereq_,module,exports){
+},{"./queries":58,"./results":59,"redux":17}],58:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5882,6 +5859,8 @@ Object.defineProperty(exports, "__esModule", {
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+
+var _defaults = _dereq_("../defaults");
 
 var removeFacetValue = function removeFacetValue(facetValues, name, value) {
 	var foundFacetValue = facetValues.filter(function (facetValue) {
@@ -5958,12 +5937,9 @@ var setFullTextSearchParameter = function setFullTextSearchParameter(field, valu
 };
 
 var initialState = {
-	all: [],
-	"default": {
-		"facetValues": [],
-		"term": ""
-	},
-	last: null
+	all: [_defaults.queryDefaults],
+	"default": _defaults.queryDefaults,
+	last: _defaults.queryDefaults
 };
 
 exports["default"] = function (state, action) {
@@ -5973,14 +5949,12 @@ exports["default"] = function (state, action) {
 
 	switch (action.type) {
 		case "SET_QUERY_DEFAULTS":
-			var defaultModel = _extends({}, initialState["default"], { sortParameters: [] });
-			if (action.config && action.config.queryDefaults) {
-				defaultModel = _extends({}, defaultModel, action.config.queryDefaults);
-			}
+			var newDefaultQuery = _extends({}, _defaults.queryDefaults, action.queryDefaults);
+
 			return _extends({}, state, {
-				all: [defaultModel],
-				"default": defaultModel,
-				last: defaultModel
+				all: [newDefaultQuery],
+				"default": newDefaultQuery,
+				last: newDefaultQuery
 			});
 
 		case "SET_RESULTS_SORT":
@@ -6076,7 +6050,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}],60:[function(_dereq_,module,exports){
+},{"../defaults":55}],59:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6183,5 +6157,5 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{}]},{},[55])(55)
+},{}]},{},[56])(56)
 });
