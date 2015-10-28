@@ -24,7 +24,6 @@ let getResults = function(url, headers, done) {
 		if (err) { handleError(err, resp, body); }
 		let searchId = url.replace(/.*\/([^?]+).*/, "$1");
 
-
 		body = JSON.parse(body);
 		if (body.results != null && body.refs == null) {
 			body.refs = body.results;
@@ -64,7 +63,7 @@ let dispatchResponse = (dispatch, type, response, searchId) =>
 		searchId: searchId
 	});
 
-let cache = {};
+// let cache = {};
 
 export function fetchResults() {
 	return function (dispatch, getState) {
@@ -87,9 +86,13 @@ export function fetchResults() {
 			state.config.baseURL + state.config.searchPath,
 			state.config.rows,
 			(response, searchId) => {
-				cache[stringifiedQuery] = response;
+				// cache[stringifiedQuery] = response;
 
-				return dispatchResponse(dispatch, "RECEIVE_RESULTS", response, searchId);
+				return dispatch({
+					type: "RECEIVE_RESULTS",
+					response: response,
+					searchId: searchId
+				});
 			}
 		);
 	};
@@ -108,9 +111,13 @@ export function fetchNextResults(url) {
 			url,
 			state.config.headers || {},
 			(response, searchId) => {
-				cache[url] = response;
+				// cache[url] = response;
 
-				return dispatchResponse(dispatch, "RECEIVE_NEXT_RESULTS", response, searchId);
+				return dispatch({
+					type: "RECEIVE_NEXT_RESULTS",
+					response: response,
+					searchId: searchId
+				});
 			}
 		);
 	};

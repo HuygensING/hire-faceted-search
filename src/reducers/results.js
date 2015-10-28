@@ -49,6 +49,17 @@ let initialState = {
 	searchId: null
 };
 
+let createFirstResultsState = (result, searchId) => {
+	return {
+		...addResponseToState(initialState, result),
+		first: result,
+		last: result,
+		searchId: searchId
+	};
+};
+
+export {createFirstResultsState};
+
 export default function(state=initialState, action) {
 	switch (action.type) {
 		case "REQUEST_RESULTS":
@@ -70,11 +81,7 @@ export default function(state=initialState, action) {
 
 		case "RECEIVE_RESULTS":
 			if (state.first == null) {
-				return {
-					...addResponseToState(state, action.response),
-					...{first: action.response},
-					searchId: action.searchId
-				};
+				return createFirstResultsState(action.response, action.searchId);
 			}
 
 			let response = {...action.response, ...{

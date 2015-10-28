@@ -1,13 +1,28 @@
 import React from "react";
 import cx from "classnames";
 import isEqual from "lodash.isequal";
+import insertCss from "insert-css";
 
 import Filters from "./components/filters";
 import Results from "./components/results";
 import Loader from "./components/icons/loader-three-dots";
 
-import {fetchResults, fetchNextResults} from "./actions/results";
-import {selectFacetValue, selectFacetRange, newSearch, setSort, changeSearchTerm, changeFullTextSearchField, setFacetValues, removeFullTextSearchFields, setFullTextSearchFields} from "./actions/queries";
+import {
+	fetchResults,
+	fetchNextResults
+} from "./actions/results";
+
+import {
+	selectFacetValue,
+	selectFacetRange,
+	newSearch,
+	setSort,
+	changeSearchTerm,
+	changeFullTextSearchField,
+	setFacetValues,
+	removeFullTextSearchFields,
+	setFullTextSearchFields
+} from "./actions/queries";
 
 import {createStore, applyMiddleware} from "redux";
 import reducers from "./reducers";
@@ -15,6 +30,8 @@ import thunkMiddleware from "redux-thunk";
 
 import facetMap from "./components/facet-map";
 import {configDefaults, labelsDefaults} from "./defaults";
+
+import {createFirstResultsState} from "./reducers/results";
 
 //const logger = store => next => action => {
 //	if (action.hasOwnProperty("type")) {
@@ -26,11 +43,8 @@ import {configDefaults, labelsDefaults} from "./defaults";
 
 let createStoreWithMiddleware = applyMiddleware(thunkMiddleware)(createStore);
 
-
 let fs = require("fs");
 let css = fs.readFileSync(__dirname + "/index.css");
-import insertCss from "insert-css";
-
 if (typeof window != 'undefined' && window.document) {
 	insertCss(css, {prepend: true});
 }
@@ -39,15 +53,21 @@ class FacetedSearch extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.store = createStoreWithMiddleware(reducers, {
+		let initialState = {
 			config: {...configDefaults, ...this.props.config},
 			labels: {...labelsDefaults, ...this.props.labels}
-		});
+		};
 
-		if (this.props.config.hasOwnProperty("queryDefaults")) {
+		if (this.props.result != null) {
+			initialState.results = createFirstResultsState(this.props.result);
+		}
+
+		this.store = createStoreWithMiddleware(reducers, initialState);
+
+		if (this.props.query != null) {
 			this.store.dispatch({
 				type: "SET_QUERY_DEFAULTS",
-				queryDefaults: this.props.config.queryDefaults
+				queryDefaults: this.props.query
 			});
 		}
 
@@ -59,7 +79,9 @@ class FacetedSearch extends React.Component {
 			this.setState(this.store.getState())
 		);
 
-		this.store.dispatch(fetchResults());
+		if (this.props.result == null) {
+			this.store.dispatch(fetchResults());
+		}
 	}
 
 	componentWillReceiveProps(nextProps) {
@@ -84,7 +106,7 @@ class FacetedSearch extends React.Component {
 	}
 
 	componentWillUpdate(nextProps, nextState) {
-		if(this.props.onChange) {
+		if(this.props.onChange && nextState.results.all.length > 1) {
 			this.props.onChange(nextState.results.last, nextState.queries.last);
 		}
 

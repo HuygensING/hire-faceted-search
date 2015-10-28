@@ -88,6 +88,7 @@ class ListFacet extends React.Component {
 
 
 		let selectedValues = this.selectedValues();
+
 		let valueLabels = this.props.labels.facetValues && this.props.labels.facetValues[this.props.data.name] ?
 			this.props.labels.facetValues[this.props.data.name] :
 			null;

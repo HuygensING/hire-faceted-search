@@ -3261,7 +3261,7 @@ var dispatchResponse = function dispatchResponse(dispatch, type, response, searc
 	});
 };
 
-var cache = {};
+// let cache = {};
 
 function fetchResults() {
 	return function (dispatch, getState) {
@@ -3277,9 +3277,13 @@ function fetchResults() {
 		// }
 
 		return postResults(stringifiedQuery, state.config.headers || {}, state.config.baseURL + state.config.searchPath, state.config.rows, function (response, searchId) {
-			cache[stringifiedQuery] = response;
+			// cache[stringifiedQuery] = response;
 
-			return dispatchResponse(dispatch, "RECEIVE_RESULTS", response, searchId);
+			return dispatch({
+				type: "RECEIVE_RESULTS",
+				response: response,
+				searchId: searchId
+			});
 		});
 	};
 }
@@ -3294,9 +3298,13 @@ function fetchNextResults(url) {
 		// }
 
 		return getResults(url, state.config.headers || {}, function (response, searchId) {
-			cache[url] = response;
+			// cache[url] = response;
 
-			return dispatchResponse(dispatch, "RECEIVE_NEXT_RESULTS", response, searchId);
+			return dispatch({
+				type: "RECEIVE_NEXT_RESULTS",
+				response: response,
+				searchId: searchId
+			});
 		});
 	};
 }
@@ -4413,6 +4421,7 @@ var ListFacet = (function (_React$Component) {
 			var optionsToRender = this.state.showAll ? options : options.slice(0, INIT_SIZE - 1);
 
 			var selectedValues = this.selectedValues();
+
 			var valueLabels = this.props.labels.facetValues && this.props.labels.facetValues[this.props.data.name] ? this.props.labels.facetValues[this.props.data.name] : null;
 
 			var listItems = optionsToRender.map(function (option, index) {
@@ -4533,7 +4542,7 @@ var ListFacetListItem = (function (_React$Component) {
 		_get(Object.getPrototypeOf(ListFacetListItem.prototype), "constructor", this).call(this, props);
 
 		this.state = {
-			checked: false
+			checked: this.props.checked
 		};
 	}
 
@@ -5564,6 +5573,10 @@ var _lodashIsequal = _dereq_("lodash.isequal");
 
 var _lodashIsequal2 = _interopRequireDefault(_lodashIsequal);
 
+var _insertCss = _dereq_("insert-css");
+
+var _insertCss2 = _interopRequireDefault(_insertCss);
+
 var _componentsFilters = _dereq_("./components/filters");
 
 var _componentsFilters2 = _interopRequireDefault(_componentsFilters);
@@ -5596,6 +5609,8 @@ var _componentsFacetMap2 = _interopRequireDefault(_componentsFacetMap);
 
 var _defaults = _dereq_("./defaults");
 
+var _reducersResults = _dereq_("./reducers/results");
+
 //const logger = store => next => action => {
 //	if (action.hasOwnProperty("type")) {
 //		console.log("[FACETED SEARCH] " + action.type, action);
@@ -5604,15 +5619,10 @@ var _defaults = _dereq_("./defaults");
 //   return next(action);
 //};
 
-var _insertCss = _dereq_("insert-css");
-
-var _insertCss2 = _interopRequireDefault(_insertCss);
-
 var createStoreWithMiddleware = (0, _redux.applyMiddleware)(_reduxThunk2["default"])(_redux.createStore);
 
 
 var css = Buffer("LmhpcmUtZmFjZXRlZC1zZWFyY2ggewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCXBhZGRpbmc6IDUlOwoJd2lkdGg6IDEwMCU7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoIGlucHV0IHsKCS1tb3otYXBwZWFyYW5jZTogbm9uZTsKCS13ZWJraXQtYXBwZWFyYW5jZTogbm9uZTsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1maWx0ZXJzLAouaGlyZS1mYWNldGVkLXNlYXJjaCA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLXJlc3VsdHMgewoJYm94LXNpemluZzogYm9yZGVyLWJveDsKCWRpc3BsYXk6IGlubGluZS1ibG9jazsKCXZlcnRpY2FsLWFsaWduOiB0b3A7Cn0KCi5oaXJlLWZhY2V0ZWQtc2VhcmNoID4gLmhpcmUtZmFjZXRlZC1zZWFyY2gtZmlsdGVycyB7Cgl3aWR0aDogMzUlOwp9CgouaGlyZS1mYWNldGVkLXNlYXJjaCA+IC5oaXJlLWZhY2V0ZWQtc2VhcmNoLWZpbHRlcnMgPiBidXR0b24gewoJYmFja2dyb3VuZDogd2hpdGU7Cglib3JkZXI6IG5vbmU7CgljdXJzb3I6IHBvaW50ZXI7CgloZWlnaHQ6IDQwcHg7CgltYXJnaW4tYm90dG9tOiAyMHB4OwoJb3V0bGluZTogbm9uZTsKCXBhZGRpbmc6IDAgMjBweDsKfQoKLmhpcmUtZmFjZXRlZC1zZWFyY2ggPiAuaGlyZS1mYWNldGVkLXNlYXJjaC1yZXN1bHRzIHsKCXBhZGRpbmc6IDAgMCAxMCUgNSU7Cgl3aWR0aDogNjAlOwp9","base64");
-
 if (typeof window != 'undefined' && window.document) {
 	(0, _insertCss2["default"])(css, { prepend: true });
 }
@@ -5625,15 +5635,21 @@ var FacetedSearch = (function (_React$Component) {
 
 		_get(Object.getPrototypeOf(FacetedSearch.prototype), "constructor", this).call(this, props);
 
-		this.store = createStoreWithMiddleware(_reducers2["default"], {
+		var initialState = {
 			config: _extends({}, _defaults.configDefaults, this.props.config),
 			labels: _extends({}, _defaults.labelsDefaults, this.props.labels)
-		});
+		};
 
-		if (this.props.config.hasOwnProperty("queryDefaults")) {
+		if (this.props.result != null) {
+			initialState.results = (0, _reducersResults.createFirstResultsState)(this.props.result);
+		}
+
+		this.store = createStoreWithMiddleware(_reducers2["default"], initialState);
+
+		if (this.props.query != null) {
 			this.store.dispatch({
 				type: "SET_QUERY_DEFAULTS",
-				queryDefaults: this.props.config.queryDefaults
+				queryDefaults: this.props.query
 			});
 		}
 
@@ -5649,7 +5665,9 @@ var FacetedSearch = (function (_React$Component) {
 				return _this.setState(_this.store.getState());
 			});
 
-			this.store.dispatch((0, _actionsResults.fetchResults)());
+			if (this.props.result == null) {
+				this.store.dispatch((0, _actionsResults.fetchResults)());
+			}
 		}
 	}, {
 		key: "componentWillReceiveProps",
@@ -5677,7 +5695,7 @@ var FacetedSearch = (function (_React$Component) {
 	}, {
 		key: "componentWillUpdate",
 		value: function componentWillUpdate(nextProps, nextState) {
-			if (this.props.onChange) {
+			if (this.props.onChange && nextState.results.all.length > 1) {
 				this.props.onChange(nextState.results.last, nextState.queries.last);
 			}
 
@@ -5817,7 +5835,7 @@ FacetedSearch.propTypes = {
 exports.facetMap = _componentsFacetMap2["default"];
 exports["default"] = FacetedSearch;
 
-},{"./actions/queries":32,"./actions/results":33,"./components/facet-map":34,"./components/filters":36,"./components/icons/loader-three-dots":39,"./components/results":50,"./defaults":55,"./reducers":57,"classnames":"classnames","insert-css":4,"lodash.isequal":7,"react":"react","redux":17,"redux-thunk":15}],57:[function(_dereq_,module,exports){
+},{"./actions/queries":32,"./actions/results":33,"./components/facet-map":34,"./components/filters":36,"./components/icons/loader-three-dots":39,"./components/results":50,"./defaults":55,"./reducers":57,"./reducers/results":59,"classnames":"classnames","insert-css":4,"lodash.isequal":7,"react":"react","redux":17,"redux-thunk":15}],57:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5952,11 +5970,13 @@ exports["default"] = function (state, action) {
 		case "SET_QUERY_DEFAULTS":
 			var newDefaultQuery = _extends({}, _defaults.queryDefaults, action.queryDefaults);
 
-			return _extends({}, state, {
+			state = _extends({}, state, {
 				all: [newDefaultQuery],
 				"default": newDefaultQuery,
 				last: newDefaultQuery
 			});
+
+			break;
 
 		case "SET_RESULTS_SORT":
 			var sortParameters = state.last.sortParameters.sort(function (valA, valB) {
@@ -5978,7 +5998,9 @@ exports["default"] = function (state, action) {
 
 			query = _extends({}, state.last, { sortParameters: sortParameters });
 
-			return addQueryToState(state, query);
+			state = addQueryToState(state, query);
+
+			break;
 
 		case "INIT_SORT_PARAMS":
 			if (state.last.sortParameters.length === 0) {
@@ -5990,36 +6012,48 @@ exports["default"] = function (state, action) {
 			} else {
 				query = state.last;
 			}
-			return addQueryToState(state, query);
+			state = addQueryToState(state, query);
+
+			break;
 
 		case "REMOVE_FACET_VALUE":
 			query = _extends({}, state.last, {
 				facetValues: removeFacetValue(state.last.facetValues, action.facetName, action.value)
 			});
 
-			return addQueryToState(state, query);
+			state = addQueryToState(state, query);
+
+			break;
 
 		case "ADD_FACET_VALUE":
 			query = _extends({}, state.last, {
 				facetValues: addFacetValue(state.last.facetValues, action.facetName, action.value)
 			});
-			return addQueryToState(state, query);
+			state = addQueryToState(state, query);
+
+			break;
 
 		case "ADD_FACET_RANGE":
 			query = _extends({}, state.last, {
 				facetValues: addRangeFacetValue(state.last.facetValues, action.facetName, action.value)
 			});
-			return addQueryToState(state, query);
+			state = addQueryToState(state, query);
+
+			break;
 
 		case "SET_FACET_VALUES":
 			query = _extends({}, state.last, {
 				facetValues: action.facetValues
 			});
-			return addQueryToState(state, query);
+			state = addQueryToState(state, query);
+
+			break;
 
 		case "CHANGE_SEARCH_TERM":
 			query = _extends({}, state.last, { term: action.value });
-			return addQueryToState(state, query);
+			state = addQueryToState(state, query);
+
+			break;
 
 		case "CHANGE_FULL_TEXT_SEARCH_TERM":
 			query = _extends({}, state.last, {
@@ -6028,25 +6062,32 @@ exports["default"] = function (state, action) {
 			if (!query.fullTextSearchParameters.length) {
 				delete query.fullTextSearchParameters;
 			}
-			return addQueryToState(state, query);
+			state = addQueryToState(state, query);
+
+			break;
 
 		case "SET_FULL_TEXT_SEARCH_TERMS":
 			query = _extends({}, state.last, {
 				fullTextSearchParameters: action.fullTextSearchParameters
 			});
-			return addQueryToState(state, query);
+			state = addQueryToState(state, query);
+
+			break;
 
 		case "REMOVE_FULL_TEXT_SEARCH_TERMS":
 			query = state.last;
 			delete query.fullTextSearchParameters;
-			return addQueryToState(state, query);
+			state = addQueryToState(state, query);
+
+			break;
 
 		case "NEW_SEARCH":
-			return addQueryToState(state, state["default"]);
+			state = addQueryToState(state, state["default"]);
 
-		default:
-			return state;
+			break;
 	}
+
+	return state;
 };
 
 module.exports = exports["default"];
@@ -6112,6 +6153,16 @@ var initialState = {
 	searchId: null
 };
 
+var createFirstResultsState = function createFirstResultsState(result, searchId) {
+	return _extends({}, addResponseToState(initialState, result), {
+		first: result,
+		last: result,
+		searchId: searchId
+	});
+};
+
+exports.createFirstResultsState = createFirstResultsState;
+
 exports["default"] = function (state, action) {
 	if (state === undefined) state = initialState;
 
@@ -6135,9 +6186,7 @@ exports["default"] = function (state, action) {
 
 		case "RECEIVE_RESULTS":
 			if (state.first == null) {
-				return _extends({}, addResponseToState(state, action.response), { first: action.response }, {
-					searchId: action.searchId
-				});
+				return createFirstResultsState(action.response, action.searchId);
 			}
 
 			var response = _extends({}, action.response, {
@@ -6165,8 +6214,6 @@ exports["default"] = function (state, action) {
 
 	return state;
 };
-
-module.exports = exports["default"];
 
 },{}]},{},[56])(56)
 });
