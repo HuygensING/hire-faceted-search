@@ -5677,22 +5677,18 @@ var FacetedSearch = (function (_React$Component) {
 		value: function render() {
 			var _this2 = this;
 
+			var loader = undefined,
+			    filters = undefined,
+			    results = undefined;
+
 			var className = this.props.className !== "" ? "hire-faceted-search " + this.props.className : "hire-faceted-search";
 
 			if (this.state.results.all.length === 0) {
-				return _react2["default"].createElement(
-					"div",
-					{ className: className },
-					_react2["default"].createElement(_componentsIconsLoaderThreeDots2["default"], { className: "loader" })
-				);
-			}
+				loader = _react2["default"].createElement(_componentsIconsLoaderThreeDots2["default"], { className: "loader" });
+			} else {
+				var FiltersComponent = this.props.customComponents.filters != null ? this.props.customComponents.filters : _componentsFilters2["default"];
 
-			var FiltersComponent = this.props.customComponents.filters != null ? this.props.customComponents.filters : _componentsFilters2["default"];
-
-			return _react2["default"].createElement(
-				"div",
-				{ className: className },
-				_react2["default"].createElement(FiltersComponent, _extends({}, this.props, this.state, {
+				filters = _react2["default"].createElement(FiltersComponent, _extends({}, this.props, this.state, {
 					onChangeFullTextField: function (field, value) {
 						return _this2.store.dispatch((0, _actionsQueries.changeFullTextSearchField)(field, value));
 					},
@@ -5715,8 +5711,9 @@ var FacetedSearch = (function (_React$Component) {
 						}
 
 						return _this2.store.dispatch(_actionsQueries.selectFacetValue.apply(undefined, args));
-					} })),
-				_react2["default"].createElement(_componentsResults2["default"], _extends({}, this.props, this.state, {
+					} }));
+
+				results = _react2["default"].createElement(_componentsResults2["default"], _extends({}, this.props, this.state, {
 					onChangeFullTextField: function (field, value) {
 						return _this2.store.dispatch((0, _actionsQueries.changeFullTextSearchField)(field, value));
 					},
@@ -5736,7 +5733,15 @@ var FacetedSearch = (function (_React$Component) {
 					},
 					onSetSort: function (field) {
 						return _this2.store.dispatch((0, _actionsQueries.setSort)(field));
-					} }))
+					} }));
+			}
+
+			return _react2["default"].createElement(
+				"div",
+				{ className: className },
+				loader,
+				filters,
+				results
 			);
 		}
 	}]);

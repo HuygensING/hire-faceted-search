@@ -116,24 +116,20 @@ class FacetedSearch extends React.Component {
 	}
 
 	render() {
+		let loader, filters, results;
+
 		let className = this.props.className !== "" ?
 			"hire-faceted-search " + this.props.className :
 			"hire-faceted-search";
 
 		if (this.state.results.all.length === 0) {
-			return (
-				<div className={className}>
-					<Loader className="loader" />
-				</div>
-			);
-		}
+			loader = <Loader className="loader" />;
+		} else {
+			let FiltersComponent = (this.props.customComponents.filters != null) ?
+				this.props.customComponents.filters :
+				Filters;
 
-		let FiltersComponent = (this.props.customComponents.filters != null) ?
-			this.props.customComponents.filters :
-			Filters;
-
-		return (
-			<div className={className}>
+			filters = (
 				<FiltersComponent
 					{...this.props}
 					{...this.state}
@@ -152,6 +148,9 @@ class FacetedSearch extends React.Component {
 					onSelectFacetValue={(...args) =>
 						this.store.dispatch(selectFacetValue(...args))
 					} />
+			);
+
+			results = (
 				<Results
 					{...this.props}
 					{...this.state}
@@ -171,6 +170,14 @@ class FacetedSearch extends React.Component {
 					onSetSort={(field) =>
 						this.store.dispatch(setSort(field))
 					}/>
+			);
+		}
+
+		return (
+			<div className={className}>
+				{loader}
+				{filters}
+				{results}
 			</div>
 		);
 	}
