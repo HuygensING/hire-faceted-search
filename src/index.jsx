@@ -1,4 +1,5 @@
 import React from "react";
+import cx from "classnames";
 import isEqual from "lodash.isequal";
 
 import Filters from "./components/filters";
@@ -118,10 +119,6 @@ class FacetedSearch extends React.Component {
 	render() {
 		let loader, filters, results;
 
-		let className = this.props.className !== "" ?
-			"hire-faceted-search " + this.props.className :
-			"hire-faceted-search";
-
 		if (this.state.results.all.length === 0) {
 			loader = <Loader className="loader" />;
 		} else {
@@ -174,7 +171,10 @@ class FacetedSearch extends React.Component {
 		}
 
 		return (
-			<div className={className}>
+			<div className={cx(
+				"hire-faceted-search",
+				this.props.className
+			)}>
 				{loader}
 				{filters}
 				{results}

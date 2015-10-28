@@ -5521,6 +5521,10 @@ var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
 
+var _classnames = _dereq_("classnames");
+
+var _classnames2 = _interopRequireDefault(_classnames);
+
 var _lodashIsequal = _dereq_("lodash.isequal");
 
 var _lodashIsequal2 = _interopRequireDefault(_lodashIsequal);
@@ -5681,8 +5685,6 @@ var FacetedSearch = (function (_React$Component) {
 			    filters = undefined,
 			    results = undefined;
 
-			var className = this.props.className !== "" ? "hire-faceted-search " + this.props.className : "hire-faceted-search";
-
 			if (this.state.results.all.length === 0) {
 				loader = _react2["default"].createElement(_componentsIconsLoaderThreeDots2["default"], { className: "loader" });
 			} else {
@@ -5738,7 +5740,7 @@ var FacetedSearch = (function (_React$Component) {
 
 			return _react2["default"].createElement(
 				"div",
-				{ className: className },
+				{ className: (0, _classnames2["default"])("hire-faceted-search", this.props.className) },
 				loader,
 				filters,
 				results
@@ -5778,7 +5780,7 @@ FacetedSearch.propTypes = {
 exports.facetMap = _componentsFacetMap2["default"];
 exports["default"] = FacetedSearch;
 
-},{"./actions/queries":32,"./actions/results":33,"./components/facet-map":34,"./components/filters":36,"./components/icons/loader-three-dots":39,"./components/results":50,"./reducers":57,"insert-css":4,"lodash.isequal":7,"react":"react","redux":17,"redux-thunk":15}],56:[function(_dereq_,module,exports){
+},{"./actions/queries":32,"./actions/results":33,"./components/facet-map":34,"./components/filters":36,"./components/icons/loader-three-dots":39,"./components/results":50,"./reducers":57,"classnames":"classnames","insert-css":4,"lodash.isequal":7,"react":"react","redux":17,"redux-thunk":15}],56:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

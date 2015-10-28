@@ -138,4 +138,14 @@ describe("FacetedSearch", function() {
 		search.store.dispatch.restore();
 	});
 
+	it("should add a custom className when given als prop", () => {
+		this.timeout(5000);
+		const FacetedSearch = require("../src").default;
+
+		const tree = sd.shallowRender(<FacetedSearch config={{}} className="custom-classname" />);
+		const search = tree.getMountedInstance();
+
+		expect(tree.getRenderOutput().props.className).toEqual("hire-faceted-search custom-classname");
+	});
+
 });
