@@ -1,3 +1,5 @@
+import{queryDefaults} from "../defaults";
+
 let removeFacetValue = function(facetValues, name, value) {
 	let foundFacetValue = facetValues.filter((facetValue) =>
 		facetValue.name === name
@@ -72,12 +74,9 @@ let setFullTextSearchParameter = function(field, value, last = []) {
 };
 
 let initialState = {
-	all: [],
-	default: {
-		"facetValues": [],
-		"term": ""
-	},
-	last: null
+	all: [queryDefaults],
+	default: queryDefaults,
+	last: queryDefaults
 };
 
 export default function(state=initialState, action) {
@@ -85,14 +84,12 @@ export default function(state=initialState, action) {
 
 	switch (action.type) {
 		case "SET_QUERY_DEFAULTS":
-			let defaultModel = {...initialState.default, ...{sortParameters: []}};
-			if (action.config && action.config.queryDefaults) {
-				defaultModel = {...defaultModel, ...action.config.queryDefaults};
-			}
+			let newDefaultQuery = {...queryDefaults, ...action.queryDefaults};
+
 			return {...state, ...{
-				all: [defaultModel],
-				default: defaultModel,
-				last: defaultModel
+				all: [newDefaultQuery],
+				default: newDefaultQuery,
+				last: newDefaultQuery
 			}};
 
 		case "SET_RESULTS_SORT":

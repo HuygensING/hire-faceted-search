@@ -14,6 +14,7 @@ import reducers from "./reducers";
 import thunkMiddleware from "redux-thunk";
 
 import facetMap from "./components/facet-map";
+import {configDefaults, labelsDefaults} from "./defaults";
 
 //const logger = store => next => action => {
 //	if (action.hasOwnProperty("type")) {
@@ -25,30 +26,30 @@ import facetMap from "./components/facet-map";
 
 let createStoreWithMiddleware = applyMiddleware(thunkMiddleware)(createStore);
 
+
 let fs = require("fs");
-import insertCss from "insert-css";
 let css = fs.readFileSync(__dirname + "/index.css");
-insertCss(css, {prepend: true});
+import insertCss from "insert-css";
+
+if (typeof window != 'undefined' && window.document) {
+	insertCss(css, {prepend: true});
+}
 
 class FacetedSearch extends React.Component {
 	constructor(props) {
 		super(props);
-		this.store = createStoreWithMiddleware(reducers);
 
-		this.store.dispatch({
-			type: "SET_QUERY_DEFAULTS",
-			config: this.props.config
+		this.store = createStoreWithMiddleware(reducers, {
+			config: {...configDefaults, ...this.props.config},
+			labels: {...labelsDefaults, ...this.props.labels}
 		});
 
-		this.store.dispatch({
-			type: "SET_CONFIG_DEFAULTS",
-			config: this.props.config
-		});
-
-		this.store.dispatch({
-			type: "SET_LABELS",
-			labels: this.props.labels
-		});
+		if (this.props.config.hasOwnProperty("queryDefaults")) {
+			this.store.dispatch({
+				type: "SET_QUERY_DEFAULTS",
+				queryDefaults: this.props.config.queryDefaults
+			});
+		}
 
 		this.state = this.store.getState();
 	}
