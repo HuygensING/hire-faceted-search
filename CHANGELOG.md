@@ -1,3 +1,8 @@
+### v5.1.0	(2015/10/28 18:34)
+* Accept initial result and query from props
+* Clean up switch statement
+* Remove console.log
+
 ### v5.0.1	(2015/10/28 15:9)
 * Remove config and labels test
 * Only insert-css when window and document present
