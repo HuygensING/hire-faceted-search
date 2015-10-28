@@ -12,7 +12,7 @@ describe("FacetedSearch", function() {
 
 	it("should update the facetValues in the query prop with componentWillReceiveProps", function() {
 		this.timeout(5000);
-		const FacetedSearch = require("../src/index");
+		const FacetedSearch = require("../src").default;
 
 		const tree = sd.shallowRender(<FacetedSearch config={{}} />);
 		const search = tree.getMountedInstance();
@@ -42,7 +42,7 @@ describe("FacetedSearch", function() {
 
 	it("should not update the query with componentWillReceiveProps when facetValues are the same", function() {
 		this.timeout(5000);
-		const FacetedSearch = require("../src/index");
+		const FacetedSearch = require("../src").default;
 
 		const tree = sd.shallowRender(<FacetedSearch config={{}} />);
 		const search = tree.getMountedInstance();
@@ -61,7 +61,7 @@ describe("FacetedSearch", function() {
 
 	it("should not update the fullTextSearchParameters with componentWillReceiveProps when fullTextSearchParameters are the same", function() {
 		this.timeout(5000);
-		const FacetedSearch = require("../src/index");
+		const FacetedSearch = require("../src").default;
 
 		const tree = sd.shallowRender(<FacetedSearch config={{}} />);
 		const search = tree.getMountedInstance();
@@ -80,7 +80,7 @@ describe("FacetedSearch", function() {
 
 	it("should update the fullTextSearchParameters in the query prop with componentWillReceiveProps", function() {
 		this.timeout(5000);
-		const FacetedSearch = require("../src/index");
+		const FacetedSearch = require("../src").default;
 
 		const tree = sd.shallowRender(<FacetedSearch config={{}} />);
 		const search = tree.getMountedInstance();
@@ -110,7 +110,7 @@ describe("FacetedSearch", function() {
 
 	it("should unset the fullTextSearchParameters when an empty array is passed through the query prop", function() {
 		this.timeout(5000);
-		const FacetedSearch = require("../src/index");
+		const FacetedSearch = require("../src").default;
 
 		const tree = sd.shallowRender(<FacetedSearch config={{}} />);
 		const search = tree.getMountedInstance();
