@@ -44,24 +44,18 @@ class Results extends React.Component {
 	}
 
 	dataToComponents(results) {
-		return results.map((data, index) => {
-			if(this.props.customComponents.result != null) {
-				return React.createElement(this.props.customComponents.result, {
-					data: data,
-					key: index + Math.random(),
-					labels: this.props.labels,
-					metadataList: this.props.metadataList,
-					onSelect: this.props.onSelect
-				});
-			} else {
-				return (<Result
-					data={data}
-					key={index + Math.random()}
-					labels={this.props.labels}
-					metadataList={this.props.metadataList}
-					onSelect={this.props.onSelect} />);
-			}
-		});
+		let ResultComponent = (this.props.customComponents.result != null) ?
+			this.props.customComponents.result :
+			Result;
+
+		return results.map((data, index) =>
+			<ResultComponent
+				data={data}
+				key={index + Math.random()}
+				labels={this.props.labels}
+				metadataList={this.props.metadataList}
+				onSelect={this.props.onSelect} />
+		);
 	}
 
 	render() {
@@ -73,39 +67,31 @@ class Results extends React.Component {
 			this.props.queries.last.sortParameters :
 			this.props.results.last.sortableFields.map(f => ({fieldname: f}));
 
-		let currentQuery = (this.props.customComponents.currentQuery != null) ?
-			React.createElement(this.props.customComponents.currentQuery, {
-				labels: this.props.labels,
-				onChangeFullTextField: this.props.onChangeFullTextField,
-				onChangeSearchTerm: this.props.onChangeSearchTerm,
-				onSelectFacetValue: this.props.onSelectFacetValue,
-				queries: this.props.queries,
-				results: this.props.results
-			}) :
-			(<CurrentQuery
-				labels={this.props.labels}
-				onChangeFullTextField={this.props.onChangeFullTextField}
-				onChangeSearchTerm={this.props.onChangeSearchTerm}
-				onSelectFacetValue={this.props.onSelectFacetValue}
-				queries={this.props.queries}
-				results={this.props.results} />);
+		let CurrentQueryComponent = (this.props.customComponents.currentQuery != null) ?
+			this.props.customComponents.currentQuery :
+			CurrentQuery;
 
 		return (
 			<div className="hire-faceted-search-results">
 				<header>
 					<h3>{this.props.results.last.numFound} {this.props.labels.resultsFound}</h3>
-
 					<ResultsSortMenu
 						labels={this.props.labels}
 						onSetSort={this.props.onSetSort}
 						values={sortValues} />
-					{currentQuery}
+					<CurrentQueryComponent
+						labels={this.props.labels}
+						onChangeFullTextField={this.props.onChangeFullTextField}
+						onChangeSearchTerm={this.props.onChangeSearchTerm}
+						onSelectFacetValue={this.props.onSelectFacetValue}
+						queries={this.props.queries}
+						results={this.props.results} />
 				</header>
 				<ol className={cx(
 						"hire-faceted-search-result-list",
 						{numbered: this.props.numberedResults}
 					)}>
-					{this.dataToComponents(this.props.results.last.refs) /** API V2.x uses refs as result key, back to results in API 3 */ }
+					{this.dataToComponents(this.props.results.last.refs) /* API V2.x uses refs as result key, back to results in API 3 */ }
 				</ol>
 				{loader}
 			</div>
@@ -115,9 +101,10 @@ class Results extends React.Component {
 
 Results.propTypes = {
 	config: React.PropTypes.object,
-	currentQueryComponent: React.PropTypes.func,
+	customComponents: React.PropTypes.object,
 	labels: React.PropTypes.object,
 	metadataList: React.PropTypes.array,
+	numberedResults: React.PropTypes.bool,
 	onChangeFullTextField: React.PropTypes.func,
 	onChangeSearchTerm: React.PropTypes.func,
 	onFetchNextResults: React.PropTypes.func,
@@ -125,7 +112,6 @@ Results.propTypes = {
 	onSelectFacetValue: React.PropTypes.func,
 	onSetSort: React.PropTypes.func,
 	queries: React.PropTypes.object,
-	resultComponent: React.PropTypes.func,
 	results: React.PropTypes.object
 
 };

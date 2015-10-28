@@ -4897,23 +4897,15 @@ var Results = (function (_React$Component) {
 		value: function dataToComponents(results) {
 			var _this = this;
 
+			var ResultComponent = this.props.customComponents.result != null ? this.props.customComponents.result : _result2["default"];
+
 			return results.map(function (data, index) {
-				if (_this.props.customComponents.result != null) {
-					return _react2["default"].createElement(_this.props.customComponents.result, {
-						data: data,
-						key: index + Math.random(),
-						labels: _this.props.labels,
-						metadataList: _this.props.metadataList,
-						onSelect: _this.props.onSelect
-					});
-				} else {
-					return _react2["default"].createElement(_result2["default"], {
-						data: data,
-						key: index + Math.random(),
-						labels: _this.props.labels,
-						metadataList: _this.props.metadataList,
-						onSelect: _this.props.onSelect });
-				}
+				return _react2["default"].createElement(ResultComponent, {
+					data: data,
+					key: index + Math.random(),
+					labels: _this.props.labels,
+					metadataList: _this.props.metadataList,
+					onSelect: _this.props.onSelect });
 			});
 		}
 	}, {
@@ -4925,20 +4917,7 @@ var Results = (function (_React$Component) {
 				return { fieldname: f };
 			});
 
-			var currentQuery = this.props.customComponents.currentQuery != null ? _react2["default"].createElement(this.props.customComponents.currentQuery, {
-				labels: this.props.labels,
-				onChangeFullTextField: this.props.onChangeFullTextField,
-				onChangeSearchTerm: this.props.onChangeSearchTerm,
-				onSelectFacetValue: this.props.onSelectFacetValue,
-				queries: this.props.queries,
-				results: this.props.results
-			}) : _react2["default"].createElement(_hireCurrentQuery2["default"], {
-				labels: this.props.labels,
-				onChangeFullTextField: this.props.onChangeFullTextField,
-				onChangeSearchTerm: this.props.onChangeSearchTerm,
-				onSelectFacetValue: this.props.onSelectFacetValue,
-				queries: this.props.queries,
-				results: this.props.results });
+			var CurrentQueryComponent = this.props.customComponents.currentQuery != null ? this.props.customComponents.currentQuery : _hireCurrentQuery2["default"];
 
 			return _react2["default"].createElement(
 				"div",
@@ -4957,12 +4936,18 @@ var Results = (function (_React$Component) {
 						labels: this.props.labels,
 						onSetSort: this.props.onSetSort,
 						values: sortValues }),
-					currentQuery
+					_react2["default"].createElement(CurrentQueryComponent, {
+						labels: this.props.labels,
+						onChangeFullTextField: this.props.onChangeFullTextField,
+						onChangeSearchTerm: this.props.onChangeSearchTerm,
+						onSelectFacetValue: this.props.onSelectFacetValue,
+						queries: this.props.queries,
+						results: this.props.results })
 				),
 				_react2["default"].createElement(
 					"ol",
 					{ className: (0, _classnames2["default"])("hire-faceted-search-result-list", { numbered: this.props.numberedResults }) },
-					this.dataToComponents(this.props.results.last.refs) /** API V2.x uses refs as result key, back to results in API 3 */
+					this.dataToComponents(this.props.results.last.refs) /* API V2.x uses refs as result key, back to results in API 3 */
 				),
 				loader
 			);
@@ -4974,9 +4959,10 @@ var Results = (function (_React$Component) {
 
 Results.propTypes = {
 	config: _react2["default"].PropTypes.object,
-	currentQueryComponent: _react2["default"].PropTypes.func,
+	customComponents: _react2["default"].PropTypes.object,
 	labels: _react2["default"].PropTypes.object,
 	metadataList: _react2["default"].PropTypes.array,
+	numberedResults: _react2["default"].PropTypes.bool,
 	onChangeFullTextField: _react2["default"].PropTypes.func,
 	onChangeSearchTerm: _react2["default"].PropTypes.func,
 	onFetchNextResults: _react2["default"].PropTypes.func,
@@ -4984,7 +4970,6 @@ Results.propTypes = {
 	onSelectFacetValue: _react2["default"].PropTypes.func,
 	onSetSort: _react2["default"].PropTypes.func,
 	queries: _react2["default"].PropTypes.object,
-	resultComponent: _react2["default"].PropTypes.func,
 	results: _react2["default"].PropTypes.object
 
 };
