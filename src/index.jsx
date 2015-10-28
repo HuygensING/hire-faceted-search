@@ -206,7 +206,8 @@ FacetedSearch.propTypes = {
 	numberedResults: React.PropTypes.bool,
 	onChange: React.PropTypes.func,
 	onSearchId: React.PropTypes.func,
-	onSelect: React.PropTypes.func
+	onSelect: React.PropTypes.func,
+	query: React.PropTypes.object
 };
 
 export {facetMap};

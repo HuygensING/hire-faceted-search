@@ -5756,7 +5756,8 @@ FacetedSearch.propTypes = {
 	numberedResults: _react2["default"].PropTypes.bool,
 	onChange: _react2["default"].PropTypes.func,
 	onSearchId: _react2["default"].PropTypes.func,
-	onSelect: _react2["default"].PropTypes.func
+	onSelect: _react2["default"].PropTypes.func,
+	query: _react2["default"].PropTypes.object
 };
 
 exports.facetMap = _componentsFacetMap2["default"];
