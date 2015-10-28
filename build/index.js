@@ -5600,24 +5600,19 @@ var FacetedSearch = (function (_React$Component) {
 	}, {
 		key: "componentWillReceiveProps",
 		value: function componentWillReceiveProps(nextProps) {
+			// Update the labels. Use case: when the user changes
+			// the language.
 			if (!(0, _lodashIsequal2["default"])(this.state.labels, nextProps.labels)) {
 				this.store.dispatch({
 					type: "SET_LABELS",
 					labels: nextProps.labels
 				});
 			}
-			// Allows a query update to be passed through the prop named query
-			if (nextProps.query) {
-				if (nextProps.query.facetValues && !(0, _lodashIsequal2["default"])(nextProps.query.facetValues, this.state.queries.last.facetValues)) {
-					this.store.dispatch((0, _actionsQueries.setFacetValues)(nextProps.query.facetValues));
-				}
-				if (nextProps.query.fullTextSearchParameters && !(0, _lodashIsequal2["default"])(nextProps.query.fullTextSearchParameters, this.state.queries.last.fullTextSearchParameters)) {
-					if (nextProps.query.fullTextSearchParameters.length) {
-						this.store.dispatch((0, _actionsQueries.setFullTextSearchFields)(nextProps.query.fullTextSearchParameters));
-					} else if (this.state.queries.last.fullTextSearchParameters) {
-						this.store.dispatch((0, _actionsQueries.removeFullTextSearchFields)());
-					}
-				}
+
+			// Set the next query. Use case: on forced rerender or
+			// when passing query from one search to another.
+			if (nextProps.query != null) {
+				this.setQuery(nextProps.query);
 			}
 		}
 	}, {
@@ -5647,6 +5642,21 @@ var FacetedSearch = (function (_React$Component) {
 		key: "componentWillUnmount",
 		value: function componentWillUnmount() {
 			this.unsubscribe();
+		}
+	}, {
+		key: "setQuery",
+		value: function setQuery(nextQuery) {
+			if (nextQuery.facetValues && !(0, _lodashIsequal2["default"])(nextQuery.facetValues, this.state.queries.last.facetValues)) {
+				this.store.dispatch((0, _actionsQueries.setFacetValues)(nextQuery.facetValues));
+			}
+
+			if (nextQuery.fullTextSearchParameters && !(0, _lodashIsequal2["default"])(nextQuery.fullTextSearchParameters, this.state.queries.last.fullTextSearchParameters)) {
+				if (nextQuery.fullTextSearchParameters.length) {
+					this.store.dispatch((0, _actionsQueries.setFullTextSearchFields)(nextQuery.fullTextSearchParameters));
+				} else if (this.state.queries.last.fullTextSearchParameters) {
+					this.store.dispatch((0, _actionsQueries.removeFullTextSearchFields)());
+				}
+			}
 		}
 	}, {
 		key: "handleFetchNextResults",

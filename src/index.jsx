@@ -62,24 +62,19 @@ class FacetedSearch extends React.Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
+		// Update the labels. Use case: when the user changes
+		// the language.
 		if (!isEqual(this.state.labels, nextProps.labels)) {
 			this.store.dispatch({
 				type: "SET_LABELS",
 				labels: nextProps.labels
 			});
 		}
-		// Allows a query update to be passed through the prop named query
-		if (nextProps.query) {
-			if (nextProps.query.facetValues && !isEqual(nextProps.query.facetValues, this.state.queries.last.facetValues)) {
-				this.store.dispatch(setFacetValues(nextProps.query.facetValues));
-			}
-			if (nextProps.query.fullTextSearchParameters && !isEqual(nextProps.query.fullTextSearchParameters, this.state.queries.last.fullTextSearchParameters)) {
-				if (nextProps.query.fullTextSearchParameters.length) {
-					this.store.dispatch(setFullTextSearchFields(nextProps.query.fullTextSearchParameters));
-				} else if (this.state.queries.last.fullTextSearchParameters) {
-					this.store.dispatch(removeFullTextSearchFields());
-				}
-			}
+
+		// Set the next query. Use case: on forced rerender or
+		// when passing query from one search to another.
+		if (nextProps.query != null) {
+			this.setQuery(nextProps.query);
 		}
 	}
 
@@ -106,6 +101,20 @@ class FacetedSearch extends React.Component {
 
 	componentWillUnmount() {
 		this.unsubscribe();
+	}
+
+	setQuery(nextQuery) {
+		if (nextQuery.facetValues && !isEqual(nextQuery.facetValues, this.state.queries.last.facetValues)) {
+			this.store.dispatch(setFacetValues(nextQuery.facetValues));
+		}
+
+		if (nextQuery.fullTextSearchParameters && !isEqual(nextQuery.fullTextSearchParameters, this.state.queries.last.fullTextSearchParameters)) {
+			if (nextQuery.fullTextSearchParameters.length) {
+				this.store.dispatch(setFullTextSearchFields(nextQuery.fullTextSearchParameters));
+			} else if (this.state.queries.last.fullTextSearchParameters) {
+				this.store.dispatch(removeFullTextSearchFields());
+			}
+		}
 	}
 
 	handleFetchNextResults(url) {
