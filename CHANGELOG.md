@@ -1,3 +1,18 @@
+### v5.0.0	(2015/10/28 9:25)
+* Fix tests due to added named export
+* Make custom filters component possible
+* Move custom components to hash
+* Pass all state and props to children
+* Move facetMap to seperate file
+* Add Props and Config sections to README
+* Add propType for sort
+* Rename 'facets' to component to 'filters'
+* Merge
+* Let state override props
+* Make fullTextSearch optional
+* Pass all state and props through component hierarchy
+* Copy results to refs if no refs present
+
 ### v4.7.0	(2015/10/22 10:32)
 * support labels for facetValues
 
