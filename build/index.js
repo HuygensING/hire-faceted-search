@@ -5317,7 +5317,7 @@ var SortMenu = (function (_React$Component) {
 			this.setState(_defineProperty({
 				current: type
 			}, type, direction));
-			console.log(type, direction);
+
 			this.props.onChange(type, direction);
 		}
 	}, {
@@ -6117,15 +6117,21 @@ exports["default"] = function (state, action) {
 
 	switch (action.type) {
 		case "REQUEST_RESULTS":
-			return _extends({}, state, { requesting: true });
+			state = _extends({}, state, { requesting: true });
+
+			break;
 
 		case "CLEAR_LIST":
 			var newState = state;
+
 			if (newState.last) {
 				newState.last.refs = [];
 				newState.requesting = true;
 			}
-			return newState;
+
+			state = newState;
+
+			break;
 
 		case "RECEIVE_RESULTS":
 			if (state.first == null) {
@@ -6138,22 +6144,26 @@ exports["default"] = function (state, action) {
 				facets: updateFacetsWithReceivedCounts(state.first.facets, action.response.facets)
 			});
 
-			return _extends({}, addResponseToState(state, response), {
+			state = _extends({}, addResponseToState(state, response), {
 				searchId: action.searchId
 			});
+
+			break;
 
 		case "RECEIVE_NEXT_RESULTS":
 			var withConcatResults = _extends({}, action.response, {
 				refs: [].concat(_toConsumableArray(state.last.refs), _toConsumableArray(action.response.refs)),
 				facets: updateFacetsWithReceivedCounts(state.last.facets, action.response.facets)
 			});
-			return _extends({}, addResponseToState(state, withConcatResults), {
+
+			state = _extends({}, addResponseToState(state, withConcatResults), {
 				searchId: action.searchId
 			});
 
-		default:
-			return state;
+			break;
 	}
+
+	return state;
 };
 
 module.exports = exports["default"];

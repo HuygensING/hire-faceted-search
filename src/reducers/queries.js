@@ -86,11 +86,13 @@ export default function(state=initialState, action) {
 		case "SET_QUERY_DEFAULTS":
 			let newDefaultQuery = {...queryDefaults, ...action.queryDefaults};
 
-			return {...state, ...{
+			state = {...state, ...{
 				all: [newDefaultQuery],
 				default: newDefaultQuery,
 				last: newDefaultQuery
 			}};
+
+			break;
 
 		case "SET_RESULTS_SORT":
 			let sortParameters = state.last.sortParameters.sort((valA, valB) => {
@@ -104,7 +106,9 @@ export default function(state=initialState, action) {
 
 			query = {...state.last, ...{sortParameters: sortParameters}};
 
-			return addQueryToState(state, query);
+			state = addQueryToState(state, query);
+
+			break;
 
 		case "INIT_SORT_PARAMS":
 			if(state.last.sortParameters.length === 0) {
@@ -114,61 +118,78 @@ export default function(state=initialState, action) {
 			} else {
 				query = state.last;
 			}
-			return addQueryToState(state, query);
+			state = addQueryToState(state, query);
+
+			break;
 
 		case "REMOVE_FACET_VALUE":
 			query = {...state.last, ...{
 				facetValues: removeFacetValue(state.last.facetValues, action.facetName, action.value)
 			}};
 
-			return addQueryToState(state, query);
+			state = addQueryToState(state, query);
+
+			break;
 
 		case "ADD_FACET_VALUE":
 			query = {...state.last, ...{
 				facetValues: addFacetValue(state.last.facetValues, action.facetName, action.value)
 			}};
-			return addQueryToState(state, query);
+			state = addQueryToState(state, query);
+
+			break;
 
 		case "ADD_FACET_RANGE":
 			query = {...state.last, ...{
 				facetValues: addRangeFacetValue(state.last.facetValues, action.facetName, action.value)
 			}};
-			return addQueryToState(state, query);
+			state = addQueryToState(state, query);
+
+			break;
 
 		case "SET_FACET_VALUES":
 			query = {...state.last, ...{
 				facetValues: action.facetValues
 			}};
-			return addQueryToState(state, query);
+			state = addQueryToState(state, query);
+
+			break;
 
 		case "CHANGE_SEARCH_TERM":
 			query = {...state.last, ...{term: action.value}};
-			return addQueryToState(state, query);
+			state = addQueryToState(state, query);
+
+			break;
 
 		case "CHANGE_FULL_TEXT_SEARCH_TERM":
 			query = {...state.last, ...{
 				fullTextSearchParameters: setFullTextSearchParameter(action.field, action.value, state.last.fullTextSearchParameters)
 			}};
 			if (!query.fullTextSearchParameters.length) { delete query.fullTextSearchParameters; }
-			return addQueryToState(state, query);
+			state = addQueryToState(state, query);
+
+			break;
 
 		case "SET_FULL_TEXT_SEARCH_TERMS":
 			query = {...state.last, ...{
 				fullTextSearchParameters: action.fullTextSearchParameters
 			}};
-			return addQueryToState(state, query);
+			state = addQueryToState(state, query);
+
+			break;
 
 		case "REMOVE_FULL_TEXT_SEARCH_TERMS":
 			query = state.last;
 			delete query.fullTextSearchParameters;
-			return addQueryToState(state, query);
+			state = addQueryToState(state, query);
+
+			break;
 
 		case "NEW_SEARCH":
-			return addQueryToState(state, state.default);
+			state = addQueryToState(state, state.default);
 
-
-
-		default:
-			return state;
+			break;
 	}
+
+	return state;
 }

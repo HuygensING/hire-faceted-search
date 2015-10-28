@@ -52,15 +52,21 @@ let initialState = {
 export default function(state=initialState, action) {
 	switch (action.type) {
 		case "REQUEST_RESULTS":
-			return {...state, ...{requesting: true}};
+			state = {...state, ...{requesting: true}};
+
+			break;
 
 		case "CLEAR_LIST":
 			let newState = state;
-			if(newState.last) {
+
+			if (newState.last) {
 				newState.last.refs = [];
 				newState.requesting = true;
 			}
-			return newState;
+
+			state = newState;
+
+			break;
 
 		case "RECEIVE_RESULTS":
 			if (state.first == null) {
@@ -78,10 +84,12 @@ export default function(state=initialState, action) {
 				)
 			}};
 
-			return {
+			state = {
 				...addResponseToState(state, response),
 					searchId: action.searchId
 			};
+
+			break;
 
 		case "RECEIVE_NEXT_RESULTS":
 			let withConcatResults = {...action.response, ...{
@@ -91,12 +99,14 @@ export default function(state=initialState, action) {
 					action.response.facets
 				)
 			}};
-			return {
+
+			state = {
 				...addResponseToState(state, withConcatResults),
 				searchId: action.searchId
 			};
 
-		default:
-			return state;
+			break;
 	}
+
+	return state;
 }
