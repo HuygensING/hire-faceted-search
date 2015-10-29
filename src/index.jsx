@@ -102,19 +102,19 @@ class FacetedSearch extends React.Component {
 	}
 
 	shouldComponentUpdate(nextProps, nextState) {
-		return this.state.results.last !== nextState.results.last;
+		return this.state.results.last !== nextState.results.last || this.state.results.requesting;
 	}
 
 	componentWillUpdate(nextProps, nextState) {
-		if(this.props.onChange && nextState.results.all.length > 1) {
+		if(this.props.onChange && nextState.results.all.length > 1 && !nextState.results.requesting) {
 			this.props.onChange(nextState.results.last, nextState.queries.last);
 		}
 
-		if(this.props.onSearchId) {
+		if(this.props.onSearchId && !nextState.results.requesting) {
 			this.props.onSearchId(nextState.results.searchId);
 		}
 
-		if(this.state.queries.last.sortParameters.length === 0) {
+		if(this.state.queries.last.sortParameters.length === 0 && !nextState.results.requesting) {
 			this.store.dispatch({
 				type: "INIT_SORT_PARAMS",
 				sortableFields: nextState.results.last.sortableFields
@@ -141,16 +141,14 @@ class FacetedSearch extends React.Component {
 	}
 
 	render() {
-		let loader, filters, results;
+		let loader = (this.state.results.all.length === 0 || this.state.results.requesting) ?
+			<Loader className="loader" /> : null;
 
-		if (this.state.results.all.length === 0) {
-			loader = <Loader className="loader" />;
-		} else {
-			let FiltersComponent = (this.props.customComponents.filters != null) ?
-				this.props.customComponents.filters :
-				Filters;
+		let FiltersComponent = (this.props.customComponents.filters != null) ?
+			this.props.customComponents.filters :
+			Filters;
 
-			filters = (
+		let	filters = this.state.results.all.length === 0 ? null : (
 				<FiltersComponent
 					{...this.props}
 					{...this.state}
@@ -171,37 +169,36 @@ class FacetedSearch extends React.Component {
 					} />
 			);
 
-			results = (
-				<Results
-					{...this.props}
-					{...this.state}
-					onChangeFullTextField={(field, value) =>
-						this.store.dispatch(changeFullTextSearchField(field, value))
-					}
-					onChangeSearchTerm={(value) =>
-						this.store.dispatch(changeSearchTerm(value))
-					}
-					onFetchNextResults={(url) =>
-						this.store.dispatch(fetchNextResults(url))
-					}
-					onSelect={this.props.onSelect}
-					onSelectFacetValue={(...args) =>
-						this.store.dispatch(selectFacetValue(...args))
-					}
-					onSetSort={(field) =>
-						this.store.dispatch(setSort(field))
-					}/>
+		let	results = this.state.results.all.length === 0 ? null : (
+			<Results
+				{...this.props}
+				{...this.state}
+				onChangeFullTextField={(field, value) =>
+					this.store.dispatch(changeFullTextSearchField(field, value))
+				}
+				onChangeSearchTerm={(value) =>
+					this.store.dispatch(changeSearchTerm(value))
+				}
+				onFetchNextResults={(url) =>
+					this.store.dispatch(fetchNextResults(url))
+				}
+				onSelect={this.props.onSelect}
+				onSelectFacetValue={(...args) =>
+					this.store.dispatch(selectFacetValue(...args))
+				}
+				onSetSort={(field) =>
+					this.store.dispatch(setSort(field))
+				}/>
 			);
-		}
+
 
 		return (
 			<div className={cx(
 				"hire-faceted-search",
 				this.props.className
 			)}>
-				{loader}
 				{filters}
-				{results}
+				{loader || results}
 			</div>
 		);
 	}
