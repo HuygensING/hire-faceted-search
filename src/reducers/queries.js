@@ -110,15 +110,13 @@ export default function(state=initialState, action) {
 
 			break;
 
-		case "INIT_SORT_PARAMS":
-			if(state.last.sortParameters.length === 0) {
+		case "RECEIVE_RESULTS":
+			if(state.last.sortParameters.length === 0 && action.response.sortableFields) {
 				query = {...state.last, ...{
-					sortParameters: action.sortableFields.map((fieldname) =>  ({ fieldname: fieldname, direction: "asc"}))
+					sortParameters: action.response.sortableFields.map((fieldname) => ({ fieldname: fieldname, direction: "asc"}))
 				}};
-			} else {
-				query = state.last;
+				state = addQueryToState(state, query);
 			}
-			state = addQueryToState(state, query);
 
 			break;
 

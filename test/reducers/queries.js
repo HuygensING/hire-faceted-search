@@ -46,7 +46,7 @@ describe('queries reducer', () => {
 	});
 
 
-	it("should handle INIT_SORT_PARAMS", () => {
+	it("should handle initialize the sortparameters with RECEIVE_RESULTS", () => {
 //		if(state.last.sortParameters.length === 0)
 		let state = {
 			all: [],
@@ -54,8 +54,8 @@ describe('queries reducer', () => {
 		};
 
 		expect(reducer(state, {
-			type: "INIT_SORT_PARAMS",
-			sortableFields: ["foo", "bar", "baz"]
+			type: "RECEIVE_RESULTS",
+			response: {sortableFields: ["foo", "bar", "baz"]}
 		})).toEqual({
 			all: [{sortParameters: [{fieldname: "foo", direction: "asc"}, {fieldname: "bar", direction: "asc"}, {fieldname: "baz", direction: "asc"}]}],
 			last: {sortParameters: [{fieldname: "foo", direction: "asc"}, {fieldname: "bar", direction: "asc"}, {fieldname: "baz", direction: "asc"}]}
@@ -63,12 +63,12 @@ describe('queries reducer', () => {
 
 //		else
 		let state1 = {
-			all: [],
+			all: [{sortParameters: ["foo"]}],
 			last: {sortParameters: ["foo"]}
 		};
 
 		expect(reducer(state1, {
-			type: "INIT_SORT_PARAMS"
+			type: "RECEIVE_RESULTS"
 		})).toEqual({
 			all: [{sortParameters: ["foo"]}],
 			last: {sortParameters: ["foo"]}
