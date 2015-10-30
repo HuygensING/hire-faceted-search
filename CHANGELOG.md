@@ -1,3 +1,6 @@
+### v5.1.2	(2015/10/30 10:47)
+
+
 ### v5.1.1	(2015/10/30 10:41)
 * show loader when fetching new results; initialize sort params on RECEIVE_RESULTS in stead of in componentWillUpdate
 
