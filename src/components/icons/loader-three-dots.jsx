@@ -5,24 +5,22 @@ let getNextState = function(prevState, progress) {
 		let delta = prevState[currentProp].max - prevState[currentProp].min;
 		let amplitude = delta / 2;
 
-		let verticalTranslation = prevState[currentProp].min + amplitude
+		let verticalTranslation = prevState[currentProp].min + amplitude;
 		let horizontalTranslation = ((prevState[currentProp].start - prevState[currentProp].min) / delta) * Math.PI;
 
 		let period = ((2 * Math.PI) / 1400) * progress;
 
 		let current = (amplitude * Math.sin(period - horizontalTranslation)) + verticalTranslation;
 
-		let nextState = {
-			current: current,
-		}
+		let nextState = { current: current };
 
-		obj[currentProp] = {...prevState[currentProp], ...nextState}
+		obj[currentProp] = {...prevState[currentProp], ...nextState};
 
 		return obj;
 	}, {});
 
 	return state;
-}
+};
 
 class LoaderThreeDots extends React.Component {
 	constructor(props) {
@@ -64,19 +62,23 @@ class LoaderThreeDots extends React.Component {
 				}}
 			}
 		};
+
+		this.animationFrameListener = this.step.bind(this);
 	}
 
 	componentDidMount() {
 		this.mounted = true;
-		window.requestAnimationFrame(this.step.bind(this));
+		window.requestAnimationFrame(this.animationFrameListener);
 	}
 
 	componentWillUnmount() {
 		this.mounted = false;
+		window.cancelAnimationFrame(this.animationFrameListener);
 	}
 
 	step(timestamp) {
 		if (!this.mounted) {
+			window.cancelAnimationFrame(this.animationFrameListener);
 			return;
 		}
 
@@ -85,14 +87,14 @@ class LoaderThreeDots extends React.Component {
 		}
 
 		let progress = timestamp - this.start;
-
-		this.setState({
-			circle1: getNextState(this.state.circle1, progress),
-			circle2: getNextState(this.state.circle2, progress),
-			circle3: getNextState(this.state.circle3, progress)
-		})
-
-		window.requestAnimationFrame(this.step.bind(this));
+		if(React.findDOMNode(this).getBoundingClientRect().width) {
+			this.setState({
+				circle1: getNextState(this.state.circle1, progress),
+				circle2: getNextState(this.state.circle2, progress),
+				circle3: getNextState(this.state.circle3, progress)
+			});
+		}
+		window.requestAnimationFrame(this.animationFrameListener);
 	}
 
 	render() {
@@ -106,27 +108,27 @@ class LoaderThreeDots extends React.Component {
 				<circle
 					cx="15"
 					cy="15"
-					r={this.state.circle1.radius.current}
-					fillOpacity={this.state.circle1.opacity.current} />
+					fillOpacity={this.state.circle1.opacity.current}
+					r={this.state.circle1.radius.current} />
 				<circle
 					cx="60"
 					cy="15"
-					r={this.state.circle2.radius.current}
-					fillOpacity={this.state.circle2.opacity.current} />
+					fillOpacity={this.state.circle2.opacity.current}
+					r={this.state.circle2.radius.current} />
 				<circle
 					cx="105"
 					cy="15"
-					r={this.state.circle3.radius.current}
-					fillOpacity={this.state.circle3.opacity.current} />
+					fillOpacity={this.state.circle3.opacity.current}
+					r={this.state.circle3.radius.current} />
 			</svg>
 
 		);
 	}
 }
 
-LoaderThreeDots.PropTypes = {
+LoaderThreeDots.propTypes = {
 	className: React.PropTypes.string
-}
+};
 
 export default LoaderThreeDots;
 

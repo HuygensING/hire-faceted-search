@@ -3734,9 +3734,7 @@ var getNextState = function getNextState(prevState, progress) {
 
 		var current = amplitude * Math.sin(period - horizontalTranslation) + verticalTranslation;
 
-		var nextState = {
-			current: current
-		};
+		var nextState = { current: current };
 
 		obj[currentProp] = _extends({}, prevState[currentProp], nextState);
 
@@ -3790,23 +3788,27 @@ var LoaderThreeDots = (function (_React$Component) {
 				})
 			}
 		};
+
+		this.animationFrameListener = this.step.bind(this);
 	}
 
 	_createClass(LoaderThreeDots, [{
 		key: "componentDidMount",
 		value: function componentDidMount() {
 			this.mounted = true;
-			window.requestAnimationFrame(this.step.bind(this));
+			window.requestAnimationFrame(this.animationFrameListener);
 		}
 	}, {
 		key: "componentWillUnmount",
 		value: function componentWillUnmount() {
 			this.mounted = false;
+			window.cancelAnimationFrame(this.animationFrameListener);
 		}
 	}, {
 		key: "step",
 		value: function step(timestamp) {
 			if (!this.mounted) {
+				window.cancelAnimationFrame(this.animationFrameListener);
 				return;
 			}
 
@@ -3815,14 +3817,14 @@ var LoaderThreeDots = (function (_React$Component) {
 			}
 
 			var progress = timestamp - this.start;
-
-			this.setState({
-				circle1: getNextState(this.state.circle1, progress),
-				circle2: getNextState(this.state.circle2, progress),
-				circle3: getNextState(this.state.circle3, progress)
-			});
-
-			window.requestAnimationFrame(this.step.bind(this));
+			if (_react2["default"].findDOMNode(this).getBoundingClientRect().width) {
+				this.setState({
+					circle1: getNextState(this.state.circle1, progress),
+					circle2: getNextState(this.state.circle2, progress),
+					circle3: getNextState(this.state.circle3, progress)
+				});
+			}
+			window.requestAnimationFrame(this.animationFrameListener);
 		}
 	}, {
 		key: "render",
@@ -3838,18 +3840,18 @@ var LoaderThreeDots = (function (_React$Component) {
 				_react2["default"].createElement("circle", {
 					cx: "15",
 					cy: "15",
-					r: this.state.circle1.radius.current,
-					fillOpacity: this.state.circle1.opacity.current }),
+					fillOpacity: this.state.circle1.opacity.current,
+					r: this.state.circle1.radius.current }),
 				_react2["default"].createElement("circle", {
 					cx: "60",
 					cy: "15",
-					r: this.state.circle2.radius.current,
-					fillOpacity: this.state.circle2.opacity.current }),
+					fillOpacity: this.state.circle2.opacity.current,
+					r: this.state.circle2.radius.current }),
 				_react2["default"].createElement("circle", {
 					cx: "105",
 					cy: "15",
-					r: this.state.circle3.radius.current,
-					fillOpacity: this.state.circle3.opacity.current })
+					fillOpacity: this.state.circle3.opacity.current,
+					r: this.state.circle3.radius.current })
 			);
 		}
 	}]);
@@ -3857,7 +3859,7 @@ var LoaderThreeDots = (function (_React$Component) {
 	return LoaderThreeDots;
 })(_react2["default"].Component);
 
-LoaderThreeDots.PropTypes = {
+LoaderThreeDots.propTypes = {
 	className: _react2["default"].PropTypes.string
 };
 
