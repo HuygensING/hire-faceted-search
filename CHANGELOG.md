@@ -1,3 +1,6 @@
+### v5.1.3	(2015/10/30 11:32)
+* attempt to fix invariant violation caused by loader
+
 ### v5.1.2	(2015/10/30 10:47)
 
 
