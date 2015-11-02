@@ -107,7 +107,7 @@ class FacetedSearch extends React.Component {
 
 	componentWillUpdate(nextProps, nextState) {
 		if(!nextState.results.requesting) {
-			if(this.props.onChange && nextState.results.all.length > 1) {
+			if(this.props.onChange && nextState.results.all.length > 0) {
 				this.props.onChange(nextState.results.last, nextState.queries.last);
 			}
 

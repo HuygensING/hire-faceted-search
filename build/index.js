@@ -5677,7 +5677,7 @@ var FacetedSearch = (function (_React$Component) {
 		key: "componentWillUpdate",
 		value: function componentWillUpdate(nextProps, nextState) {
 			if (!nextState.results.requesting) {
-				if (this.props.onChange && nextState.results.all.length > 1) {
+				if (this.props.onChange && nextState.results.all.length > 0) {
 					this.props.onChange(nextState.results.last, nextState.queries.last);
 				}
 
