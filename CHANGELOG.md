@@ -1,3 +1,6 @@
+### v5.2.1	(2015/11/3 15:10)
+* bump of hire-range-slider
+
 ### v5.2.0	(2015/11/2 9:32)
 * call onChange prop on initial result
 
