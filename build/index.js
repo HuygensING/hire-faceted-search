@@ -421,7 +421,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -438,7 +438,7 @@ var _insertCss = _dereq_("insert-css");
 var _insertCss2 = _interopRequireDefault(_insertCss);
 
 
-var css = Buffer("LmhpcmUtcmFuZ2Utc2xpZGVyIHsKICAgIC1tb3otdXNlci1zZWxlY3Q6IG5vbmU7CiAgICAtd2Via2l0LXVzZXItc2VsZWN0OiBub25lOwogICAgLW1zLXVzZXItc2VsZWN0OiBub25lOyAKICAgIHVzZXItc2VsZWN0OiBub25lOyAKICAgIC13ZWJraXQtdXNlci1kcmFnOiBub25lOwogICAgdXNlci1kcmFnOiBub25lOwoJY3Vyc29yOiBwb2ludGVyOwoJd2lkdGg6IDEwMCU7CglzdHJva2U6ICNmMWViZTY7CglmaWxsOiAjZjFlYmU2Owp9CgouaGlyZS1yYW5nZS1zbGlkZXIgLnJhbmdlLWxpbmUgewoJc3Ryb2tlLXdpZHRoOiA4OwoJCn0KCi5oaXJlLXJhbmdlLXNsaWRlcjpob3ZlciA+IC5yYW5nZS1saW5lIHsKCQp9CgouaGlyZS1yYW5nZS1zbGlkZXIgLnJhbmdlLWxpbmUgY2lyY2xlIHsKCXN0cm9rZS13aWR0aDogMDsKfQoKLmhpcmUtcmFuZ2Utc2xpZGVyIC5yYW5nZS1saW5lIGNpcmNsZS5ob3ZlcmluZyB7CglmaWxsOiAjYmRhNDdlOwp9CgouaGlyZS1yYW5nZS1zbGlkZXIgLnJhbmdlLWxpbmUgcGF0aC5ob3ZlcmluZyB7CglzdHJva2U6ICNiZGE0N2U7Cn0=","base64");
+var css = Buffer("LmhpcmUtcmFuZ2Utc2xpZGVyIHsKICAgIC1tb3otdXNlci1zZWxlY3Q6IG5vbmU7CiAgICAtd2Via2l0LXVzZXItc2VsZWN0OiBub25lOwogICAgLW1zLXVzZXItc2VsZWN0OiBub25lOyAKICAgIHVzZXItc2VsZWN0OiBub25lOyAKICAgIC13ZWJraXQtdXNlci1kcmFnOiBub25lOwogICAgdXNlci1kcmFnOiBub25lOwoJY3Vyc29yOiBwb2ludGVyOwoJd2lkdGg6IDEwMCU7CglzdHJva2U6ICNmMWViZTY7CglmaWxsOiAjZjFlYmU2Owp9CgouaGlyZS1yYW5nZS1zbGlkZXIgLnJhbmdlLWxpbmUgewoJc3Ryb2tlLXdpZHRoOiA4OwoJCn0KCi5oaXJlLXJhbmdlLXNsaWRlcjpob3ZlciA+IC5yYW5nZS1saW5lIHsKCQp9CgouaGlyZS1yYW5nZS1zbGlkZXIgLnJhbmdlLWxpbmUgY2lyY2xlIHsKCXN0cm9rZS13aWR0aDogMDsKfQoKLmhpcmUtcmFuZ2Utc2xpZGVyIC5yYW5nZS1saW5lIGNpcmNsZS5ob3ZlcmluZywKLmhpcmUtcmFuZ2Utc2xpZGVyIC5yYW5nZS1saW5lIGNpcmNsZTpob3ZlciB7CglmaWxsOiAjYmRhNDdlOwp9CgouaGlyZS1yYW5nZS1zbGlkZXIgLnJhbmdlLWxpbmUgcGF0aC5ob3ZlcmluZywKLmhpcmUtcmFuZ2Utc2xpZGVyIC5yYW5nZS1saW5lIHBhdGg6aG92ZXIgewoJc3Ryb2tlOiAjYmRhNDdlOwp9","base64");
 if (typeof window != 'undefined' && window.document) {
 	(0, _insertCss2["default"])(css, { prepend: true });
 }
@@ -507,11 +507,8 @@ var RangeSlider = (function (_React$Component) {
 					percentage = 0;
 				}
 				var center = (this.state.upperLimit + this.state.lowerLimit) / 2;
-				var deltaL = Math.max(percentage - this.state.lowerLimit, this.state.lowerLimit - percentage);
-				var deltaU = Math.max(percentage - this.state.upperLimit, this.state.upperLimit - percentage);
-				var deltaC = Math.max(percentage - center, center - percentage);
 
-				if (deltaC < deltaU && deltaC < deltaL) {
+				if (this.state.hoverState === "bar") {
 					var lowerLimit = percentage + this.state.lowerLimit - center;
 					var upperLimit = percentage - (center - this.state.upperLimit);
 					if (upperLimit >= 1) {
@@ -520,14 +517,13 @@ var RangeSlider = (function (_React$Component) {
 					if (lowerLimit <= 0) {
 						lowerLimit = 0;
 					}
-					return { bar: { lowerLimit: lowerLimit, upperLimit: upperLimit }
-					};
-				} else if (deltaL < deltaU) {
+					return { lowerLimit: lowerLimit, upperLimit: upperLimit };
+				} else if (this.state.hoverState === "lowerLimit") {
 					if (percentage >= this.state.upperLimit) {
 						percentage = this.state.upperLimit;
 					}
 					return { lowerLimit: percentage };
-				} else {
+				} else if (this.state.hoverState === "upperLimit") {
 					if (percentage <= this.state.lowerLimit) {
 						percentage = this.state.lowerLimit;
 					}
@@ -541,40 +537,20 @@ var RangeSlider = (function (_React$Component) {
 		value: function setRange(pageX) {
 			var posForLim = this.getPositionForLimit(pageX);
 			if (posForLim !== null) {
-				var hoverState = Object.keys(posForLim)[0];
-				if (hoverState === "bar") {
-					this.setState(posForLim.bar);
-				} else {
-					this.setState(posForLim);
-				}
+				this.setState(posForLim);
 				this.props.onChange(_extends({}, this.state, { refresh: false }));
 			}
 		}
 	}, {
 		key: "onMouseDown",
-		value: function onMouseDown(ev) {
+		value: function onMouseDown(target, ev) {
 			this.mouseState = MOUSE_DOWN;
-			this.setRange(ev.pageX);
-		}
-	}, {
-		key: "onTouchStart",
-		value: function onTouchStart(ev) {
-			this.mouseState = MOUSE_DOWN;
-			this.setRange(ev.touches[0].pageX);
+			this.setState({ hoverState: target });
 			return ev.preventDefault();
 		}
 	}, {
 		key: "onMouseMove",
 		value: function onMouseMove(ev) {
-			if (_react2["default"].findDOMNode(this).contains(ev.target)) {
-				var hoverState = Object.keys(this.getPositionForLimit(ev.pageX))[0];
-				if (this.state.hoverState !== hoverState) {
-					this.setState({ hoverState: hoverState });
-				}
-			} else if (this.state.hoverState !== null) {
-				this.setState({ hoverState: null });
-			}
-
 			if (this.mouseState === MOUSE_DOWN) {
 				this.setRange(ev.pageX);
 				return ev.preventDefault();
@@ -583,7 +559,6 @@ var RangeSlider = (function (_React$Component) {
 	}, {
 		key: "onTouchMove",
 		value: function onTouchMove(ev) {
-
 			if (this.mouseState === MOUSE_DOWN) {
 				this.setRange(ev.touches[0].pageX);
 				return ev.preventDefault();
@@ -595,18 +570,24 @@ var RangeSlider = (function (_React$Component) {
 			if (this.mouseState === MOUSE_DOWN) {
 				this.props.onChange(_extends({}, this.state, { refresh: true }));
 			}
+			this.setState({ hoverState: null });
 			this.mouseState = MOUSE_UP;
 		}
 	}, {
 		key: "getRangePath",
 		value: function getRangePath() {
-			return "M" + (8 + Math.floor(this.state.lowerLimit * 400)) + " 10 L " + (Math.ceil(this.state.upperLimit * 400) - 8) + " 10 Z";
+			return "M" + (8 + Math.floor(this.state.lowerLimit * 400)) + " 13 L " + (Math.ceil(this.state.upperLimit * 400) - 8) + " 13 Z";
 		}
 	}, {
 		key: "getRangeCircle",
 		value: function getRangeCircle(key) {
 			var percentage = this.state[key];
-			return _react2["default"].createElement("circle", { className: this.state.hoverState === key ? "hovering" : "", cx: percentage * 400, cy: "10", r: "10" });
+			return _react2["default"].createElement("circle", {
+				className: this.state.hoverState === key ? "hovering" : "",
+				cx: percentage * 400, cy: "13",
+				onMouseDown: this.onMouseDown.bind(this, key),
+				onTouchStart: this.onMouseDown.bind(this, key),
+				r: "13" });
 		}
 	}, {
 		key: "render",
@@ -615,16 +596,19 @@ var RangeSlider = (function (_React$Component) {
 			return _react2["default"].createElement(
 				"svg",
 				{ className: "hire-range-slider",
-					onMouseDown: this.onMouseDown.bind(this),
-					onTouchStart: this.onTouchStart.bind(this),
-					viewBox: "0 0 400 20" },
-				_react2["default"].createElement("path", { d: "M0 0 L 0 20 Z", fill: "transparent" }),
-				_react2["default"].createElement("path", { d: "M400 0 L 400 20 Z", fill: "transparent" }),
-				_react2["default"].createElement("path", { d: "M0 10 L 400 10 Z", fill: "transparent" }),
+					viewBox: "0 0 400 26" },
+				_react2["default"].createElement("path", { d: "M0 0 L 0 26 Z", fill: "transparent" }),
+				_react2["default"].createElement("path", { d: "M400 0 L 400 26 Z", fill: "transparent" }),
+				_react2["default"].createElement("path", { d: "M0 13 L 400 13 Z", fill: "transparent" }),
 				_react2["default"].createElement(
 					"g",
 					{ className: "range-line" },
-					_react2["default"].createElement("path", { className: this.state.hoverState === "bar" ? "hovering" : "", d: this.getRangePath() }),
+					_react2["default"].createElement("path", {
+						className: this.state.hoverState === "bar" ? "hovering" : "",
+						d: this.getRangePath(),
+						onMouseDown: this.onMouseDown.bind(this, "bar"),
+						onTouchStart: this.onMouseDown.bind(this, "bar")
+					}),
 					this.getRangeCircle(keys[0]),
 					this.getRangeCircle(keys[1])
 				)
