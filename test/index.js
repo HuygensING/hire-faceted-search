@@ -3,14 +3,12 @@ import sd from "skin-deep";
 import sinon from "sinon";
 import expect from "expect";
 import {configDefaults, labelsDefaults, queryDefaults} from "../src/defaults";
-
+import queriesReducer from "../src/reducers/queries";
+import FacetedSearch from "../src";
 
 let getTree = (props={}) => {
-	const FacetedSearch = require("../src").default;
-
 	// Make sure config is defined, because it is a required prop.
 	props = Object.assign({config: {}}, props);
-
 	return sd.shallowRender(<FacetedSearch {...props}/>);
 };
 
@@ -20,11 +18,14 @@ let getRenderOutput = (props) =>
 let getMountedInstance = (props) =>
 	getTree(props).getMountedInstance();
 
-
+/* eslint no-undef:0 */
 describe("FacetedSearch", function() {
-	it("should update the facetValues in the query prop with componentWillReceiveProps", function() {
-		const FacetedSearch = require("../src").default;
 
+	beforeEach(() => {
+		queriesReducer(undefined, {type: "SET_QUERY_DEFAULTS"});
+	});
+
+	it("should update the facetValues in the query prop with componentWillReceiveProps", function() {
 		const tree = sd.shallowRender(<FacetedSearch config={{}} />);
 		const search = tree.getMountedInstance();
 		const labels = search.state.labels;
@@ -42,77 +43,56 @@ describe("FacetedSearch", function() {
 		search.setQuery.restore();
 	});
 
-	it("should not update the query with componentWillReceiveProps when facetValues are the same", function() {
-		const FacetedSearch = require("../src").default;
-
-		const tree = sd.shallowRender(<FacetedSearch config={{}} />);
-		const search = tree.getMountedInstance();
-		const labels = search.state.labels;
-		const query = {...search.state.queries.last, facetValues: [{name: "foo", values: ["bar"]}]};
-		search.state.queries.last.facetValues = [{name: "foo", values: ["bar"]}];
+	it("should not update the query with setQuery when facetValues are the same", function() {
+		const search = getMountedInstance({query: {facetValues: [{name: "foo", values: ["bar"]}]}});
+		const query = {...search.state.queries.last};
 		sinon.stub(search.store, "dispatch");
 
-		search.componentWillReceiveProps({
-			labels: labels,
-			query: query
-		});
+		search.setQuery(query);
 		sinon.assert.notCalled(search.store.dispatch);
 		search.store.dispatch.restore();
 	});
 
-	it("should not update the fullTextSearchParameters with componentWillReceiveProps when fullTextSearchParameters are the same", function() {
-		const FacetedSearch = require("../src").default;
-
+	it("should not update the fullTextSearchParameters with setQuery when fullTextSearchParameters are the same", function() {
 		const tree = sd.shallowRender(<FacetedSearch config={{}} />);
 		const search = tree.getMountedInstance();
-		const labels = search.state.labels;
 		const query = {...search.state.queries.last, fullTextSearchParameters: [{name: "foo", term: "bar"}]};
+
 		search.state.queries.last.fullTextSearchParameters = [{name: "foo", term: "bar"}];
+
 		sinon.stub(search.store, "dispatch");
 
-		search.componentWillReceiveProps({
-			labels: labels,
-			query: query
-		});
+		search.setQuery(query);
+
 		sinon.assert.notCalled(search.store.dispatch);
 		search.store.dispatch.restore();
 	});
 
-	// it("should update the fullTextSearchParameters in the query prop with componentWillReceiveProps", function() {
-	// 	const FacetedSearch = require("../src").default;
+	it("should update the fullTextSearchParameters in the query prop with setQuery", function() {
+		const tree = sd.shallowRender(<FacetedSearch config={{}} />);
+		const search = tree.getMountedInstance();
+		const localDispatch = function(dispatchData) {
+			if(typeof dispatchData === "object") {
+				expect(dispatchData).toEqual({
+					type: "SET_FULL_TEXT_SEARCH_TERMS",
+					fullTextSearchParameters: [{name: "foo", term: "bar2"}]
+				});
+			}
+		};
 
-	// 	const tree = sd.shallowRender(<FacetedSearch config={{}} />);
-	// 	const search = tree.getMountedInstance();
-	// 	const labels = search.state.labels;
+		sinon.stub(search.store, "dispatch", function(cb) {
+			cb(localDispatch);
+		});
 
-	// 	const localDispatch = function(dispatchData) {
-	// 		if(typeof dispatchData === "object") {
-	// 			expect(dispatchData).toEqual({
-	// 				type: "SET_FULL_TEXT_SEARCH_TERMS",
-	// 				fullTextSearchParameters: [{name: "foo", term: "bar"}]
-	// 			});
-	// 		}
-	// 	};
+		search.setQuery({fullTextSearchParameters: [{name: "foo", term: "bar2"}]});
 
-	// 	sinon.stub(search.store, "dispatch", function(cb) {
-	// 		cb(localDispatch);
-	// 	});
-
-	// 	search.componentWillReceiveProps({
-	// 		labels: labels,
-	// 		query: {fullTextSearchParameters: [{name: "foo", term: "bar"}]}
-	// 	});
-
-	// 	sinon.assert.calledOnce(search.store.dispatch);
-	// 	search.store.dispatch.restore();
-	// });
+		sinon.assert.calledOnce(search.store.dispatch);
+		search.store.dispatch.restore();
+	});
 
 	it("should unset the fullTextSearchParameters when an empty array is passed through the query prop", function() {
-		const FacetedSearch = require("../src").default;
-
 		const tree = sd.shallowRender(<FacetedSearch config={{}} />);
 		const search = tree.getMountedInstance();
-		const labels = search.state.labels;
 		search.state.queries.last.fullTextSearchParameters = ":having_a_value:";
 
 		const localDispatch = function(dispatchData) {
@@ -127,10 +107,7 @@ describe("FacetedSearch", function() {
 			cb(localDispatch);
 		});
 
-		search.componentWillReceiveProps({
-			labels: labels,
-			query: {fullTextSearchParameters: []}
-		});
+		search.setQuery({fullTextSearchParameters: []});
 
 		sinon.assert.calledOnce(search.store.dispatch);
 		search.store.dispatch.restore();
@@ -164,9 +141,8 @@ describe("FacetedSearch", function() {
 		expect(fs.state.labels).toEqual(expectedLabels);
 	});
 
-	it("TODO (test fails due to no full reinit of component): should have default query when no queryDefaults are passed as props"/*, () => {
+	it("should have default query when no queryDefaults are passed as props", () => {
 		const fs = getMountedInstance();
-
 		expect(fs.state.queries.default).toEqual(queryDefaults);
-	}*/);
+	});
 });

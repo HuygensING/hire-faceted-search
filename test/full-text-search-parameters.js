@@ -1,26 +1,34 @@
-var React = require('react/addons');
-var TestUtils = React.addons.TestUtils;
+import React from "react/addons";
 import sinon from "sinon";
 import FacetedSearch from "../src";
-var shallowRenderer = TestUtils.createRenderer();
 import {server} from "../src/actions/results";
 
 import sd from "skin-deep";
 
-
+/*eslint no-undef: 0 */
 describe("FacetedSearch", function() {
-	// it("should update the fullTextSearchParameters on receiving next fullTextSearchParameters prop", () => {
-	// 	var props = { config: {} };
-	// 	let tree = sd.shallowRender(<FacetedSearch {...props}/>)
+	it("should update the fullTextSearchParameters on receiving next fullTextSearchParameters prop", () => {
+		var props = { config: {} };
+		let tree = sd.shallowRender(<FacetedSearch {...props}/>);
 
-	// 	props.query = {
-	// 		fullTextSearchParameters: [{name: "foo", term: "bar"}]
-	// 	};
+		// Stub performXhr function of server
+		sinon.stub(server, "performXhr", (options, cb) => {
+			// perform assertions on options here,
+			// optionally invoke cb and do assertion on its results (should be in scope of this test)
+			console.log(options, cb);
+		});
 
-	// 	tree.reRender(<FacetedSearch {...props}/>)
 
-	// 	let fs = tree.getMountedInstance();
+		props.query = {
+			fullTextSearchParameters: [{name: "foo", term: "bar"}]
+		};
 
-	// 	// Test fails on xhr.open...
-	// });
+		tree.reRender(<FacetedSearch {...props}/>);
+
+		let fs = tree.getMountedInstance();
+
+		// always restore a stubbed function at the end of the test
+		// (or else it will still be stubbed in a next test)
+		server.performXhr.restore();
+	});
 });
