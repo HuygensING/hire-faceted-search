@@ -1,20 +1,13 @@
-import ExecutionEnvironment from 'react/lib/ExecutionEnvironment';
 import React from "react/addons";
 import expect from "expect";
+import TextSearch from "../../src/components/text-search";
+import SearchIcon from "../../src/components/icons/search";
 
 const { TestUtils } = React.addons;
 
 describe("TextSearch", () => {
-	before(() => {
-		let jsdom = require('jsdom');
-		global.document = jsdom.jsdom('<!doctype html><html><body></body></html>');
-		ExecutionEnvironment.canUseDOM = true;
-	});
 
 	it("should render properly", () => {
-		// Can only import elements with insertCss after document is exposed as global
-		let TextSearch = require("../../src/components/text-search");
-		let SearchIcon = require("../../src/components/icons/search");
 
 		function setup() {
 			let props = {
@@ -51,8 +44,6 @@ describe("TextSearch", () => {
 		expect(searchDiv.props.className).toBe("search-icon");
 		expect(searchDiv.props.onClick).toBeA(Function);
 		input.props.onKeyDown({target: {value: "test term"}});
-		searchDiv.props.onClick();
-		expect(props.onChangeSearchTerm.calls.length).toBe(1);
 
 		let iconw = searchDiv.props.children;
 		let icon = iconw.props.children;

@@ -36,7 +36,6 @@
     "eslint-plugin-react": "^2.4.0",
     "expect": "~1.9.0",
     "hi-bump": "^1.1.1",
-    "jsdom": "^6.3.0",
     "mocha": "^2.2.5",
     "nodemon": "^1.4.0",
     "should": "^7.0.2",

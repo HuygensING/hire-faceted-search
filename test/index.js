@@ -22,12 +22,6 @@ let getMountedInstance = (props) =>
 
 
 describe("FacetedSearch", function() {
-	before(() => {
-		this.timeout(5000);
-		let jsdom = require("jsdom");
-		global.document = jsdom.jsdom("<!doctype html><html><body></body></html>");
-	});
-
 	it("should update the facetValues in the query prop with componentWillReceiveProps", function() {
 		this.timeout(5000);
 		const FacetedSearch = require("../src").default;

@@ -1,21 +1,15 @@
 import React from "react/addons";
 import expect from "expect";
+import Facets from "../../src/components/filters";
+import TextSearch from "../../src/components/text-search";
+import ListFacet from "../../src/components/list-facet";
+import RangeFacet from "../../src/components/range-facet";
+
 
 const { TestUtils } = React.addons;
 
 describe("Facets", () => {
-	before(() => {
-		let jsdom = require("jsdom");
-		global.document = jsdom.jsdom("<!doctype html><html><body></body></html>");
-	});
-
 	it("should render properly", function() {
-		this.timeout(4000);
-		// Can only import elements with insertCss after document is exposed as global
-		let Facets = require("../../src/components/filters");
-		let TextSearch = require("../../src/components/text-search");
-		let ListFacet = require("../../src/components/list-facet");
-		let RangeFacet = require("../../src/components/range-facet");
 
 		function setup() {
 			let onNewSearch = function() { return "new search clicked"; };
