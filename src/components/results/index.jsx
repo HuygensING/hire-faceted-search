@@ -62,7 +62,7 @@ class Results extends React.Component {
 	}
 
 	render() {
-		let loader = (this.props.results.requesting) ?
+		let loader = (this.props.results.requesting || this.props.results.all.length < this.props.queries.all.length) ?
 			<Loader className="loader" /> :
 			null;
 

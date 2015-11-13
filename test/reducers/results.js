@@ -52,9 +52,9 @@ describe('results reducer', () => {
 		})).toEqual({
 			all: [
 				{ refs: ["old", "refs"], facets: []},
-				{ refs: ["old", "refs", "new", "refs"], facets: []}
+				{ refs: ["old", "refs", "new", "refs"], facets: [], dispatchTime: undefined}
 			],
-			last: { refs: ["old", "refs", "new", "refs"], facets: []},
+			last: { refs: ["old", "refs", "new", "refs"], facets: [], dispatchTime: undefined},
 			requesting: false,
 			searchId: undefined
 		});
@@ -83,8 +83,8 @@ describe('results reducer', () => {
 				{name: "facetB", options: [{name: "fooB", count: 2}, {name: "barB", count: 1}]}
 		];
 		let expectedState = {
-			all: [{facets: expectedFacets, refs: []}],
-			last: {facets: expectedFacets, refs: []},
+			all: [{facets: expectedFacets, refs: [], dispatchTime: undefined}],
+			last: {facets: expectedFacets, refs: [], dispatchTime: undefined},
 			requesting: false,
 			searchId: undefined
 		};
@@ -132,9 +132,9 @@ describe('results reducer', () => {
 				{name: "facetB", options: [{name: "fooB", count: 2}, {name: "barB", count: 1}]}
 		];
 		let expectedState = {
-			all: [{facets: expectedFacets}],
+			all: [{facets: expectedFacets, dispatchTime: undefined}],
 			first: state.first,
-			last: {facets: expectedFacets},
+			last: {facets: expectedFacets, dispatchTime: undefined},
 			requesting: false,
 			searchId: undefined
 		};

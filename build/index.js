@@ -3235,6 +3235,8 @@ function fetchResults() {
 
 		var stringifiedQuery = JSON.stringify(query);
 
+		var dispatchTime = new Date().getTime();
+
 		// if (cache.hasOwnProperty(stringifiedQuery)) {
 		// 	return dispatchResponse(dispatch, "RECEIVE_RESULTS", cache[stringifiedQuery]);
 		// }
@@ -3245,7 +3247,8 @@ function fetchResults() {
 			return dispatch({
 				type: "RECEIVE_RESULTS",
 				response: response,
-				searchId: searchId
+				searchId: searchId,
+				dispatchTime: dispatchTime
 			});
 		});
 	};
@@ -3259,6 +3262,7 @@ function fetchNextResults(url) {
 		// if (cache.hasOwnProperty(url)) {
 		// 	return dispatchResponse(dispatch, "RECEIVE_RESULTS_FROM_URL", cache[url]);
 		// }
+		var dispatchTime = new Date().getTime();
 
 		return getResults(url, state.config.headers || {}, function (response, searchId) {
 			// cache[url] = response;
@@ -3266,7 +3270,8 @@ function fetchNextResults(url) {
 			return dispatch({
 				type: "RECEIVE_NEXT_RESULTS",
 				response: response,
-				searchId: searchId
+				searchId: searchId,
+				dispatchTime: dispatchTime
 			});
 		});
 	};
@@ -4903,7 +4908,7 @@ var Results = (function (_React$Component) {
 	}, {
 		key: "render",
 		value: function render() {
-			var loader = this.props.results.requesting ? _react2["default"].createElement(_iconsLoaderThreeDots2["default"], { className: "loader" }) : null;
+			var loader = this.props.results.requesting || this.props.results.all.length < this.props.queries.all.length ? _react2["default"].createElement(_iconsLoaderThreeDots2["default"], { className: "loader" }) : null;
 
 			var sortValues = this.props.queries.last.sortParameters.length > 0 ? this.props.queries.last.sortParameters : this.props.results.last.sortableFields.map(function (f) {
 				return { fieldname: f };
@@ -5678,6 +5683,7 @@ var FacetedSearch = (function (_React$Component) {
 	}, {
 		key: "setQuery",
 		value: function setQuery(nextQuery) {
+			// TODO: should set entire query!
 			if (nextQuery.facetValues && !(0, _lodashIsequal2["default"])(nextQuery.facetValues, this.state.queries.last.facetValues)) {
 				this.store.dispatch((0, _actionsQueries.setFacetValues)(nextQuery.facetValues));
 			}
@@ -6093,9 +6099,12 @@ var updateFacetsWithReceivedCounts = function updateFacetsWithReceivedCounts(ini
 };
 
 var addResponseToState = function addResponseToState(state, response) {
+	var all = [].concat(_toConsumableArray(state.all), [response]).sort(function (a, b) {
+		return a.dispatchTime > b.dispatchTime;
+	});
 	var s = _extends({}, state, {
-		all: [].concat(_toConsumableArray(state.all), [response]),
-		last: response,
+		all: all,
+		last: all[all.length - 1],
 		requesting: false
 	});
 
@@ -6112,6 +6121,7 @@ var initialState = {
 };
 
 var createFirstResultsState = function createFirstResultsState(result, searchId) {
+	result.dispatchTime = 0;
 	return _extends({}, addResponseToState(initialState, result), {
 		first: result,
 		last: result,
@@ -6148,7 +6158,8 @@ exports["default"] = function (state, action) {
 			}
 
 			var response = _extends({}, action.response, {
-				facets: updateFacetsWithReceivedCounts(state.first.facets, action.response.facets)
+				facets: updateFacetsWithReceivedCounts(state.first.facets, action.response.facets),
+				dispatchTime: action.dispatchTime
 			});
 
 			state = _extends({}, addResponseToState(state, response), {
@@ -6160,7 +6171,8 @@ exports["default"] = function (state, action) {
 		case "RECEIVE_NEXT_RESULTS":
 			var withConcatResults = _extends({}, action.response, {
 				refs: [].concat(_toConsumableArray(state.last.refs), _toConsumableArray(action.response.refs)),
-				facets: updateFacetsWithReceivedCounts(state.last.facets, action.response.facets)
+				facets: updateFacetsWithReceivedCounts(state.last.facets, action.response.facets),
+				dispatchTime: action.dispatchTime
 			});
 
 			state = _extends({}, addResponseToState(state, withConcatResults), {

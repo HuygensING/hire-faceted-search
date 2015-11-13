@@ -76,6 +76,8 @@ export function fetchResults() {
 
 		let stringifiedQuery = JSON.stringify(query);
 
+		let dispatchTime = new Date().getTime();
+
 		// if (cache.hasOwnProperty(stringifiedQuery)) {
 		// 	return dispatchResponse(dispatch, "RECEIVE_RESULTS", cache[stringifiedQuery]);
 		// }
@@ -91,7 +93,8 @@ export function fetchResults() {
 				return dispatch({
 					type: "RECEIVE_RESULTS",
 					response: response,
-					searchId: searchId
+					searchId: searchId,
+					dispatchTime: dispatchTime
 				});
 			}
 		);
@@ -106,6 +109,7 @@ export function fetchNextResults(url) {
 		// if (cache.hasOwnProperty(url)) {
 		// 	return dispatchResponse(dispatch, "RECEIVE_RESULTS_FROM_URL", cache[url]);
 		// }
+		let dispatchTime = new Date().getTime();
 
 		return getResults(
 			url,
@@ -116,7 +120,8 @@ export function fetchNextResults(url) {
 				return dispatch({
 					type: "RECEIVE_NEXT_RESULTS",
 					response: response,
-					searchId: searchId
+					searchId: searchId,
+					dispatchTime: dispatchTime
 				});
 			}
 		);

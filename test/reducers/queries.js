@@ -4,6 +4,10 @@ import {queryDefaults} from "../../src/defaults";
 
 describe('queries reducer', () => {
 
+	afterEach(() => {
+		reducer(undefined, {type: "SET_QUERY_DEFAULTS"});
+	});
+
 	it("should handle SET_QUERY_DEFAULTS", () => {
 		const queryProps = {
 			some: "extra",

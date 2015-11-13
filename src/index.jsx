@@ -122,6 +122,7 @@ class FacetedSearch extends React.Component {
 	}
 
 	setQuery(nextQuery) {
+		// TODO: should set entire query!
 		if (nextQuery.facetValues && !isEqual(nextQuery.facetValues, this.state.queries.last.facetValues)) {
 			this.store.dispatch(setFacetValues(nextQuery.facetValues));
 		}

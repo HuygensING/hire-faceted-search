@@ -30,9 +30,10 @@ let updateFacetsWithReceivedCounts = function(initFacets, receivedFacets) {
 };
 
 let addResponseToState = function(state, response) {
+	let all = [...state.all, response].sort((a, b) => a.dispatchTime > b.dispatchTime);
 	let s = {...state, ...{
-		all: [...state.all, response],
-		last: response,
+		all: all,
+		last: all[all.length - 1],
 		requesting: false
 	}};
 
@@ -50,6 +51,7 @@ let initialState = {
 };
 
 let createFirstResultsState = (result, searchId) => {
+	result.dispatchTime = 0;
 	return {
 		...addResponseToState(initialState, result),
 		first: result,
@@ -88,7 +90,8 @@ export default function(state=initialState, action) {
 				facets: updateFacetsWithReceivedCounts(
 					state.first.facets,
 					action.response.facets
-				)
+				),
+				dispatchTime: action.dispatchTime
 			}};
 
 			state = {
@@ -104,7 +107,8 @@ export default function(state=initialState, action) {
 				facets: updateFacetsWithReceivedCounts(
 					state.last.facets,
 					action.response.facets
-				)
+				),
+				dispatchTime: action.dispatchTime
 			}};
 
 			state = {
