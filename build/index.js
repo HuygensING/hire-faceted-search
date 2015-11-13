@@ -4908,7 +4908,7 @@ var Results = (function (_React$Component) {
 	}, {
 		key: "render",
 		value: function render() {
-			var loader = this.props.results.requesting || this.props.results.all.length < this.props.queries.all.length ? _react2["default"].createElement(_iconsLoaderThreeDots2["default"], { className: "loader" }) : null;
+			var loader = this.props.results.requesting ? _react2["default"].createElement(_iconsLoaderThreeDots2["default"], { className: "loader" }) : null;
 
 			var sortValues = this.props.queries.last.sortParameters.length > 0 ? this.props.queries.last.sortParameters : this.props.results.last.sortableFields.map(function (f) {
 				return { fieldname: f };
