@@ -1,3 +1,6 @@
+### v5.2.3	(2015/11/13 11:51)
+* patch loader for result list component
+
 ### v5.2.2	(2015/11/13 11:43)
 * fix TIM-595 and fix #6
 * finished full-text-search-parameters test
