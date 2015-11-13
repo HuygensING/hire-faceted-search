@@ -1,3 +1,10 @@
+### v5.2.2	(2015/11/13 11:43)
+* fix TIM-595 and fix #6
+* finished full-text-search-parameters test
+* fixed commented out tests
+* removed timeouts from tests
+* removed jsdom as dev dep
+
 ### v5.2.1	(2015/11/3 15:10)
 * bump of hire-range-slider
 
