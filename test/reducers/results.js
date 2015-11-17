@@ -93,22 +93,23 @@ describe('results reducer', () => {
 	});
 
 
-	// it('should handle RECEIVE_RESULTS by setting the first results, last results, facets and all', () => {
-	// 	let state = {requesting: true, all: [], first: null};
-	// 	let response = {
-	// 		refs: ["a ref"],
-	// 		results: ["a result"],
-	// 		facets: {a: "facet"}
-	// 	};
-	// 	let expectedState = {
-	// 		requesting: false,
-	// 		first: response,
-	// 		all: [response],
-	// 		last: response,
-	// 		searchId: undefined
-	// 	};
-	// 	expect(reducer(state, {type: "RECEIVE_RESULTS", response: response})).toEqual(expectedState);
-	// });
+	it('should handle RECEIVE_RESULTS by setting the first results, last results, facets and all', () => {
+		let state = {requesting: true, all: [], first: null};
+		let response = {
+			refs: ["a ref"],
+			results: ["a result"],
+			facets: {a: "facet"}
+		};
+		let expectedState = {
+			requesting: false,
+			first: response,
+			all: [response],
+			last: response,
+			facets: {},
+			searchId: undefined
+		};
+		expect(reducer(state, {type: "RECEIVE_RESULTS", response: response})).toEqual(expectedState);
+	});
 
 	it('should update facet counts with RECEIVE_RESULTS', () => {
 		let state = {
@@ -141,5 +142,27 @@ describe('results reducer', () => {
 
 
 		expect(reducer(state, {type: "RECEIVE_RESULTS", response: response})).toEqual(expectedState);
+	});
+
+	it("should process results in the order they were requested with RECEIVE_RESULTS", () => {
+		let state = {
+			all: [
+				{facets: [{name: "facetB", options: [{name: "fooB", count: 5}]}], dispatchTime: 0},
+				{facets: [{name: "facetB", options: [{name: "fooB", count: 5}, {name: "barB", count: 3}]}], dispatchTime: 10}
+			],
+			first: {facets: [{name: "facetB", options: [{name: "fooB", count: 5}]}], dispatchTime: 0},
+			requesting: true
+		};
+
+		let response = {facets: [{name: "facetB", options: [{name: "fooB", count: 5}]}]};
+		let expectedState = {
+			all: [state.first, {...response, dispatchTime: 9}, state.all[1]],
+			last: state.all[1],
+			first: state.first,
+			requesting: false,
+			searchId: undefined
+		};
+		expect(reducer(state, {type: "RECEIVE_RESULTS", response: response, dispatchTime: 9})).toEqual(expectedState);
+
 	});
 });
