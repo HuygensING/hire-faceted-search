@@ -1,6 +1,7 @@
 // TODO Fix caching
 
 import xhr from "xhr";
+import {deferred} from "adehun";
 
 let handleError = function() {
 
@@ -8,7 +9,21 @@ let handleError = function() {
 
 export let server = {
 	performXhr: function(options, cb) {
-		xhr(options, cb);
+		if (typeof Promise !== "undefined") {
+			var {resolve, promise} = deferred();
+			xhr(options, function () {
+				resolve();
+				cb.apply(this, arguments);
+			});
+			return promise;
+		} else {
+			return new Promise(function (resolve) {
+				xhr(options, function () {
+					resolve();
+					cb.apply(this, arguments);
+				});
+			});
+		}
 	}
 };
 
@@ -32,7 +47,7 @@ let getResults = function(url, headers, done) {
 		done(body, searchId);
 	};
 
-	server.performXhr(options, cb);
+	return server.performXhr(options, cb);
 };
 
 let postResults = function(query, headers, url, rows, done) {
@@ -53,7 +68,7 @@ let postResults = function(query, headers, url, rows, done) {
 		getResults(cbUrl, headers, done);
 	};
 
-	server.performXhr(options, cb);
+	return server.performXhr(options, cb);
 };
 
 let dispatchResponse = (dispatch, type, response, searchId) =>
