@@ -1,4 +1,207 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.HireFacetedSearch = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+"use strict";
+
+var validStates = {
+    PENDING: 0,
+    FULFILLED: 1,
+    REJECTED: 2
+};
+
+var isValidState = function (state) {
+    return ((state === validStates.PENDING) ||
+            (state === validStates.REJECTED) ||
+            (state === validStates.FULFILLED));
+};
+
+var Utils = {
+    runAsync: function (fn) {
+        setTimeout(fn, 0);
+    },
+    isFunction: function (val) {
+        return val && typeof val === "function";
+    },
+    isObject: function (val) {
+        return val && typeof val === "object";
+    },
+    isPromise: function (val) {
+        return val && val.constructor === Adehun;
+    }
+};
+
+var then = function (onFulfilled, onRejected) {
+    var queuedPromise = new Adehun();
+    if (Utils.isFunction(onFulfilled)) {
+        queuedPromise.handlers.fulfill = onFulfilled;
+    }
+
+    if (Utils.isFunction(onRejected)) {
+        queuedPromise.handlers.reject = onRejected;
+    }
+
+    this.queue.push(queuedPromise);
+    this.process();
+
+    return queuedPromise;
+};
+
+var transition = function (state, value) {
+    if (this.state === state || 
+            this.state !== validStates.PENDING ||
+            !isValidState(state) ||
+            arguments.length !== 2) {
+        return;
+    }
+
+    this.value = value;
+    this.state = state;
+    this.process();
+};
+
+var process = function () {
+    var that = this,
+        fulfillFallBack = function (value) {
+            return value;
+        },
+        rejectFallBack = function (reason) {
+            throw reason;
+        };    
+        
+    if (this.state === validStates.PENDING) {
+        return;
+    }
+
+    Utils.runAsync(function () { 
+        while (that.queue.length) {
+            var queuedPromise = that.queue.shift(),
+                handler = null,
+                value;
+
+            if (that.state === validStates.FULFILLED) {
+                handler = queuedPromise.handlers.fulfill || fulfillFallBack;
+            } else if (that.state === validStates.REJECTED) {
+                handler = queuedPromise.handlers.reject || rejectFallBack;
+            }
+
+            try {
+                value = handler(that.value);
+            } catch (e) {
+                queuedPromise.transition(validStates.REJECTED, e);
+                continue;
+            }
+
+            Resolve(queuedPromise, value);
+        }
+    });
+};
+
+function Resolve(promise, x) {
+    if (promise === x) {
+        promise.transition(validStates.REJECTED, new TypeError("The promise and its value refer to the same object"));
+    } else if (Utils.isPromise(x)) {
+        if (x.state === validStates.PENDING) {
+            x.then(function (val) {
+                Resolve(promise, val);
+            }, function (reason) {
+                promise.transition(validStates.REJECTED, reason);
+            });
+        } else {
+            promise.transition(x.state, x.value);
+        }
+    } else if (Utils.isObject(x) || Utils.isFunction(x)) {
+        var called = false,
+            thenHandler;
+        try {
+            thenHandler = x.then;
+            
+            if (Utils.isFunction(thenHandler)) {
+                thenHandler.call(x,
+                        function (y) {
+                            if (!called) {
+                                Resolve(promise, y);
+                                called = true;
+                            }
+                        },
+                        function (r) {
+                            if (!called) {
+                                promise.reject(r);
+                                called = true;
+                            }
+                        });
+            } else {
+                promise.fulfill(x);
+                called = true;
+            }
+        } catch (e) {
+            if (!called) {
+                promise.reject(e);
+                called = true;
+            }
+        }
+    } else {
+        promise.fulfill(x);
+    }
+}
+
+var fulfill = function (value) {
+    this.transition(validStates.FULFILLED, value);
+};
+
+var reject = function (reason) {
+    this.transition(validStates.REJECTED, reason);
+};
+
+var Adehun = function (fn) {
+    var that = this;
+
+    this.value = null;
+    this.state = validStates.PENDING;
+    this.queue = [];
+    this.handlers = {
+        fulfill : null,
+        reject : null
+    };
+
+    if (fn) {
+        fn(function (value) {
+            Resolve(that, value);
+        }, function (reason) {
+            that.reject(reason);
+        });
+    }
+};
+
+Adehun.prototype.transition = transition;
+Adehun.prototype.process = process;
+Adehun.prototype.then = then;
+Adehun.prototype.fulfill = fulfill;
+Adehun.prototype.reject = reject;
+
+module.exports = {
+    resolved: function (value) {
+        return new Adehun(function (resolve) {
+            resolve(value);
+        });
+    },
+    rejected: function (reason) {
+        return new Adehun(function (resolve, reject) {
+            reject(reason);
+        });
+    },
+    deferred: function () {
+        var resolve, reject;
+
+        return {
+            promise: new Adehun(function (rslv, rjct) {
+                resolve = rslv;
+                reject = rjct;
+            }),
+            resolve: resolve,
+            reject: reject
+        };
+    }
+};
+
+},{}],2:[function(_dereq_,module,exports){
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.HireFacetedSearch = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 var inserted = {};
 
@@ -252,7 +455,7 @@ module.exports = exports["default"];
 
 },{"./facet-value":2,"insert-css":1,"react":"react"}]},{},[3])(3)
 });
-},{}],2:[function(_dereq_,module,exports){
+},{}],3:[function(_dereq_,module,exports){
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.HireFormsInput = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 "use strict";
 
@@ -385,7 +588,7 @@ module.exports = exports["default"];
 },{"classnames":"classnames","react":"react"}]},{},[1])(1)
 });
 
-},{}],3:[function(_dereq_,module,exports){
+},{}],4:[function(_dereq_,module,exports){
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.RangeSlider = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 var inserted = {};
 
@@ -630,7 +833,7 @@ module.exports = exports["default"];
 
 },{"insert-css":1,"react":"react"}]},{},[2])(2)
 });
-},{}],4:[function(_dereq_,module,exports){
+},{}],5:[function(_dereq_,module,exports){
 var inserted = {};
 
 module.exports = function (css, options) {
@@ -654,7 +857,7 @@ module.exports = function (css, options) {
     }
 };
 
-},{}],5:[function(_dereq_,module,exports){
+},{}],6:[function(_dereq_,module,exports){
 /**
  * lodash 3.1.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -890,7 +1093,7 @@ function isObject(value) {
 
 module.exports = debounce;
 
-},{"lodash._getnative":6}],6:[function(_dereq_,module,exports){
+},{"lodash._getnative":7}],7:[function(_dereq_,module,exports){
 /**
  * lodash 3.9.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1029,7 +1232,7 @@ function isNative(value) {
 
 module.exports = getNative;
 
-},{}],7:[function(_dereq_,module,exports){
+},{}],8:[function(_dereq_,module,exports){
 /**
  * lodash 3.0.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1093,7 +1296,7 @@ function isEqual(value, other, customizer, thisArg) {
 
 module.exports = isEqual;
 
-},{"lodash._baseisequal":8,"lodash._bindcallback":14}],8:[function(_dereq_,module,exports){
+},{"lodash._baseisequal":9,"lodash._bindcallback":15}],9:[function(_dereq_,module,exports){
 /**
  * lodash 3.0.7 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1437,7 +1640,7 @@ function isObject(value) {
 
 module.exports = baseIsEqual;
 
-},{"lodash.isarray":9,"lodash.istypedarray":10,"lodash.keys":11}],9:[function(_dereq_,module,exports){
+},{"lodash.isarray":10,"lodash.istypedarray":11,"lodash.keys":12}],10:[function(_dereq_,module,exports){
 /**
  * lodash 3.0.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1619,15 +1822,18 @@ function isNative(value) {
 
 module.exports = isArray;
 
-},{}],10:[function(_dereq_,module,exports){
+},{}],11:[function(_dereq_,module,exports){
 /**
- * lodash 3.0.2 (Custom Build) <https://lodash.com/>
- * Build: `lodash modern modularize exports="npm" -o ./`
- * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+ * lodash 3.0.4 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
- * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Copyright 2009-2016 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
  * Available under MIT license <https://lodash.com/license>
  */
+
+/** Used as references for various `Number` constants. */
+var MAX_SAFE_INTEGER = 9007199254740991;
 
 /** `Object#toString` result references. */
 var argsTag = '[object Arguments]',
@@ -1670,43 +1876,68 @@ typedArrayTags[numberTag] = typedArrayTags[objectTag] =
 typedArrayTags[regexpTag] = typedArrayTags[setTag] =
 typedArrayTags[stringTag] = typedArrayTags[weakMapTag] = false;
 
-/**
- * Checks if `value` is object-like.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
- */
-function isObjectLike(value) {
-  return !!value && typeof value == 'object';
-}
-
-/** Used for native method references. */
+/** Used for built-in method references. */
 var objectProto = Object.prototype;
 
 /**
- * Used to resolve the [`toStringTag`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-object.prototype.tostring)
+ * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
  * of values.
  */
-var objToString = objectProto.toString;
-
-/**
- * Used as the [maximum length](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-number.max_safe_integer)
- * of an array-like value.
- */
-var MAX_SAFE_INTEGER = 9007199254740991;
+var objectToString = objectProto.toString;
 
 /**
  * Checks if `value` is a valid array-like length.
  *
- * **Note:** This function is based on [`ToLength`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength).
+ * **Note:** This function is loosely based on [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
  *
- * @private
+ * @static
+ * @memberOf _
+ * @category Lang
  * @param {*} value The value to check.
  * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+ * @example
+ *
+ * _.isLength(3);
+ * // => true
+ *
+ * _.isLength(Number.MIN_VALUE);
+ * // => false
+ *
+ * _.isLength(Infinity);
+ * // => false
+ *
+ * _.isLength('3');
+ * // => false
  */
 function isLength(value) {
   return typeof value == 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+}
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
 }
 
 /**
@@ -1726,12 +1957,12 @@ function isLength(value) {
  * // => false
  */
 function isTypedArray(value) {
-  return isObjectLike(value) && isLength(value.length) && !!typedArrayTags[objToString.call(value)];
+  return isObjectLike(value) && isLength(value.length) && !!typedArrayTags[objectToString.call(value)];
 }
 
 module.exports = isTypedArray;
 
-},{}],11:[function(_dereq_,module,exports){
+},{}],12:[function(_dereq_,module,exports){
 /**
  * lodash 3.1.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -1969,43 +2200,40 @@ function keysIn(object) {
 
 module.exports = keys;
 
-},{"lodash._getnative":12,"lodash.isarguments":13,"lodash.isarray":9}],12:[function(_dereq_,module,exports){
-arguments[4][6][0].apply(exports,arguments)
-},{"dup":6}],13:[function(_dereq_,module,exports){
+},{"lodash._getnative":13,"lodash.isarguments":14,"lodash.isarray":10}],13:[function(_dereq_,module,exports){
+arguments[4][7][0].apply(exports,arguments)
+},{"dup":7}],14:[function(_dereq_,module,exports){
 /**
- * lodash 3.0.4 (Custom Build) <https://lodash.com/>
- * Build: `lodash modern modularize exports="npm" -o ./`
- * Copyright 2012-2015 The Dojo Foundation <http://dojofoundation.org/>
+ * lodash 3.0.6 (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
- * Copyright 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Copyright 2009-2016 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
  * Available under MIT license <https://lodash.com/license>
  */
 
-/**
- * Checks if `value` is object-like.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
- */
-function isObjectLike(value) {
-  return !!value && typeof value == 'object';
-}
+/** Used as references for various `Number` constants. */
+var MAX_SAFE_INTEGER = 9007199254740991;
 
-/** Used for native method references. */
+/** `Object#toString` result references. */
+var argsTag = '[object Arguments]',
+    funcTag = '[object Function]',
+    genTag = '[object GeneratorFunction]';
+
+/** Used for built-in method references. */
 var objectProto = Object.prototype;
 
 /** Used to check objects for own properties. */
 var hasOwnProperty = objectProto.hasOwnProperty;
 
-/** Native method references. */
-var propertyIsEnumerable = objectProto.propertyIsEnumerable;
-
 /**
- * Used as the [maximum length](http://ecma-international.org/ecma-262/6.0/#sec-number.max_safe_integer)
- * of an array-like value.
+ * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+ * of values.
  */
-var MAX_SAFE_INTEGER = 9007199254740991;
+var objectToString = objectProto.toString;
+
+/** Built-in value references. */
+var propertyIsEnumerable = objectProto.propertyIsEnumerable;
 
 /**
  * The base implementation of `_.property` without support for deep paths.
@@ -2033,31 +2261,7 @@ function baseProperty(key) {
 var getLength = baseProperty('length');
 
 /**
- * Checks if `value` is array-like.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
- */
-function isArrayLike(value) {
-  return value != null && isLength(getLength(value));
-}
-
-/**
- * Checks if `value` is a valid array-like length.
- *
- * **Note:** This function is based on [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
- */
-function isLength(value) {
-  return typeof value == 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
-}
-
-/**
- * Checks if `value` is classified as an `arguments` object.
+ * Checks if `value` is likely an `arguments` object.
  *
  * @static
  * @memberOf _
@@ -2073,13 +2277,179 @@ function isLength(value) {
  * // => false
  */
 function isArguments(value) {
-  return isObjectLike(value) && isArrayLike(value) &&
-    hasOwnProperty.call(value, 'callee') && !propertyIsEnumerable.call(value, 'callee');
+  // Safari 8.1 incorrectly makes `arguments.callee` enumerable in strict mode.
+  return isArrayLikeObject(value) && hasOwnProperty.call(value, 'callee') &&
+    (!propertyIsEnumerable.call(value, 'callee') || objectToString.call(value) == argsTag);
+}
+
+/**
+ * Checks if `value` is array-like. A value is considered array-like if it's
+ * not a function and has a `value.length` that's an integer greater than or
+ * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
+ *
+ * @static
+ * @memberOf _
+ * @type Function
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
+ * @example
+ *
+ * _.isArrayLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isArrayLike(document.body.children);
+ * // => true
+ *
+ * _.isArrayLike('abc');
+ * // => true
+ *
+ * _.isArrayLike(_.noop);
+ * // => false
+ */
+function isArrayLike(value) {
+  return value != null &&
+    !(typeof value == 'function' && isFunction(value)) && isLength(getLength(value));
+}
+
+/**
+ * This method is like `_.isArrayLike` except that it also checks if `value`
+ * is an object.
+ *
+ * @static
+ * @memberOf _
+ * @type Function
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an array-like object, else `false`.
+ * @example
+ *
+ * _.isArrayLikeObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isArrayLikeObject(document.body.children);
+ * // => true
+ *
+ * _.isArrayLikeObject('abc');
+ * // => false
+ *
+ * _.isArrayLikeObject(_.noop);
+ * // => false
+ */
+function isArrayLikeObject(value) {
+  return isObjectLike(value) && isArrayLike(value);
+}
+
+/**
+ * Checks if `value` is classified as a `Function` object.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+ * @example
+ *
+ * _.isFunction(_);
+ * // => true
+ *
+ * _.isFunction(/abc/);
+ * // => false
+ */
+function isFunction(value) {
+  // The use of `Object#toString` avoids issues with the `typeof` operator
+  // in Safari 8 which returns 'object' for typed array constructors, and
+  // PhantomJS 1.9 which returns 'function' for `NodeList` instances.
+  var tag = isObject(value) ? objectToString.call(value) : '';
+  return tag == funcTag || tag == genTag;
+}
+
+/**
+ * Checks if `value` is a valid array-like length.
+ *
+ * **Note:** This function is loosely based on [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+ * @example
+ *
+ * _.isLength(3);
+ * // => true
+ *
+ * _.isLength(Number.MIN_VALUE);
+ * // => false
+ *
+ * _.isLength(Infinity);
+ * // => false
+ *
+ * _.isLength('3');
+ * // => false
+ */
+function isLength(value) {
+  return typeof value == 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+}
+
+/**
+ * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
+ * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+function isObject(value) {
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
 }
 
 module.exports = isArguments;
 
-},{}],14:[function(_dereq_,module,exports){
+},{}],15:[function(_dereq_,module,exports){
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -2146,11 +2516,8 @@ function identity(value) {
 
 module.exports = bindCallback;
 
-},{}],15:[function(_dereq_,module,exports){
+},{}],16:[function(_dereq_,module,exports){
 'use strict';
-
-exports.__esModule = true;
-exports['default'] = thunkMiddleware;
 
 function thunkMiddleware(_ref) {
   var dispatch = _ref.dispatch;
@@ -2163,217 +2530,20 @@ function thunkMiddleware(_ref) {
   };
 }
 
-module.exports = exports['default'];
-},{}],16:[function(_dereq_,module,exports){
+module.exports = thunkMiddleware;
+},{}],17:[function(_dereq_,module,exports){
 'use strict';
-
-exports.__esModule = true;
-exports['default'] = createStore;
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _utilsIsPlainObject = _dereq_('./utils/isPlainObject');
-
-var _utilsIsPlainObject2 = _interopRequireDefault(_utilsIsPlainObject);
-
-/**
- * These are private action types reserved by Redux.
- * For any unknown actions, you must return the current state.
- * If the current state is undefined, you must return the initial state.
- * Do not reference these action types directly in your code.
- */
-var ActionTypes = {
-  INIT: '@@redux/INIT'
-};
-
-exports.ActionTypes = ActionTypes;
-/**
- * Creates a Redux store that holds the state tree.
- * The only way to change the data in the store is to call `dispatch()` on it.
- *
- * There should only be a single store in your app. To specify how different
- * parts of the state tree respond to actions, you may combine several reducers
- * into a single reducer function by using `combineReducers`.
- *
- * @param {Function} reducer A function that returns the next state tree, given
- * the current state tree and the action to handle.
- *
- * @param {any} [initialState] The initial state. You may optionally specify it
- * to hydrate the state from the server in universal apps, or to restore a
- * previously serialized user session.
- * If you use `combineReducers` to produce the root reducer function, this must be
- * an object with the same shape as `combineReducers` keys.
- *
- * @returns {Store} A Redux store that lets you read the state, dispatch actions
- * and subscribe to changes.
- */
-
-function createStore(reducer, initialState) {
-  if (typeof reducer !== 'function') {
-    throw new Error('Expected the reducer to be a function.');
-  }
-
-  var currentReducer = reducer;
-  var currentState = initialState;
-  var listeners = [];
-  var isDispatching = false;
-
-  /**
-   * Reads the state tree managed by the store.
-   *
-   * @returns {any} The current state tree of your application.
-   */
-  function getState() {
-    return currentState;
-  }
-
-  /**
-   * Adds a change listener. It will be called any time an action is dispatched,
-   * and some part of the state tree may potentially have changed. You may then
-   * call `getState()` to read the current state tree inside the callback.
-   *
-   * @param {Function} listener A callback to be invoked on every dispatch.
-   * @returns {Function} A function to remove this change listener.
-   */
-  function subscribe(listener) {
-    listeners.push(listener);
-    var isSubscribed = true;
-
-    return function unsubscribe() {
-      if (!isSubscribed) {
-        return;
-      }
-
-      isSubscribed = false;
-      var index = listeners.indexOf(listener);
-      listeners.splice(index, 1);
-    };
-  }
-
-  /**
-   * Dispatches an action. It is the only way to trigger a state change.
-   *
-   * The `reducer` function, used to create the store, will be called with the
-   * current state tree and the given `action`. Its return value will
-   * be considered the **next** state of the tree, and the change listeners
-   * will be notified.
-   *
-   * The base implementation only supports plain object actions. If you want to
-   * dispatch a Promise, an Observable, a thunk, or something else, you need to
-   * wrap your store creating function into the corresponding middleware. For
-   * example, see the documentation for the `redux-thunk` package. Even the
-   * middleware will eventually dispatch plain object actions using this method.
-   *
-   * @param {Object} action A plain object representing “what changed”. It is
-   * a good idea to keep actions serializable so you can record and replay user
-   * sessions, or use the time travelling `redux-devtools`. An action must have
-   * a `type` property which may not be `undefined`. It is a good idea to use
-   * string constants for action types.
-   *
-   * @returns {Object} For convenience, the same action object you dispatched.
-   *
-   * Note that, if you use a custom middleware, it may wrap `dispatch()` to
-   * return something else (for example, a Promise you can await).
-   */
-  function dispatch(action) {
-    if (!_utilsIsPlainObject2['default'](action)) {
-      throw new Error('Actions must be plain objects. ' + 'Use custom middleware for async actions.');
-    }
-
-    if (typeof action.type === 'undefined') {
-      throw new Error('Actions may not have an undefined "type" property. ' + 'Have you misspelled a constant?');
-    }
-
-    if (isDispatching) {
-      throw new Error('Reducers may not dispatch actions.');
-    }
-
-    try {
-      isDispatching = true;
-      currentState = currentReducer(currentState, action);
-    } finally {
-      isDispatching = false;
-    }
-
-    listeners.slice().forEach(function (listener) {
-      return listener();
-    });
-    return action;
-  }
-
-  /**
-   * Replaces the reducer currently used by the store to calculate the state.
-   *
-   * You might need this if your app implements code splitting and you want to
-   * load some of the reducers dynamically. You might also need this if you
-   * implement a hot reloading mechanism for Redux.
-   *
-   * @param {Function} nextReducer The reducer for the store to use instead.
-   * @returns {void}
-   */
-  function replaceReducer(nextReducer) {
-    currentReducer = nextReducer;
-    dispatch({ type: ActionTypes.INIT });
-  }
-
-  // When a store is created, an "INIT" action is dispatched so that every
-  // reducer returns their initial state. This effectively populates
-  // the initial state tree.
-  dispatch({ type: ActionTypes.INIT });
-
-  return {
-    dispatch: dispatch,
-    subscribe: subscribe,
-    getState: getState,
-    replaceReducer: replaceReducer
-  };
-}
-},{"./utils/isPlainObject":22}],17:[function(_dereq_,module,exports){
-'use strict';
-
-exports.__esModule = true;
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _createStore = _dereq_('./createStore');
-
-var _createStore2 = _interopRequireDefault(_createStore);
-
-var _utilsCombineReducers = _dereq_('./utils/combineReducers');
-
-var _utilsCombineReducers2 = _interopRequireDefault(_utilsCombineReducers);
-
-var _utilsBindActionCreators = _dereq_('./utils/bindActionCreators');
-
-var _utilsBindActionCreators2 = _interopRequireDefault(_utilsBindActionCreators);
-
-var _utilsApplyMiddleware = _dereq_('./utils/applyMiddleware');
-
-var _utilsApplyMiddleware2 = _interopRequireDefault(_utilsApplyMiddleware);
-
-var _utilsCompose = _dereq_('./utils/compose');
-
-var _utilsCompose2 = _interopRequireDefault(_utilsCompose);
-
-exports.createStore = _createStore2['default'];
-exports.combineReducers = _utilsCombineReducers2['default'];
-exports.bindActionCreators = _utilsBindActionCreators2['default'];
-exports.applyMiddleware = _utilsApplyMiddleware2['default'];
-exports.compose = _utilsCompose2['default'];
-},{"./createStore":16,"./utils/applyMiddleware":18,"./utils/bindActionCreators":19,"./utils/combineReducers":20,"./utils/compose":21}],18:[function(_dereq_,module,exports){
-'use strict';
-
-exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-exports['default'] = applyMiddleware;
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+exports.__esModule = true;
+exports["default"] = applyMiddleware;
 
 var _compose = _dereq_('./compose');
 
 var _compose2 = _interopRequireDefault(_compose);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 /**
  * Creates a store enhancer that applies middleware to the dispatch method
@@ -2391,15 +2561,14 @@ var _compose2 = _interopRequireDefault(_compose);
  * @param {...Function} middlewares The middleware chain to be applied.
  * @returns {Function} A store enhancer applying the middleware.
  */
-
 function applyMiddleware() {
   for (var _len = arguments.length, middlewares = Array(_len), _key = 0; _key < _len; _key++) {
     middlewares[_key] = arguments[_key];
   }
 
-  return function (next) {
-    return function (reducer, initialState) {
-      var store = next(reducer, initialState);
+  return function (createStore) {
+    return function (reducer, initialState, enhancer) {
+      var store = createStore(reducer, initialState, enhancer);
       var _dispatch = store.dispatch;
       var chain = [];
 
@@ -2412,7 +2581,7 @@ function applyMiddleware() {
       chain = middlewares.map(function (middleware) {
         return middleware(middlewareAPI);
       });
-      _dispatch = _compose2['default'].apply(undefined, chain)(store.dispatch);
+      _dispatch = _compose2["default"].apply(undefined, chain)(store.dispatch);
 
       return _extends({}, store, {
         dispatch: _dispatch
@@ -2420,20 +2589,11 @@ function applyMiddleware() {
     };
   };
 }
-
-module.exports = exports['default'];
-},{"./compose":21}],19:[function(_dereq_,module,exports){
+},{"./compose":20}],18:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
-exports['default'] = bindActionCreators;
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _utilsMapValues = _dereq_('../utils/mapValues');
-
-var _utilsMapValues2 = _interopRequireDefault(_utilsMapValues);
-
+exports["default"] = bindActionCreators;
 function bindActionCreator(actionCreator, dispatch) {
   return function () {
     return dispatch(actionCreator.apply(undefined, arguments));
@@ -2461,46 +2621,43 @@ function bindActionCreator(actionCreator, dispatch) {
  * function as `actionCreators`, the return value will also be a single
  * function.
  */
-
 function bindActionCreators(actionCreators, dispatch) {
   if (typeof actionCreators === 'function') {
     return bindActionCreator(actionCreators, dispatch);
   }
 
-  if (typeof actionCreators !== 'object' || actionCreators === null || actionCreators === undefined) {
-    // eslint-disable-line no-eq-null
+  if (typeof actionCreators !== 'object' || actionCreators === null) {
     throw new Error('bindActionCreators expected an object or a function, instead received ' + (actionCreators === null ? 'null' : typeof actionCreators) + '. ' + 'Did you write "import ActionCreators from" instead of "import * as ActionCreators from"?');
   }
 
-  return _utilsMapValues2['default'](actionCreators, function (actionCreator) {
-    return bindActionCreator(actionCreator, dispatch);
-  });
+  var keys = Object.keys(actionCreators);
+  var boundActionCreators = {};
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    var actionCreator = actionCreators[key];
+    if (typeof actionCreator === 'function') {
+      boundActionCreators[key] = bindActionCreator(actionCreator, dispatch);
+    }
+  }
+  return boundActionCreators;
 }
-
-module.exports = exports['default'];
-},{"../utils/mapValues":23}],20:[function(_dereq_,module,exports){
+},{}],19:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
-exports['default'] = combineReducers;
+exports["default"] = combineReducers;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+var _createStore = _dereq_('./createStore');
 
-var _createStore = _dereq_('../createStore');
+var _isPlainObject = _dereq_('lodash/isPlainObject');
 
-var _utilsIsPlainObject = _dereq_('../utils/isPlainObject');
+var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
 
-var _utilsIsPlainObject2 = _interopRequireDefault(_utilsIsPlainObject);
+var _warning = _dereq_('./utils/warning');
 
-var _utilsMapValues = _dereq_('../utils/mapValues');
+var _warning2 = _interopRequireDefault(_warning);
 
-var _utilsMapValues2 = _interopRequireDefault(_utilsMapValues);
-
-var _utilsPick = _dereq_('../utils/pick');
-
-var _utilsPick2 = _interopRequireDefault(_utilsPick);
-
-/* eslint-disable no-console */
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function getUndefinedStateErrorMessage(key, action) {
   var actionType = action && action.type;
@@ -2509,20 +2666,20 @@ function getUndefinedStateErrorMessage(key, action) {
   return 'Reducer "' + key + '" returned undefined handling ' + actionName + '. ' + 'To ignore an action, you must explicitly return the previous state.';
 }
 
-function getUnexpectedStateKeyWarningMessage(inputState, outputState, action) {
-  var reducerKeys = Object.keys(outputState);
+function getUnexpectedStateShapeWarningMessage(inputState, reducers, action) {
+  var reducerKeys = Object.keys(reducers);
   var argumentName = action && action.type === _createStore.ActionTypes.INIT ? 'initialState argument passed to createStore' : 'previous state received by the reducer';
 
   if (reducerKeys.length === 0) {
     return 'Store does not have a valid reducer. Make sure the argument passed ' + 'to combineReducers is an object whose values are reducers.';
   }
 
-  if (!_utilsIsPlainObject2['default'](inputState)) {
-    return 'The ' + argumentName + ' has unexpected type of "' + ({}).toString.call(inputState).match(/\s([a-z|A-Z]+)/)[1] + '". Expected argument to be an object with the following ' + ('keys: "' + reducerKeys.join('", "') + '"');
+  if (!(0, _isPlainObject2["default"])(inputState)) {
+    return 'The ' + argumentName + ' has unexpected type of "' + {}.toString.call(inputState).match(/\s([a-z|A-Z]+)/)[1] + '". Expected argument to be an object with the following ' + ('keys: "' + reducerKeys.join('", "') + '"');
   }
 
   var unexpectedKeys = Object.keys(inputState).filter(function (key) {
-    return reducerKeys.indexOf(key) < 0;
+    return !reducers.hasOwnProperty(key);
   });
 
   if (unexpectedKeys.length > 0) {
@@ -2562,55 +2719,61 @@ function assertReducerSanity(reducers) {
  * @returns {Function} A reducer function that invokes every reducer inside the
  * passed object, and builds a state object with the same shape.
  */
-
 function combineReducers(reducers) {
-  var finalReducers = _utilsPick2['default'](reducers, function (val) {
-    return typeof val === 'function';
-  });
-  var sanityError;
+  var reducerKeys = Object.keys(reducers);
+  var finalReducers = {};
+  for (var i = 0; i < reducerKeys.length; i++) {
+    var key = reducerKeys[i];
+    if (typeof reducers[key] === 'function') {
+      finalReducers[key] = reducers[key];
+    }
+  }
+  var finalReducerKeys = Object.keys(finalReducers);
 
+  var sanityError;
   try {
     assertReducerSanity(finalReducers);
   } catch (e) {
     sanityError = e;
   }
 
-  var defaultState = _utilsMapValues2['default'](finalReducers, function () {
-    return undefined;
-  });
-
-  return function combination(state, action) {
-    if (state === undefined) state = defaultState;
+  return function combination() {
+    var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+    var action = arguments[1];
 
     if (sanityError) {
       throw sanityError;
     }
 
+    if (process.env.NODE_ENV !== 'production') {
+      var warningMessage = getUnexpectedStateShapeWarningMessage(state, finalReducers, action);
+      if (warningMessage) {
+        (0, _warning2["default"])(warningMessage);
+      }
+    }
+
     var hasChanged = false;
-    var finalState = _utilsMapValues2['default'](finalReducers, function (reducer, key) {
+    var nextState = {};
+    for (var i = 0; i < finalReducerKeys.length; i++) {
+      var key = finalReducerKeys[i];
+      var reducer = finalReducers[key];
       var previousStateForKey = state[key];
       var nextStateForKey = reducer(previousStateForKey, action);
       if (typeof nextStateForKey === 'undefined') {
         var errorMessage = getUndefinedStateErrorMessage(key, action);
         throw new Error(errorMessage);
       }
+      nextState[key] = nextStateForKey;
       hasChanged = hasChanged || nextStateForKey !== previousStateForKey;
-      return nextStateForKey;
-    });
-
-    if (process.env.NODE_ENV !== 'production') {
-      var warningMessage = getUnexpectedStateKeyWarningMessage(state, finalState, action);
-      if (warningMessage) {
-        console.error(warningMessage);
-      }
     }
-
-    return hasChanged ? finalState : state;
+    return hasChanged ? nextState : state;
   };
 }
+},{"./createStore":21,"./utils/warning":23,"lodash/isPlainObject":26}],20:[function(_dereq_,module,exports){
+"use strict";
 
-module.exports = exports['default'];
-},{"../createStore":16,"../utils/isPlainObject":22,"../utils/mapValues":23,"../utils/pick":24}],21:[function(_dereq_,module,exports){
+exports.__esModule = true;
+exports["default"] = compose;
 /**
  * Composes single-argument functions from right to left.
  *
@@ -2618,111 +2781,460 @@ module.exports = exports['default'];
  * @returns {Function} A function obtained by composing functions from right to
  * left. For example, compose(f, g, h) is identical to arg => f(g(h(arg))).
  */
-"use strict";
-
-exports.__esModule = true;
-exports["default"] = compose;
-
 function compose() {
   for (var _len = arguments.length, funcs = Array(_len), _key = 0; _key < _len; _key++) {
     funcs[_key] = arguments[_key];
   }
 
-  return function (arg) {
-    return funcs.reduceRight(function (composed, f) {
+  return function () {
+    if (funcs.length === 0) {
+      return arguments.length <= 0 ? undefined : arguments[0];
+    }
+
+    var last = funcs[funcs.length - 1];
+    var rest = funcs.slice(0, -1);
+
+    return rest.reduceRight(function (composed, f) {
       return f(composed);
-    }, arg);
+    }, last.apply(undefined, arguments));
   };
 }
-
-module.exports = exports["default"];
-},{}],22:[function(_dereq_,module,exports){
+},{}],21:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
-exports['default'] = isPlainObject;
-var fnToString = function fnToString(fn) {
-  return Function.prototype.toString.call(fn);
+exports.ActionTypes = undefined;
+exports["default"] = createStore;
+
+var _isPlainObject = _dereq_('lodash/isPlainObject');
+
+var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+/**
+ * These are private action types reserved by Redux.
+ * For any unknown actions, you must return the current state.
+ * If the current state is undefined, you must return the initial state.
+ * Do not reference these action types directly in your code.
+ */
+var ActionTypes = exports.ActionTypes = {
+  INIT: '@@redux/INIT'
 };
 
 /**
- * @param {any} obj The object to inspect.
- * @returns {boolean} True if the argument appears to be a plain object.
+ * Creates a Redux store that holds the state tree.
+ * The only way to change the data in the store is to call `dispatch()` on it.
+ *
+ * There should only be a single store in your app. To specify how different
+ * parts of the state tree respond to actions, you may combine several reducers
+ * into a single reducer function by using `combineReducers`.
+ *
+ * @param {Function} reducer A function that returns the next state tree, given
+ * the current state tree and the action to handle.
+ *
+ * @param {any} [initialState] The initial state. You may optionally specify it
+ * to hydrate the state from the server in universal apps, or to restore a
+ * previously serialized user session.
+ * If you use `combineReducers` to produce the root reducer function, this must be
+ * an object with the same shape as `combineReducers` keys.
+ *
+ * @param {Function} enhancer The store enhancer. You may optionally specify it
+ * to enhance the store with third-party capabilities such as middleware,
+ * time travel, persistence, etc. The only store enhancer that ships with Redux
+ * is `applyMiddleware()`.
+ *
+ * @returns {Store} A Redux store that lets you read the state, dispatch actions
+ * and subscribe to changes.
  */
-
-function isPlainObject(obj) {
-  if (!obj || typeof obj !== 'object') {
-    return false;
+function createStore(reducer, initialState, enhancer) {
+  if (typeof initialState === 'function' && typeof enhancer === 'undefined') {
+    enhancer = initialState;
+    initialState = undefined;
   }
 
-  var proto = typeof obj.constructor === 'function' ? Object.getPrototypeOf(obj) : Object.prototype;
+  if (typeof enhancer !== 'undefined') {
+    if (typeof enhancer !== 'function') {
+      throw new Error('Expected the enhancer to be a function.');
+    }
 
+    return enhancer(createStore)(reducer, initialState);
+  }
+
+  if (typeof reducer !== 'function') {
+    throw new Error('Expected the reducer to be a function.');
+  }
+
+  var currentReducer = reducer;
+  var currentState = initialState;
+  var currentListeners = [];
+  var nextListeners = currentListeners;
+  var isDispatching = false;
+
+  function ensureCanMutateNextListeners() {
+    if (nextListeners === currentListeners) {
+      nextListeners = currentListeners.slice();
+    }
+  }
+
+  /**
+   * Reads the state tree managed by the store.
+   *
+   * @returns {any} The current state tree of your application.
+   */
+  function getState() {
+    return currentState;
+  }
+
+  /**
+   * Adds a change listener. It will be called any time an action is dispatched,
+   * and some part of the state tree may potentially have changed. You may then
+   * call `getState()` to read the current state tree inside the callback.
+   *
+   * You may call `dispatch()` from a change listener, with the following
+   * caveats:
+   *
+   * 1. The subscriptions are snapshotted just before every `dispatch()` call.
+   * If you subscribe or unsubscribe while the listeners are being invoked, this
+   * will not have any effect on the `dispatch()` that is currently in progress.
+   * However, the next `dispatch()` call, whether nested or not, will use a more
+   * recent snapshot of the subscription list.
+   *
+   * 2. The listener should not expect to see all states changes, as the state
+   * might have been updated multiple times during a nested `dispatch()` before
+   * the listener is called. It is, however, guaranteed that all subscribers
+   * registered before the `dispatch()` started will be called with the latest
+   * state by the time it exits.
+   *
+   * @param {Function} listener A callback to be invoked on every dispatch.
+   * @returns {Function} A function to remove this change listener.
+   */
+  function subscribe(listener) {
+    if (typeof listener !== 'function') {
+      throw new Error('Expected listener to be a function.');
+    }
+
+    var isSubscribed = true;
+
+    ensureCanMutateNextListeners();
+    nextListeners.push(listener);
+
+    return function unsubscribe() {
+      if (!isSubscribed) {
+        return;
+      }
+
+      isSubscribed = false;
+
+      ensureCanMutateNextListeners();
+      var index = nextListeners.indexOf(listener);
+      nextListeners.splice(index, 1);
+    };
+  }
+
+  /**
+   * Dispatches an action. It is the only way to trigger a state change.
+   *
+   * The `reducer` function, used to create the store, will be called with the
+   * current state tree and the given `action`. Its return value will
+   * be considered the **next** state of the tree, and the change listeners
+   * will be notified.
+   *
+   * The base implementation only supports plain object actions. If you want to
+   * dispatch a Promise, an Observable, a thunk, or something else, you need to
+   * wrap your store creating function into the corresponding middleware. For
+   * example, see the documentation for the `redux-thunk` package. Even the
+   * middleware will eventually dispatch plain object actions using this method.
+   *
+   * @param {Object} action A plain object representing “what changed”. It is
+   * a good idea to keep actions serializable so you can record and replay user
+   * sessions, or use the time travelling `redux-devtools`. An action must have
+   * a `type` property which may not be `undefined`. It is a good idea to use
+   * string constants for action types.
+   *
+   * @returns {Object} For convenience, the same action object you dispatched.
+   *
+   * Note that, if you use a custom middleware, it may wrap `dispatch()` to
+   * return something else (for example, a Promise you can await).
+   */
+  function dispatch(action) {
+    if (!(0, _isPlainObject2["default"])(action)) {
+      throw new Error('Actions must be plain objects. ' + 'Use custom middleware for async actions.');
+    }
+
+    if (typeof action.type === 'undefined') {
+      throw new Error('Actions may not have an undefined "type" property. ' + 'Have you misspelled a constant?');
+    }
+
+    if (isDispatching) {
+      throw new Error('Reducers may not dispatch actions.');
+    }
+
+    try {
+      isDispatching = true;
+      currentState = currentReducer(currentState, action);
+    } finally {
+      isDispatching = false;
+    }
+
+    var listeners = currentListeners = nextListeners;
+    for (var i = 0; i < listeners.length; i++) {
+      listeners[i]();
+    }
+
+    return action;
+  }
+
+  /**
+   * Replaces the reducer currently used by the store to calculate the state.
+   *
+   * You might need this if your app implements code splitting and you want to
+   * load some of the reducers dynamically. You might also need this if you
+   * implement a hot reloading mechanism for Redux.
+   *
+   * @param {Function} nextReducer The reducer for the store to use instead.
+   * @returns {void}
+   */
+  function replaceReducer(nextReducer) {
+    if (typeof nextReducer !== 'function') {
+      throw new Error('Expected the nextReducer to be a function.');
+    }
+
+    currentReducer = nextReducer;
+    dispatch({ type: ActionTypes.INIT });
+  }
+
+  // When a store is created, an "INIT" action is dispatched so that every
+  // reducer returns their initial state. This effectively populates
+  // the initial state tree.
+  dispatch({ type: ActionTypes.INIT });
+
+  return {
+    dispatch: dispatch,
+    subscribe: subscribe,
+    getState: getState,
+    replaceReducer: replaceReducer
+  };
+}
+},{"lodash/isPlainObject":26}],22:[function(_dereq_,module,exports){
+'use strict';
+
+exports.__esModule = true;
+exports.compose = exports.applyMiddleware = exports.bindActionCreators = exports.combineReducers = exports.createStore = undefined;
+
+var _createStore = _dereq_('./createStore');
+
+var _createStore2 = _interopRequireDefault(_createStore);
+
+var _combineReducers = _dereq_('./combineReducers');
+
+var _combineReducers2 = _interopRequireDefault(_combineReducers);
+
+var _bindActionCreators = _dereq_('./bindActionCreators');
+
+var _bindActionCreators2 = _interopRequireDefault(_bindActionCreators);
+
+var _applyMiddleware = _dereq_('./applyMiddleware');
+
+var _applyMiddleware2 = _interopRequireDefault(_applyMiddleware);
+
+var _compose = _dereq_('./compose');
+
+var _compose2 = _interopRequireDefault(_compose);
+
+var _warning = _dereq_('./utils/warning');
+
+var _warning2 = _interopRequireDefault(_warning);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+/*
+* This is a dummy function to check if the function name has been altered by minification.
+* If the function has been minified and NODE_ENV !== 'production', warn the user.
+*/
+function isCrushed() {}
+
+if (process.env.NODE_ENV !== 'production' && typeof isCrushed.name === 'string' && isCrushed.name !== 'isCrushed') {
+  (0, _warning2["default"])('You are currently using minified code outside of NODE_ENV === \'production\'. ' + 'This means that you are running a slower development build of Redux. ' + 'You can use loose-envify (https://github.com/zertosh/loose-envify) for browserify ' + 'or DefinePlugin for webpack (http://stackoverflow.com/questions/30030031) ' + 'to ensure you have the correct code for your production build.');
+}
+
+exports.createStore = _createStore2["default"];
+exports.combineReducers = _combineReducers2["default"];
+exports.bindActionCreators = _bindActionCreators2["default"];
+exports.applyMiddleware = _applyMiddleware2["default"];
+exports.compose = _compose2["default"];
+},{"./applyMiddleware":17,"./bindActionCreators":18,"./combineReducers":19,"./compose":20,"./createStore":21,"./utils/warning":23}],23:[function(_dereq_,module,exports){
+'use strict';
+
+exports.__esModule = true;
+exports["default"] = warning;
+/**
+ * Prints a warning in the console if it exists.
+ *
+ * @param {String} message The warning message.
+ * @returns {void}
+ */
+function warning(message) {
+  /* eslint-disable no-console */
+  if (typeof console !== 'undefined' && typeof console.error === 'function') {
+    console.error(message);
+  }
+  /* eslint-enable no-console */
+  try {
+    // This error was thrown as a convenience so that you can use this stack
+    // to find the callsite that caused this warning to fire.
+    throw new Error(message);
+    /* eslint-disable no-empty */
+  } catch (e) {}
+  /* eslint-enable no-empty */
+}
+},{}],24:[function(_dereq_,module,exports){
+/**
+ * Checks if `value` is a host object in IE < 9.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a host object, else `false`.
+ */
+function isHostObject(value) {
+  // Many host objects are `Object` objects that can coerce to strings
+  // despite having improperly defined `toString` methods.
+  var result = false;
+  if (value != null && typeof value.toString != 'function') {
+    try {
+      result = !!(value + '');
+    } catch (e) {}
+  }
+  return result;
+}
+
+module.exports = isHostObject;
+
+},{}],25:[function(_dereq_,module,exports){
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+module.exports = isObjectLike;
+
+},{}],26:[function(_dereq_,module,exports){
+var isHostObject = _dereq_('./_isHostObject'),
+    isObjectLike = _dereq_('./isObjectLike');
+
+/** `Object#toString` result references. */
+var objectTag = '[object Object]';
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/** Used to resolve the decompiled source of functions. */
+var funcToString = Function.prototype.toString;
+
+/** Used to infer the `Object` constructor. */
+var objectCtorString = funcToString.call(Object);
+
+/**
+ * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/** Built-in value references. */
+var getPrototypeOf = Object.getPrototypeOf;
+
+/**
+ * Checks if `value` is a plain object, that is, an object created by the
+ * `Object` constructor or one with a `[[Prototype]]` of `null`.
+ *
+ * @static
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a plain object, else `false`.
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ * }
+ *
+ * _.isPlainObject(new Foo);
+ * // => false
+ *
+ * _.isPlainObject([1, 2, 3]);
+ * // => false
+ *
+ * _.isPlainObject({ 'x': 0, 'y': 0 });
+ * // => true
+ *
+ * _.isPlainObject(Object.create(null));
+ * // => true
+ */
+function isPlainObject(value) {
+  if (!isObjectLike(value) || objectToString.call(value) != objectTag || isHostObject(value)) {
+    return false;
+  }
+  var proto = objectProto;
+  if (typeof value.constructor == 'function') {
+    proto = getPrototypeOf(value);
+  }
   if (proto === null) {
     return true;
   }
-
-  var constructor = proto.constructor;
-
-  return typeof constructor === 'function' && constructor instanceof constructor && fnToString(constructor) === fnToString(Object);
+  var Ctor = proto.constructor;
+  return (typeof Ctor == 'function' &&
+    Ctor instanceof Ctor && funcToString.call(Ctor) == objectCtorString);
 }
 
-module.exports = exports['default'];
-},{}],23:[function(_dereq_,module,exports){
-/**
- * Applies a function to every key-value pair inside an object.
- *
- * @param {Object} obj The source object.
- * @param {Function} fn The mapper function that receives the value and the key.
- * @returns {Object} A new object that contains the mapped values for the keys.
- */
-"use strict";
+module.exports = isPlainObject;
 
-exports.__esModule = true;
-exports["default"] = mapValues;
-
-function mapValues(obj, fn) {
-  return Object.keys(obj).reduce(function (result, key) {
-    result[key] = fn(obj[key], key);
-    return result;
-  }, {});
-}
-
-module.exports = exports["default"];
-},{}],24:[function(_dereq_,module,exports){
-/**
- * Picks key-value pairs from an object where values satisfy a predicate.
- *
- * @param {Object} obj The object to pick from.
- * @param {Function} fn The predicate the values must satisfy to be copied.
- * @returns {Object} The object with the values that satisfied the predicate.
- */
-"use strict";
-
-exports.__esModule = true;
-exports["default"] = pick;
-
-function pick(obj, fn) {
-  return Object.keys(obj).reduce(function (result, key) {
-    if (fn(obj[key])) {
-      result[key] = obj[key];
-    }
-    return result;
-  }, {});
-}
-
-module.exports = exports["default"];
-},{}],25:[function(_dereq_,module,exports){
+},{"./_isHostObject":24,"./isObjectLike":25}],27:[function(_dereq_,module,exports){
 "use strict";
 var window = _dereq_("global/window")
 var once = _dereq_("once")
+var isFunction = _dereq_("is-function")
 var parseHeaders = _dereq_("parse-headers")
-
-
+var xtend = _dereq_("xtend")
 
 module.exports = createXHR
 createXHR.XMLHttpRequest = window.XMLHttpRequest || noop
 createXHR.XDomainRequest = "withCredentials" in (new createXHR.XMLHttpRequest()) ? createXHR.XMLHttpRequest : window.XDomainRequest
 
+forEachArray(["get", "put", "post", "patch", "head", "delete"], function(method) {
+    createXHR[method === "delete" ? "del" : method] = function(uri, options, callback) {
+        options = initParams(uri, options, callback)
+        options.method = method.toUpperCase()
+        return _createXHR(options)
+    }
+})
+
+function forEachArray(array, iterator) {
+    for (var i = 0; i < array.length; i++) {
+        iterator(array[i])
+    }
+}
 
 function isEmpty(obj){
     for(var i in obj){
@@ -2731,7 +3243,34 @@ function isEmpty(obj){
     return true
 }
 
-function createXHR(options, callback) {
+function initParams(uri, options, callback) {
+    var params = uri
+
+    if (isFunction(options)) {
+        callback = options
+        if (typeof uri === "string") {
+            params = {uri:uri}
+        }
+    } else {
+        params = xtend(options, {uri: uri})
+    }
+
+    params.callback = callback
+    return params
+}
+
+function createXHR(uri, options, callback) {
+    options = initParams(uri, options, callback)
+    return _createXHR(options)
+}
+
+function _createXHR(options) {
+    var callback = options.callback
+    if(typeof callback === "undefined"){
+        throw new Error("callback argument missing")
+    }
+    callback = once(callback)
+
     function readystatechange() {
         if (xhr.readyState === 4) {
             loadFunc()
@@ -2808,16 +3347,6 @@ function createXHR(options, callback) {
 
     }
 
-    if (typeof options === "string") {
-        options = { uri: options }
-    }
-
-    options = options || {}
-    if(typeof callback === "undefined"){
-        throw new Error("callback argument missing")
-    }
-    callback = once(callback)
-
     var xhr = options.xhr || null
 
     if (!xhr) {
@@ -2832,7 +3361,7 @@ function createXHR(options, callback) {
     var aborted
     var uri = xhr.url = options.uri || options.url
     var method = xhr.method = options.method || "GET"
-    var body = options.body || options.data
+    var body = options.body || options.data || null
     var headers = xhr.headers = options.headers || {}
     var sync = !!options.sync
     var isJson = false
@@ -2902,7 +3431,7 @@ function createXHR(options, callback) {
 
 function noop() {}
 
-},{"global/window":26,"once":27,"parse-headers":31}],26:[function(_dereq_,module,exports){
+},{"global/window":28,"is-function":29,"once":30,"parse-headers":33,"xtend":34}],28:[function(_dereq_,module,exports){
 if (typeof window !== "undefined") {
     module.exports = window;
 } else if (typeof global !== "undefined") {
@@ -2913,7 +3442,24 @@ if (typeof window !== "undefined") {
     module.exports = {};
 }
 
-},{}],27:[function(_dereq_,module,exports){
+},{}],29:[function(_dereq_,module,exports){
+module.exports = isFunction
+
+var toString = Object.prototype.toString
+
+function isFunction (fn) {
+  var string = toString.call(fn)
+  return string === '[object Function]' ||
+    (typeof fn === 'function' && string !== '[object RegExp]') ||
+    (typeof window !== 'undefined' &&
+     // IE8 and below
+     (fn === window.setTimeout ||
+      fn === window.alert ||
+      fn === window.confirm ||
+      fn === window.prompt))
+};
+
+},{}],30:[function(_dereq_,module,exports){
 module.exports = once
 
 once.proto = once(function () {
@@ -2934,7 +3480,7 @@ function once (fn) {
   }
 }
 
-},{}],28:[function(_dereq_,module,exports){
+},{}],31:[function(_dereq_,module,exports){
 var isFunction = _dereq_('is-function')
 
 module.exports = forEach
@@ -2982,24 +3528,7 @@ function forEachObject(object, iterator, context) {
     }
 }
 
-},{"is-function":29}],29:[function(_dereq_,module,exports){
-module.exports = isFunction
-
-var toString = Object.prototype.toString
-
-function isFunction (fn) {
-  var string = toString.call(fn)
-  return string === '[object Function]' ||
-    (typeof fn === 'function' && string !== '[object RegExp]') ||
-    (typeof window !== 'undefined' &&
-     // IE8 and below
-     (fn === window.setTimeout ||
-      fn === window.alert ||
-      fn === window.confirm ||
-      fn === window.prompt))
-};
-
-},{}],30:[function(_dereq_,module,exports){
+},{"is-function":29}],32:[function(_dereq_,module,exports){
 
 exports = module.exports = trim;
 
@@ -3015,7 +3544,7 @@ exports.right = function(str){
   return str.replace(/\s*$/, '');
 };
 
-},{}],31:[function(_dereq_,module,exports){
+},{}],33:[function(_dereq_,module,exports){
 var trim = _dereq_('trim')
   , forEach = _dereq_('for-each')
   , isArray = function(arg) {
@@ -3047,7 +3576,28 @@ module.exports = function (headers) {
 
   return result
 }
-},{"for-each":28,"trim":30}],32:[function(_dereq_,module,exports){
+},{"for-each":31,"trim":32}],34:[function(_dereq_,module,exports){
+module.exports = extend
+
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+
+function extend() {
+    var target = {}
+
+    for (var i = 0; i < arguments.length; i++) {
+        var source = arguments[i]
+
+        for (var key in source) {
+            if (hasOwnProperty.call(source, key)) {
+                target[key] = source[key]
+            }
+        }
+    }
+
+    return target
+}
+
+},{}],35:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3139,7 +3689,7 @@ function setSort(field) {
 	});
 }
 
-},{"./results":33}],33:[function(_dereq_,module,exports){
+},{"./results":36}],36:[function(_dereq_,module,exports){
 // TODO Fix caching
 
 "use strict";
@@ -3159,11 +3709,31 @@ var _xhr = _dereq_("xhr");
 
 var _xhr2 = _interopRequireDefault(_xhr);
 
+var _adehun = _dereq_("adehun");
+
 var handleError = function handleError() {};
 
 var server = {
 	performXhr: function performXhr(options, cb) {
-		(0, _xhr2["default"])(options, cb);
+		if (typeof Promise !== "undefined") {
+			var _deferred = (0, _adehun.deferred)();
+
+			var resolve = _deferred.resolve;
+			var promise = _deferred.promise;
+
+			(0, _xhr2["default"])(options, function () {
+				resolve();
+				cb.apply(this, arguments);
+			});
+			return promise;
+		} else {
+			return new Promise(function (resolve) {
+				(0, _xhr2["default"])(options, function () {
+					resolve();
+					cb.apply(this, arguments);
+				});
+			});
+		}
 	}
 };
 
@@ -3190,7 +3760,7 @@ var getResults = function getResults(url, headers, done) {
 		done(body, searchId);
 	};
 
-	server.performXhr(options, cb);
+	return server.performXhr(options, cb);
 };
 
 var postResults = function postResults(query, headers, url, rows, done) {
@@ -3213,7 +3783,7 @@ var postResults = function postResults(query, headers, url, rows, done) {
 		getResults(cbUrl, headers, done);
 	};
 
-	server.performXhr(options, cb);
+	return server.performXhr(options, cb);
 };
 
 var dispatchResponse = function dispatchResponse(dispatch, type, response, searchId) {
@@ -3277,7 +3847,7 @@ function fetchNextResults(url) {
 	};
 }
 
-},{"xhr":25}],34:[function(_dereq_,module,exports){
+},{"adehun":1,"xhr":27}],37:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3326,7 +3896,7 @@ exports["default"] = {
 };
 module.exports = exports["default"];
 
-},{"./list-facet":46,"./range-facet":49,"react":"react"}],35:[function(_dereq_,module,exports){
+},{"./list-facet":49,"./range-facet":52,"react":"react"}],38:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3436,7 +4006,7 @@ FilterMenu.propTypes = {
 exports["default"] = FilterMenu;
 module.exports = exports["default"];
 
-},{"../icons/filter":38,"classnames":"classnames","hire-forms-input":2,"insert-css":4,"react":"react"}],36:[function(_dereq_,module,exports){
+},{"../icons/filter":41,"classnames":"classnames","hire-forms-input":3,"insert-css":5,"react":"react"}],39:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3567,7 +4137,7 @@ Filters.propTypes = {
 exports["default"] = Filters;
 module.exports = exports["default"];
 
-},{"./facet-map":34,"./text-search":54,"react":"react"}],37:[function(_dereq_,module,exports){
+},{"./facet-map":37,"./text-search":57,"react":"react"}],40:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3628,7 +4198,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],38:[function(_dereq_,module,exports){
+},{"react":"react"}],41:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3688,7 +4258,7 @@ FilterIcon.propTypes = {
 exports["default"] = FilterIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],39:[function(_dereq_,module,exports){
+},{"react":"react"}],42:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3855,7 +4425,7 @@ LoaderThreeDots.propTypes = {
 exports["default"] = LoaderThreeDots;
 module.exports = exports["default"];
 
-},{"react":"react"}],40:[function(_dereq_,module,exports){
+},{"react":"react"}],43:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3915,7 +4485,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],41:[function(_dereq_,module,exports){
+},{"react":"react"}],44:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3986,7 +4556,7 @@ SortAlphabeticallyAscending.propTypes = {
 exports["default"] = SortAlphabeticallyAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],42:[function(_dereq_,module,exports){
+},{"react":"react"}],45:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4057,7 +4627,7 @@ SortAlphabeticallyDescending.propTypes = {
 exports["default"] = SortAlphabeticallyDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],43:[function(_dereq_,module,exports){
+},{"react":"react"}],46:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4126,7 +4696,7 @@ SortCountAscending.propTypes = {
 exports["default"] = SortCountAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],44:[function(_dereq_,module,exports){
+},{"react":"react"}],47:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4195,7 +4765,7 @@ SortCountDescending.propTypes = {
 exports["default"] = SortCountDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],45:[function(_dereq_,module,exports){
+},{"react":"react"}],48:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4254,7 +4824,7 @@ UncheckedIcon.propTypes = {
 exports["default"] = UncheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],46:[function(_dereq_,module,exports){
+},{"react":"react"}],49:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4474,7 +5044,7 @@ ListFacet.propTypes = {
 exports["default"] = ListFacet;
 module.exports = exports["default"];
 
-},{"../filter-menu":35,"../sort-menu":53,"./list-item":47,"./sort-function":48,"classnames":"classnames","insert-css":4,"react":"react"}],47:[function(_dereq_,module,exports){
+},{"../filter-menu":38,"../sort-menu":56,"./list-item":50,"./sort-function":51,"classnames":"classnames","insert-css":5,"react":"react"}],50:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4584,7 +5154,7 @@ ListFacetListItem.propTypes = {
 exports["default"] = ListFacetListItem;
 module.exports = exports["default"];
 
-},{"../icons/checked":37,"../icons/unchecked":45,"react":"react"}],48:[function(_dereq_,module,exports){
+},{"../icons/checked":40,"../icons/unchecked":48,"react":"react"}],51:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4648,7 +5218,7 @@ function sortFunction(type, direction) {
 
 module.exports = exports["default"];
 
-},{}],49:[function(_dereq_,module,exports){
+},{}],52:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4797,7 +5367,7 @@ RangeFacet.propTypes = {
 exports["default"] = RangeFacet;
 module.exports = exports["default"];
 
-},{"hire-range-slider":3,"insert-css":4,"react":"react"}],50:[function(_dereq_,module,exports){
+},{"hire-range-slider":4,"insert-css":5,"react":"react"}],53:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4974,7 +5544,7 @@ Results.propTypes = {
 exports["default"] = Results;
 module.exports = exports["default"];
 
-},{"../icons/loader-three-dots":39,"./result":51,"./sort-menu":52,"classnames":"classnames","hire-current-query":1,"insert-css":4,"lodash.debounce":5,"react":"react"}],51:[function(_dereq_,module,exports){
+},{"../icons/loader-three-dots":42,"./result":54,"./sort-menu":55,"classnames":"classnames","hire-current-query":2,"insert-css":5,"lodash.debounce":6,"react":"react"}],54:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5074,7 +5644,7 @@ Result.propTypes = {
 exports["default"] = Result;
 module.exports = exports["default"];
 
-},{"react":"react"}],52:[function(_dereq_,module,exports){
+},{"react":"react"}],55:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5207,7 +5777,7 @@ ResultsSortMenu.propTypes = {
 exports["default"] = ResultsSortMenu;
 module.exports = exports["default"];
 
-},{"classnames":"classnames","insert-css":4,"react":"react"}],53:[function(_dereq_,module,exports){
+},{"classnames":"classnames","insert-css":5,"react":"react"}],56:[function(_dereq_,module,exports){
 /* TODO Remove sort menu and move sort options (count/alpha) to facet schema.
 	A schema is needed, because different facets, should be able to have different
 	options set. */
@@ -5343,7 +5913,7 @@ SortMenu.propTypes = {
 exports["default"] = SortMenu;
 module.exports = exports["default"];
 
-},{"../icons/sort-alphabetically-ascending":41,"../icons/sort-alphabetically-descending":42,"../icons/sort-count-ascending":43,"../icons/sort-count-descending":44,"classnames":"classnames","insert-css":4,"react":"react"}],54:[function(_dereq_,module,exports){
+},{"../icons/sort-alphabetically-ascending":44,"../icons/sort-alphabetically-descending":45,"../icons/sort-count-ascending":46,"../icons/sort-count-descending":47,"classnames":"classnames","insert-css":5,"react":"react"}],57:[function(_dereq_,module,exports){
 // TODO add searching class to .search-icon when async query is busy
 
 "use strict";
@@ -5484,7 +6054,7 @@ TextSearch.propTypes = {
 exports["default"] = TextSearch;
 module.exports = exports["default"];
 
-},{"../icons/search":40,"classnames":"classnames","insert-css":4,"react":"react"}],55:[function(_dereq_,module,exports){
+},{"../icons/search":43,"classnames":"classnames","insert-css":5,"react":"react"}],58:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5512,7 +6082,7 @@ exports.configDefaults = configDefaults;
 exports.labelsDefaults = labelsDefaults;
 exports.queryDefaults = queryDefaults;
 
-},{}],56:[function(_dereq_,module,exports){
+},{}],59:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5601,6 +6171,8 @@ var FacetedSearch = (function (_React$Component) {
 	_inherits(FacetedSearch, _React$Component);
 
 	function FacetedSearch(props) {
+		var _this = this;
+
 		_classCallCheck(this, FacetedSearch);
 
 		_get(Object.getPrototypeOf(FacetedSearch.prototype), "constructor", this).call(this, props);
@@ -5617,9 +6189,13 @@ var FacetedSearch = (function (_React$Component) {
 		this.store = createStoreWithMiddleware(_reducers2["default"], initialState);
 
 		if (this.props.query != null) {
-			this.store.dispatch({
-				type: "SET_QUERY_DEFAULTS",
-				queryDefaults: this.props.query
+			this.store.dispatch((0, _actionsResults.fetchResults)()).then(function () {
+				return _this.store.dispatch({
+					type: "SET_QUERY_DEFAULTS",
+					queryDefaults: _this.props.query
+				});
+			}).then(function () {
+				return _this.store.dispatch((0, _actionsResults.fetchResults)());
 			});
 		}
 
@@ -5629,10 +6205,10 @@ var FacetedSearch = (function (_React$Component) {
 	_createClass(FacetedSearch, [{
 		key: "componentDidMount",
 		value: function componentDidMount() {
-			var _this = this;
+			var _this2 = this;
 
 			this.unsubscribe = this.store.subscribe(function () {
-				return _this.setState(_this.store.getState());
+				return _this2.setState(_this2.store.getState());
 			});
 
 			if (this.props.result == null) {
@@ -5699,7 +6275,7 @@ var FacetedSearch = (function (_React$Component) {
 	}, {
 		key: "render",
 		value: function render() {
-			var _this2 = this;
+			var _this3 = this;
 
 			var loader = undefined,
 			    filters = undefined,
@@ -5712,38 +6288,38 @@ var FacetedSearch = (function (_React$Component) {
 
 				filters = _react2["default"].createElement(FiltersComponent, _extends({}, this.props, this.state, {
 					onChangeFullTextField: function (field, value) {
-						return _this2.store.dispatch((0, _actionsQueries.changeFullTextSearchField)(field, value));
+						return _this3.store.dispatch((0, _actionsQueries.changeFullTextSearchField)(field, value));
 					},
 					onChangeSearchTerm: function (value) {
-						return _this2.store.dispatch((0, _actionsQueries.changeSearchTerm)(value));
+						return _this3.store.dispatch((0, _actionsQueries.changeSearchTerm)(value));
 					},
 					onNewSearch: function () {
-						return _this2.store.dispatch((0, _actionsQueries.newSearch)());
+						return _this3.store.dispatch((0, _actionsQueries.newSearch)());
 					},
 					onSelectFacetRange: function () {
 						for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
 							args[_key] = arguments[_key];
 						}
 
-						return _this2.store.dispatch(_actionsQueries.selectFacetRange.apply(undefined, args));
+						return _this3.store.dispatch(_actionsQueries.selectFacetRange.apply(undefined, args));
 					},
 					onSelectFacetValue: function () {
 						for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
 							args[_key2] = arguments[_key2];
 						}
 
-						return _this2.store.dispatch(_actionsQueries.selectFacetValue.apply(undefined, args));
+						return _this3.store.dispatch(_actionsQueries.selectFacetValue.apply(undefined, args));
 					} }));
 
 				results = _react2["default"].createElement(_componentsResults2["default"], _extends({}, this.props, this.state, {
 					onChangeFullTextField: function (field, value) {
-						return _this2.store.dispatch((0, _actionsQueries.changeFullTextSearchField)(field, value));
+						return _this3.store.dispatch((0, _actionsQueries.changeFullTextSearchField)(field, value));
 					},
 					onChangeSearchTerm: function (value) {
-						return _this2.store.dispatch((0, _actionsQueries.changeSearchTerm)(value));
+						return _this3.store.dispatch((0, _actionsQueries.changeSearchTerm)(value));
 					},
 					onFetchNextResults: function (url) {
-						return _this2.store.dispatch((0, _actionsResults.fetchNextResults)(url));
+						return _this3.store.dispatch((0, _actionsResults.fetchNextResults)(url));
 					},
 					onSelect: this.props.onSelect,
 					onSelectFacetValue: function () {
@@ -5751,10 +6327,10 @@ var FacetedSearch = (function (_React$Component) {
 							args[_key3] = arguments[_key3];
 						}
 
-						return _this2.store.dispatch(_actionsQueries.selectFacetValue.apply(undefined, args));
+						return _this3.store.dispatch(_actionsQueries.selectFacetValue.apply(undefined, args));
 					},
 					onSetSort: function (field) {
-						return _this2.store.dispatch((0, _actionsQueries.setSort)(field));
+						return _this3.store.dispatch((0, _actionsQueries.setSort)(field));
 					} }));
 			}
 
@@ -5801,7 +6377,7 @@ FacetedSearch.propTypes = {
 exports.facetMap = _componentsFacetMap2["default"];
 exports["default"] = FacetedSearch;
 
-},{"./actions/queries":32,"./actions/results":33,"./components/facet-map":34,"./components/filters":36,"./components/icons/loader-three-dots":39,"./components/results":50,"./defaults":55,"./reducers":57,"./reducers/results":59,"classnames":"classnames","insert-css":4,"lodash.isequal":7,"react":"react","redux":17,"redux-thunk":15}],57:[function(_dereq_,module,exports){
+},{"./actions/queries":35,"./actions/results":36,"./components/facet-map":37,"./components/filters":39,"./components/icons/loader-three-dots":42,"./components/results":53,"./defaults":58,"./reducers":60,"./reducers/results":62,"classnames":"classnames","insert-css":5,"lodash.isequal":8,"react":"react","redux":22,"redux-thunk":16}],60:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5834,7 +6410,7 @@ exports["default"] = (0, _redux.combineReducers)({
 });
 module.exports = exports["default"];
 
-},{"./queries":58,"./results":59,"redux":17}],58:[function(_dereq_,module,exports){
+},{"./queries":61,"./results":62,"redux":22}],61:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6056,7 +6632,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{"../defaults":55}],59:[function(_dereq_,module,exports){
+},{"../defaults":58}],62:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6185,5 +6761,5 @@ exports["default"] = function (state, action) {
 	return state;
 };
 
-},{}]},{},[56])(56)
+},{}]},{},[59])(59)
 });
