@@ -9,7 +9,7 @@ let handleError = function() {
 
 export let server = {
 	performXhr: function(options, cb) {
-		if (typeof Promise !== "undefined") {
+		if (typeof Promise === "undefined") {
 			var {resolve, promise} = deferred();
 			xhr(options, function () {
 				resolve();
