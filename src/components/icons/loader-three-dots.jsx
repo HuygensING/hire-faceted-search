@@ -1,4 +1,6 @@
 import React from "react";
+import ReactDOM from "react-dom";
+
 
 let getNextState = function(prevState, progress) {
 	let state = Object.keys(prevState).reduce((obj, currentProp) => {
@@ -87,7 +89,7 @@ class LoaderThreeDots extends React.Component {
 		}
 
 		let progress = timestamp - this.start;
-		if(React.findDOMNode(this).getBoundingClientRect().width) {
+		if(ReactDOM.findDOMNode(this).getBoundingClientRect().width) {
 			this.setState({
 				circle1: getNextState(this.state.circle1, progress),
 				circle2: getNextState(this.state.circle2, progress),

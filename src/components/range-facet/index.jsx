@@ -11,8 +11,6 @@ if (typeof window != 'undefined' && window.document) {
 const MOUSE_DOWN = 0;
 const MOUSE_UP = 1;
 
-React.initializeTouchEvents(true);
-
 class RangeFacet extends React.Component {
 	constructor(props) {
 		super(props);

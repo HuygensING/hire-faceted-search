@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDOM from "react-dom";
 import cx from "classnames";
 import debounce from "lodash.debounce";
 import insertCss from "insert-css";
@@ -38,7 +39,7 @@ class Results extends React.Component {
 
 	onScroll() {
 		let nth = (this.props.results.last.refs.length - parseInt(Math.floor(this.props.config.rows / 2))) + 1;
-		let listItem = React.findDOMNode(this).querySelector(`.hire-faceted-search-result-list > li:nth-child(${nth})`);
+		let listItem = ReactDOM.findDOMNode(this).querySelector(`.hire-faceted-search-result-list > li:nth-child(${nth})`);
 		if (this.props.results.last.hasOwnProperty("_next") && listItem && inViewport(listItem)) {
 			let url = this.props.results.last._next;
 			this.props.onFetchNextResults(url);
