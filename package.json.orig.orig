@@ -51,14 +51,21 @@
     "babel-polyfill": "^6.7.4",
     "classnames": "^2.1.3",
     "flux": "^2.0.3",
+<<<<<<< 29b4992a8e180b0e1b6d31d201f14914b60ed35b
+<<<<<<< 1a03a671a5f1188ad0fcf9aafc64ce7792038d4c
+=======
 <<<<<<< 4a748ed8db0212d5c1f32f656e44ae6c8dbaf8f0
 <<<<<<< 9d5cd7709cbc287329d0aec82540484f1177a596
+>>>>>>> fixes skin-deep dep for react 0.14; devdepend on hire-current-query#react-0.14
     "hire-current-query": "https://github.com/HuygensING/hire-current-query.git#react-0.14",
 =======
     "hire-current-query": "^1.2.1",
 >>>>>>> branch for react 0.14
+<<<<<<< 29b4992a8e180b0e1b6d31d201f14914b60ed35b
+=======
 =======
     "hire-current-query": "https://github.com/HuygensING/hire-current-query.git#react-0.14",
+>>>>>>> fixes skin-deep dep for react 0.14; devdepend on hire-current-query#react-0.14
 >>>>>>> fixes skin-deep dep for react 0.14; devdepend on hire-current-query#react-0.14
     "hire-forms-input": "https://github.com/Hire-Forms/hire-forms-input.git#react-0.14",
     "hire-range-slider": "https://github.com/HuygensING/hire-range-slider.git#react-0.14",
