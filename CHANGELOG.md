@@ -1,3 +1,7 @@
+### v5.2.4	(2016/4/4 10:42)
+* [MS-51] Don't override default query when passing query prop
+* test for order of result processing
+
 ### v5.2.3	(2015/11/13 11:51)
 * patch loader for result list component
 
