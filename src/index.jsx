@@ -44,8 +44,9 @@ import {createFirstResultsState} from "./reducers/results";
 let createStoreWithMiddleware = applyMiddleware(thunkMiddleware)(createStore);
 
 let fs = require("fs");
+// With path.resolve, brfs doesn't work!
 let css = fs.readFileSync(__dirname + "/index.css");
-if (typeof window != 'undefined' && window.document) {
+if (typeof window !== "undefined" && window.document) {
 	insertCss(css, {prepend: true});
 }
 
@@ -66,8 +67,8 @@ class FacetedSearch extends React.Component {
 
 		if (this.props.query != null) {
 			this.store.dispatch({
-				type: "SET_QUERY_DEFAULTS",
-				queryDefaults: this.props.query
+				type: "SET_INITIAL_QUERY",
+				initialQuery: this.props.query
 			});
 		}
 
@@ -227,7 +228,8 @@ FacetedSearch.propTypes = {
 	onChange: React.PropTypes.func,
 	onSearchId: React.PropTypes.func,
 	onSelect: React.PropTypes.func,
-	query: React.PropTypes.object
+	query: React.PropTypes.object,
+	result: React.PropTypes.object
 };
 
 export {facetMap};

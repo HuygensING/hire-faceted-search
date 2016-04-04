@@ -1,4 +1,4 @@
-import{queryDefaults} from "../defaults";
+import {queryDefaults} from "../defaults";
 
 let removeFacetValue = function(facetValues, name, value) {
 	let foundFacetValue = facetValues.filter((facetValue) =>
@@ -73,7 +73,7 @@ let setFullTextSearchParameter = function(field, value, last = []) {
 	return current;
 };
 
-let initialState = {
+const initialState = {
 	all: [queryDefaults],
 	default: queryDefaults,
 	last: queryDefaults
@@ -83,13 +83,13 @@ export default function(state=initialState, action) {
 	let query;
 
 	switch (action.type) {
-		case "SET_QUERY_DEFAULTS":
-			let newDefaultQuery = {...queryDefaults, ...action.queryDefaults};
+		// Override query defaults when props.query is set.
+		case "SET_INITIAL_QUERY":
+			let initialQuery = {...queryDefaults, ...action.initialQuery};
 
 			state = {...state, ...{
-				all: [newDefaultQuery],
-				default: newDefaultQuery,
-				last: newDefaultQuery
+				all: [initialQuery],
+				last: initialQuery
 			}};
 
 			break;
