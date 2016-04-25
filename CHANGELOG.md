@@ -1,3 +1,6 @@
+### v5.2.6	(2016/4/25 15:29)
+* removes console msg
+
 ### v5.2.5	(2016/4/25 15:27)
 * [TIM-756] Only pass 1st sortParameter to the server query.
 
