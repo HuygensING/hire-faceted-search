@@ -5977,8 +5977,6 @@ var _reducersResults = _dereq_("./reducers/results");
 //   return next(action);
 //};
 
-console.log("LINK CHECK");
-
 var createStoreWithMiddleware = (0, _redux.applyMiddleware)(_reduxThunk2["default"])(_redux.createStore);
 
 
