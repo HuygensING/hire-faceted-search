@@ -1,3 +1,6 @@
+### v5.2.5	(2016/4/25 15:27)
+* [TIM-756] Only pass 1st sortParameter to the server query.
+
 ### v5.2.4	(2016/4/4 10:42)
 * [MS-51] Don't override default query when passing query prop
 * test for order of result processing
