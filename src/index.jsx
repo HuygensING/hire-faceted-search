@@ -41,6 +41,8 @@ import {createFirstResultsState} from "./reducers/results";
 //   return next(action);
 //};
 
+console.log("LINK CHECK");
+
 let createStoreWithMiddleware = applyMiddleware(thunkMiddleware)(createStore);
 
 let fs = require("fs");

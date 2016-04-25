@@ -1,6 +1,8 @@
 // TODO Fix caching
 
 import xhr from "xhr";
+import clone from "./clone-deep";
+
 
 let handleError = function() {
 
@@ -71,9 +73,16 @@ export function fetchResults() {
 
 		let state = getState();
 		let query = state.queries.all.length ?
-			state.queries.all[state.queries.all.length - 1] :
-			state.queries.default;
+			clone(state.queries.all[state.queries.all.length - 1]) :
+			clone(state.queries.default);
 
+		if (query.sortParameters && query.sortParameters.length) {
+			// TIM-756: seeing as in the current interface only one sort level can be selected,
+			// this one should only be sent to the server.
+			// This significantly speeds up direct database querying, whereas solr did not show
+			// as much impact
+			query.sortParameters = [query.sortParameters[0]];
+		}
 		let stringifiedQuery = JSON.stringify(query);
 
 		let dispatchTime = new Date().getTime();

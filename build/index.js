@@ -2009,12 +2009,12 @@ module.exports = isEqual;
 
 },{"lodash._baseisequal":8,"lodash._bindcallback":9}],15:[function(_dereq_,module,exports){
 /**
- * lodash 3.0.6 (Custom Build) <https://lodash.com/>
+ * lodash 3.0.5 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
- * Copyright jQuery Foundation and other contributors <https://jquery.org/>
- * Released under MIT license <https://lodash.com/license>
+ * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
- * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Copyright 2009-2016 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ * Available under MIT license <https://lodash.com/license>
  */
 
 /** Used as references for various `Number` constants. */
@@ -2036,7 +2036,6 @@ var argsTag = '[object Arguments]',
     weakMapTag = '[object WeakMap]';
 
 var arrayBufferTag = '[object ArrayBuffer]',
-    dataViewTag = '[object DataView]',
     float32Tag = '[object Float32Array]',
     float64Tag = '[object Float64Array]',
     int8Tag = '[object Int8Array]',
@@ -2056,12 +2055,11 @@ typedArrayTags[uint8ClampedTag] = typedArrayTags[uint16Tag] =
 typedArrayTags[uint32Tag] = true;
 typedArrayTags[argsTag] = typedArrayTags[arrayTag] =
 typedArrayTags[arrayBufferTag] = typedArrayTags[boolTag] =
-typedArrayTags[dataViewTag] = typedArrayTags[dateTag] =
-typedArrayTags[errorTag] = typedArrayTags[funcTag] =
-typedArrayTags[mapTag] = typedArrayTags[numberTag] =
-typedArrayTags[objectTag] = typedArrayTags[regexpTag] =
-typedArrayTags[setTag] = typedArrayTags[stringTag] =
-typedArrayTags[weakMapTag] = false;
+typedArrayTags[dateTag] = typedArrayTags[errorTag] =
+typedArrayTags[funcTag] = typedArrayTags[mapTag] =
+typedArrayTags[numberTag] = typedArrayTags[objectTag] =
+typedArrayTags[regexpTag] = typedArrayTags[setTag] =
+typedArrayTags[stringTag] = typedArrayTags[weakMapTag] = false;
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -2075,16 +2073,13 @@ var objectToString = objectProto.toString;
 /**
  * Checks if `value` is a valid array-like length.
  *
- * **Note:** This function is loosely based on
- * [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
+ * **Note:** This function is loosely based on [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
  *
  * @static
  * @memberOf _
- * @since 4.0.0
  * @category Lang
  * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a valid length,
- *  else `false`.
+ * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
  * @example
  *
  * _.isLength(3);
@@ -2110,7 +2105,6 @@ function isLength(value) {
  *
  * @static
  * @memberOf _
- * @since 4.0.0
  * @category Lang
  * @param {*} value The value to check.
  * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
@@ -2137,11 +2131,9 @@ function isObjectLike(value) {
  *
  * @static
  * @memberOf _
- * @since 3.0.0
  * @category Lang
  * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is correctly classified,
- *  else `false`.
+ * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
  * @example
  *
  * _.isTypedArray(new Uint8Array);
@@ -2396,23 +2388,6 @@ function keysIn(object) {
 module.exports = keys;
 
 },{"lodash._getnative":10,"lodash.isarguments":12,"lodash.isarray":13}],17:[function(_dereq_,module,exports){
-/* Built-in method references for those with the same name as other `lodash` methods. */
-var nativeGetPrototype = Object.getPrototypeOf;
-
-/**
- * Gets the `[[Prototype]]` of `value`.
- *
- * @private
- * @param {*} value The value to query.
- * @returns {null|Object} Returns the `[[Prototype]]`.
- */
-function getPrototype(value) {
-  return nativeGetPrototype(Object(value));
-}
-
-module.exports = getPrototype;
-
-},{}],18:[function(_dereq_,module,exports){
 /**
  * Checks if `value` is a host object in IE < 9.
  *
@@ -2434,14 +2409,13 @@ function isHostObject(value) {
 
 module.exports = isHostObject;
 
-},{}],19:[function(_dereq_,module,exports){
+},{}],18:[function(_dereq_,module,exports){
 /**
  * Checks if `value` is object-like. A value is object-like if it's not `null`
  * and has a `typeof` result of "object".
  *
  * @static
  * @memberOf _
- * @since 4.0.0
  * @category Lang
  * @param {*} value The value to check.
  * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
@@ -2465,9 +2439,8 @@ function isObjectLike(value) {
 
 module.exports = isObjectLike;
 
-},{}],20:[function(_dereq_,module,exports){
-var getPrototype = _dereq_('./_getPrototype'),
-    isHostObject = _dereq_('./_isHostObject'),
+},{}],19:[function(_dereq_,module,exports){
+var isHostObject = _dereq_('./_isHostObject'),
     isObjectLike = _dereq_('./isObjectLike');
 
 /** `Object#toString` result references. */
@@ -2479,9 +2452,6 @@ var objectProto = Object.prototype;
 /** Used to resolve the decompiled source of functions. */
 var funcToString = Function.prototype.toString;
 
-/** Used to check objects for own properties. */
-var hasOwnProperty = objectProto.hasOwnProperty;
-
 /** Used to infer the `Object` constructor. */
 var objectCtorString = funcToString.call(Object);
 
@@ -2491,17 +2461,18 @@ var objectCtorString = funcToString.call(Object);
  */
 var objectToString = objectProto.toString;
 
+/** Built-in value references. */
+var getPrototypeOf = Object.getPrototypeOf;
+
 /**
  * Checks if `value` is a plain object, that is, an object created by the
  * `Object` constructor or one with a `[[Prototype]]` of `null`.
  *
  * @static
  * @memberOf _
- * @since 0.8.0
  * @category Lang
  * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a plain object,
- *  else `false`.
+ * @returns {boolean} Returns `true` if `value` is a plain object, else `false`.
  * @example
  *
  * function Foo() {
@@ -2525,18 +2496,18 @@ function isPlainObject(value) {
       objectToString.call(value) != objectTag || isHostObject(value)) {
     return false;
   }
-  var proto = getPrototype(value);
+  var proto = getPrototypeOf(value);
   if (proto === null) {
     return true;
   }
-  var Ctor = hasOwnProperty.call(proto, 'constructor') && proto.constructor;
+  var Ctor = proto.constructor;
   return (typeof Ctor == 'function' &&
     Ctor instanceof Ctor && funcToString.call(Ctor) == objectCtorString);
 }
 
 module.exports = isPlainObject;
 
-},{"./_getPrototype":17,"./_isHostObject":18,"./isObjectLike":19}],21:[function(_dereq_,module,exports){
+},{"./_isHostObject":17,"./isObjectLike":18}],20:[function(_dereq_,module,exports){
 module.exports = once
 
 once.proto = once(function () {
@@ -2557,7 +2528,7 @@ function once (fn) {
   }
 }
 
-},{}],22:[function(_dereq_,module,exports){
+},{}],21:[function(_dereq_,module,exports){
 var trim = _dereq_('trim')
   , forEach = _dereq_('for-each')
   , isArray = function(arg) {
@@ -2589,7 +2560,7 @@ module.exports = function (headers) {
 
   return result
 }
-},{"for-each":1,"trim":31}],23:[function(_dereq_,module,exports){
+},{"for-each":1,"trim":30}],22:[function(_dereq_,module,exports){
 'use strict';
 
 function thunkMiddleware(_ref) {
@@ -2604,7 +2575,7 @@ function thunkMiddleware(_ref) {
 }
 
 module.exports = thunkMiddleware;
-},{}],24:[function(_dereq_,module,exports){
+},{}],23:[function(_dereq_,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -2662,7 +2633,7 @@ function applyMiddleware() {
     };
   };
 }
-},{"./compose":27}],25:[function(_dereq_,module,exports){
+},{"./compose":26}],24:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2714,7 +2685,7 @@ function bindActionCreators(actionCreators, dispatch) {
   }
   return boundActionCreators;
 }
-},{}],26:[function(_dereq_,module,exports){
+},{}],25:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2842,7 +2813,7 @@ function combineReducers(reducers) {
     return hasChanged ? nextState : state;
   };
 }
-},{"./createStore":28,"./utils/warning":30,"lodash/isPlainObject":20}],27:[function(_dereq_,module,exports){
+},{"./createStore":27,"./utils/warning":29,"lodash/isPlainObject":19}],26:[function(_dereq_,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2872,7 +2843,7 @@ function compose() {
     }, last.apply(undefined, arguments));
   };
 }
-},{}],28:[function(_dereq_,module,exports){
+},{}],27:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -3089,7 +3060,7 @@ function createStore(reducer, initialState, enhancer) {
     replaceReducer: replaceReducer
   };
 }
-},{"lodash/isPlainObject":20}],29:[function(_dereq_,module,exports){
+},{"lodash/isPlainObject":19}],28:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -3136,7 +3107,7 @@ exports.combineReducers = _combineReducers2["default"];
 exports.bindActionCreators = _bindActionCreators2["default"];
 exports.applyMiddleware = _applyMiddleware2["default"];
 exports.compose = _compose2["default"];
-},{"./applyMiddleware":24,"./bindActionCreators":25,"./combineReducers":26,"./compose":27,"./createStore":28,"./utils/warning":30}],30:[function(_dereq_,module,exports){
+},{"./applyMiddleware":23,"./bindActionCreators":24,"./combineReducers":25,"./compose":26,"./createStore":27,"./utils/warning":29}],29:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -3161,7 +3132,7 @@ function warning(message) {
   } catch (e) {}
   /* eslint-enable no-empty */
 }
-},{}],31:[function(_dereq_,module,exports){
+},{}],30:[function(_dereq_,module,exports){
 
 exports = module.exports = trim;
 
@@ -3177,7 +3148,7 @@ exports.right = function(str){
   return str.replace(/\s*$/, '');
 };
 
-},{}],32:[function(_dereq_,module,exports){
+},{}],31:[function(_dereq_,module,exports){
 "use strict";
 var window = _dereq_("global/window")
 var once = _dereq_("once")
@@ -3398,7 +3369,7 @@ function _createXHR(options) {
 
 function noop() {}
 
-},{"global/window":2,"is-function":7,"once":21,"parse-headers":22,"xtend":33}],33:[function(_dereq_,module,exports){
+},{"global/window":2,"is-function":7,"once":20,"parse-headers":21,"xtend":32}],32:[function(_dereq_,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -3418,6 +3389,40 @@ function extend() {
 
     return target
 }
+
+},{}],33:[function(_dereq_,module,exports){
+// Fastest deep clone i could find.
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+function deepClone9(obj) {
+    var i, len, ret;
+
+    if (typeof obj !== "object" || obj === null) {
+        return obj;
+    }
+
+    if (Array.isArray(obj)) {
+        ret = [];
+        len = obj.length;
+        for (i = 0; i < len; i++) {
+            ret.push(typeof obj[i] === "object" && obj[i] !== null ? deepClone9(obj[i]) : obj[i]);
+        }
+    } else {
+        ret = {};
+        for (i in obj) {
+            if (obj.hasOwnProperty(i)) {
+                ret[i] = typeof obj[i] === "object" && obj[i] !== null ? deepClone9(obj[i]) : obj[i];
+            }
+        }
+    }
+    return ret;
+}
+
+exports["default"] = deepClone9;
+module.exports = exports["default"];
 
 },{}],34:[function(_dereq_,module,exports){
 "use strict";
@@ -3531,6 +3536,10 @@ var _xhr = _dereq_("xhr");
 
 var _xhr2 = _interopRequireDefault(_xhr);
 
+var _cloneDeep = _dereq_("./clone-deep");
+
+var _cloneDeep2 = _interopRequireDefault(_cloneDeep);
+
 var handleError = function handleError() {};
 
 var server = {
@@ -3603,8 +3612,15 @@ function fetchResults() {
 		dispatch({ type: "CLEAR_LIST" });
 
 		var state = getState();
-		var query = state.queries.all.length ? state.queries.all[state.queries.all.length - 1] : state.queries["default"];
+		var query = state.queries.all.length ? (0, _cloneDeep2["default"])(state.queries.all[state.queries.all.length - 1]) : (0, _cloneDeep2["default"])(state.queries["default"]);
 
+		if (query.sortParameters && query.sortParameters.length) {
+			// TIM-756: seeing as in the current interface only one sort level can be selected,
+			// this one should only be sent to the server.
+			// This significantly speeds up direct database querying, whereas solr did not show
+			// as much impact
+			query.sortParameters = [query.sortParameters[0]];
+		}
 		var stringifiedQuery = JSON.stringify(query);
 
 		var dispatchTime = new Date().getTime();
@@ -3649,7 +3665,7 @@ function fetchNextResults(url) {
 	};
 }
 
-},{"xhr":32}],36:[function(_dereq_,module,exports){
+},{"./clone-deep":33,"xhr":31}],36:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5961,6 +5977,8 @@ var _reducersResults = _dereq_("./reducers/results");
 //   return next(action);
 //};
 
+console.log("LINK CHECK");
+
 var createStoreWithMiddleware = (0, _redux.applyMiddleware)(_reduxThunk2["default"])(_redux.createStore);
 
 
@@ -6175,7 +6193,7 @@ FacetedSearch.propTypes = {
 exports.facetMap = _componentsFacetMap2["default"];
 exports["default"] = FacetedSearch;
 
-},{"./actions/queries":34,"./actions/results":35,"./components/facet-map":36,"./components/filters":38,"./components/icons/loader-three-dots":41,"./components/results":52,"./defaults":57,"./reducers":59,"./reducers/results":61,"classnames":"classnames","insert-css":6,"lodash.isequal":14,"react":"react","redux":29,"redux-thunk":23}],59:[function(_dereq_,module,exports){
+},{"./actions/queries":34,"./actions/results":35,"./components/facet-map":36,"./components/filters":38,"./components/icons/loader-three-dots":41,"./components/results":52,"./defaults":57,"./reducers":59,"./reducers/results":61,"classnames":"classnames","insert-css":6,"lodash.isequal":14,"react":"react","redux":28,"redux-thunk":22}],59:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6208,7 +6226,7 @@ exports["default"] = (0, _redux.combineReducers)({
 });
 module.exports = exports["default"];
 
-},{"./queries":60,"./results":61,"redux":29}],60:[function(_dereq_,module,exports){
+},{"./queries":60,"./results":61,"redux":28}],60:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
