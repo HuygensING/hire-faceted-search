@@ -1,3 +1,6 @@
+### v5.2.7	(2016/4/26 8:12)
+* [TIM-756 TIM-760] Only sets one sortParameter only when selected by user.
+
 ### v5.2.6	(2016/4/25 15:29)
 * removes console msg
 
