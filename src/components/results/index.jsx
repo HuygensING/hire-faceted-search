@@ -66,9 +66,13 @@ class Results extends React.Component {
 			<Loader className="loader" /> :
 			null;
 
-		let sortValues = this.props.queries.last.sortParameters.length > 0 ?
-			this.props.queries.last.sortParameters :
-			this.props.results.last.sortableFields.map(f => ({fieldname: f}));
+		const currentSortParameter = this.props.queries.last.sortParameters.length ?
+			this.props.queries.last.sortParameters[0].fieldname :
+			null;
+
+		let sortValues = this.props.results.last.sortableFields
+			.map(f => ({fieldname: f}))
+			.sort((a, b) => a.fieldname === currentSortParameter ? -1 : b.fieldname === currentSortParameter ? 1 : 0);
 
 		let CurrentQueryComponent = (this.props.customComponents.currentQuery != null) ?
 			this.props.customComponents.currentQuery :

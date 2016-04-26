@@ -3391,40 +3391,6 @@ function extend() {
 }
 
 },{}],33:[function(_dereq_,module,exports){
-// Fastest deep clone i could find.
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-function deepClone9(obj) {
-    var i, len, ret;
-
-    if (typeof obj !== "object" || obj === null) {
-        return obj;
-    }
-
-    if (Array.isArray(obj)) {
-        ret = [];
-        len = obj.length;
-        for (i = 0; i < len; i++) {
-            ret.push(typeof obj[i] === "object" && obj[i] !== null ? deepClone9(obj[i]) : obj[i]);
-        }
-    } else {
-        ret = {};
-        for (i in obj) {
-            if (obj.hasOwnProperty(i)) {
-                ret[i] = typeof obj[i] === "object" && obj[i] !== null ? deepClone9(obj[i]) : obj[i];
-            }
-        }
-    }
-    return ret;
-}
-
-exports["default"] = deepClone9;
-module.exports = exports["default"];
-
-},{}],34:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3516,7 +3482,7 @@ function setSort(field) {
 	});
 }
 
-},{"./results":35}],35:[function(_dereq_,module,exports){
+},{"./results":34}],34:[function(_dereq_,module,exports){
 // TODO Fix caching
 
 "use strict";
@@ -3535,10 +3501,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 var _xhr = _dereq_("xhr");
 
 var _xhr2 = _interopRequireDefault(_xhr);
-
-var _cloneDeep = _dereq_("./clone-deep");
-
-var _cloneDeep2 = _interopRequireDefault(_cloneDeep);
 
 var handleError = function handleError() {};
 
@@ -3612,15 +3574,8 @@ function fetchResults() {
 		dispatch({ type: "CLEAR_LIST" });
 
 		var state = getState();
-		var query = state.queries.all.length ? (0, _cloneDeep2["default"])(state.queries.all[state.queries.all.length - 1]) : (0, _cloneDeep2["default"])(state.queries["default"]);
+		var query = state.queries.all.length ? state.queries.all[state.queries.all.length - 1] : state.queries["default"];
 
-		if (query.sortParameters && query.sortParameters.length) {
-			// TIM-756: seeing as in the current interface only one sort level can be selected,
-			// this one should only be sent to the server.
-			// This significantly speeds up direct database querying, whereas solr did not show
-			// as much impact
-			query.sortParameters = [query.sortParameters[0]];
-		}
 		var stringifiedQuery = JSON.stringify(query);
 
 		var dispatchTime = new Date().getTime();
@@ -3665,7 +3620,7 @@ function fetchNextResults(url) {
 	};
 }
 
-},{"./clone-deep":33,"xhr":31}],36:[function(_dereq_,module,exports){
+},{"xhr":31}],35:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3714,7 +3669,7 @@ exports["default"] = {
 };
 module.exports = exports["default"];
 
-},{"./list-facet":48,"./range-facet":51,"react":"react"}],37:[function(_dereq_,module,exports){
+},{"./list-facet":47,"./range-facet":50,"react":"react"}],36:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3824,7 +3779,7 @@ FilterMenu.propTypes = {
 exports["default"] = FilterMenu;
 module.exports = exports["default"];
 
-},{"../icons/filter":40,"classnames":"classnames","hire-forms-input":4,"insert-css":6,"react":"react"}],38:[function(_dereq_,module,exports){
+},{"../icons/filter":39,"classnames":"classnames","hire-forms-input":4,"insert-css":6,"react":"react"}],37:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3955,7 +3910,7 @@ Filters.propTypes = {
 exports["default"] = Filters;
 module.exports = exports["default"];
 
-},{"./facet-map":36,"./text-search":56,"react":"react"}],39:[function(_dereq_,module,exports){
+},{"./facet-map":35,"./text-search":55,"react":"react"}],38:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4016,7 +3971,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],40:[function(_dereq_,module,exports){
+},{"react":"react"}],39:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4076,7 +4031,7 @@ FilterIcon.propTypes = {
 exports["default"] = FilterIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],41:[function(_dereq_,module,exports){
+},{"react":"react"}],40:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4243,7 +4198,7 @@ LoaderThreeDots.propTypes = {
 exports["default"] = LoaderThreeDots;
 module.exports = exports["default"];
 
-},{"react":"react"}],42:[function(_dereq_,module,exports){
+},{"react":"react"}],41:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4303,7 +4258,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],43:[function(_dereq_,module,exports){
+},{"react":"react"}],42:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4374,7 +4329,7 @@ SortAlphabeticallyAscending.propTypes = {
 exports["default"] = SortAlphabeticallyAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],44:[function(_dereq_,module,exports){
+},{"react":"react"}],43:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4445,7 +4400,7 @@ SortAlphabeticallyDescending.propTypes = {
 exports["default"] = SortAlphabeticallyDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],45:[function(_dereq_,module,exports){
+},{"react":"react"}],44:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4514,7 +4469,7 @@ SortCountAscending.propTypes = {
 exports["default"] = SortCountAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],46:[function(_dereq_,module,exports){
+},{"react":"react"}],45:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4583,7 +4538,7 @@ SortCountDescending.propTypes = {
 exports["default"] = SortCountDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],47:[function(_dereq_,module,exports){
+},{"react":"react"}],46:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4642,7 +4597,7 @@ UncheckedIcon.propTypes = {
 exports["default"] = UncheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],48:[function(_dereq_,module,exports){
+},{"react":"react"}],47:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4862,7 +4817,7 @@ ListFacet.propTypes = {
 exports["default"] = ListFacet;
 module.exports = exports["default"];
 
-},{"../filter-menu":37,"../sort-menu":55,"./list-item":49,"./sort-function":50,"classnames":"classnames","insert-css":6,"react":"react"}],49:[function(_dereq_,module,exports){
+},{"../filter-menu":36,"../sort-menu":54,"./list-item":48,"./sort-function":49,"classnames":"classnames","insert-css":6,"react":"react"}],48:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4972,7 +4927,7 @@ ListFacetListItem.propTypes = {
 exports["default"] = ListFacetListItem;
 module.exports = exports["default"];
 
-},{"../icons/checked":39,"../icons/unchecked":47,"react":"react"}],50:[function(_dereq_,module,exports){
+},{"../icons/checked":38,"../icons/unchecked":46,"react":"react"}],49:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5036,7 +4991,7 @@ function sortFunction(type, direction) {
 
 module.exports = exports["default"];
 
-},{}],51:[function(_dereq_,module,exports){
+},{}],50:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5185,7 +5140,7 @@ RangeFacet.propTypes = {
 exports["default"] = RangeFacet;
 module.exports = exports["default"];
 
-},{"hire-range-slider":5,"insert-css":6,"react":"react"}],52:[function(_dereq_,module,exports){
+},{"hire-range-slider":5,"insert-css":6,"react":"react"}],51:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5298,8 +5253,12 @@ var Results = (function (_React$Component) {
 		value: function render() {
 			var loader = this.props.results.requesting ? _react2["default"].createElement(_iconsLoaderThreeDots2["default"], { className: "loader" }) : null;
 
-			var sortValues = this.props.queries.last.sortParameters.length > 0 ? this.props.queries.last.sortParameters : this.props.results.last.sortableFields.map(function (f) {
+			var currentSortParameter = this.props.queries.last.sortParameters.length ? this.props.queries.last.sortParameters[0].fieldname : null;
+
+			var sortValues = this.props.results.last.sortableFields.map(function (f) {
 				return { fieldname: f };
+			}).sort(function (a, b) {
+				return a.fieldname === currentSortParameter ? -1 : b.fieldname === currentSortParameter ? 1 : 0;
 			});
 
 			var CurrentQueryComponent = this.props.customComponents.currentQuery != null ? this.props.customComponents.currentQuery : _hireCurrentQuery2["default"];
@@ -5362,7 +5321,7 @@ Results.propTypes = {
 exports["default"] = Results;
 module.exports = exports["default"];
 
-},{"../icons/loader-three-dots":41,"./result":53,"./sort-menu":54,"classnames":"classnames","hire-current-query":3,"insert-css":6,"lodash.debounce":11,"react":"react"}],53:[function(_dereq_,module,exports){
+},{"../icons/loader-three-dots":40,"./result":52,"./sort-menu":53,"classnames":"classnames","hire-current-query":3,"insert-css":6,"lodash.debounce":11,"react":"react"}],52:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5462,7 +5421,7 @@ Result.propTypes = {
 exports["default"] = Result;
 module.exports = exports["default"];
 
-},{"react":"react"}],54:[function(_dereq_,module,exports){
+},{"react":"react"}],53:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5595,7 +5554,7 @@ ResultsSortMenu.propTypes = {
 exports["default"] = ResultsSortMenu;
 module.exports = exports["default"];
 
-},{"classnames":"classnames","insert-css":6,"react":"react"}],55:[function(_dereq_,module,exports){
+},{"classnames":"classnames","insert-css":6,"react":"react"}],54:[function(_dereq_,module,exports){
 /* TODO Remove sort menu and move sort options (count/alpha) to facet schema.
 	A schema is needed, because different facets, should be able to have different
 	options set. */
@@ -5731,7 +5690,7 @@ SortMenu.propTypes = {
 exports["default"] = SortMenu;
 module.exports = exports["default"];
 
-},{"../icons/sort-alphabetically-ascending":43,"../icons/sort-alphabetically-descending":44,"../icons/sort-count-ascending":45,"../icons/sort-count-descending":46,"classnames":"classnames","insert-css":6,"react":"react"}],56:[function(_dereq_,module,exports){
+},{"../icons/sort-alphabetically-ascending":42,"../icons/sort-alphabetically-descending":43,"../icons/sort-count-ascending":44,"../icons/sort-count-descending":45,"classnames":"classnames","insert-css":6,"react":"react"}],55:[function(_dereq_,module,exports){
 // TODO add searching class to .search-icon when async query is busy
 
 "use strict";
@@ -5872,7 +5831,7 @@ TextSearch.propTypes = {
 exports["default"] = TextSearch;
 module.exports = exports["default"];
 
-},{"../icons/search":42,"classnames":"classnames","insert-css":6,"react":"react"}],57:[function(_dereq_,module,exports){
+},{"../icons/search":41,"classnames":"classnames","insert-css":6,"react":"react"}],56:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5900,7 +5859,7 @@ exports.configDefaults = configDefaults;
 exports.labelsDefaults = labelsDefaults;
 exports.queryDefaults = queryDefaults;
 
-},{}],58:[function(_dereq_,module,exports){
+},{}],57:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6191,7 +6150,7 @@ FacetedSearch.propTypes = {
 exports.facetMap = _componentsFacetMap2["default"];
 exports["default"] = FacetedSearch;
 
-},{"./actions/queries":34,"./actions/results":35,"./components/facet-map":36,"./components/filters":38,"./components/icons/loader-three-dots":41,"./components/results":52,"./defaults":57,"./reducers":59,"./reducers/results":61,"classnames":"classnames","insert-css":6,"lodash.isequal":14,"react":"react","redux":28,"redux-thunk":22}],59:[function(_dereq_,module,exports){
+},{"./actions/queries":33,"./actions/results":34,"./components/facet-map":35,"./components/filters":37,"./components/icons/loader-three-dots":40,"./components/results":51,"./defaults":56,"./reducers":58,"./reducers/results":60,"classnames":"classnames","insert-css":6,"lodash.isequal":14,"react":"react","redux":28,"redux-thunk":22}],58:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6224,7 +6183,7 @@ exports["default"] = (0, _redux.combineReducers)({
 });
 module.exports = exports["default"];
 
-},{"./queries":60,"./results":61,"redux":28}],60:[function(_dereq_,module,exports){
+},{"./queries":59,"./results":60,"redux":28}],59:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6335,38 +6294,9 @@ exports["default"] = function (state, action) {
 			break;
 
 		case "SET_RESULTS_SORT":
-			var sortParameters = state.last.sortParameters.sort(function (valA, valB) {
-				if (valA.fieldname === action.field) {
-					return -1;
-				}
-				if (valB.fieldname === action.field) {
-					return 1;
-				}
-				if (valA.fieldname < valB.fieldname) {
-					return -1;
-				}
-				if (valA.fieldname > valB.fieldname) {
-					return 1;
-				}
-
-				return 0;
-			});
-
-			query = _extends({}, state.last, { sortParameters: sortParameters });
+			query = _extends({}, state.last, { sortParameters: [{ fieldname: action.field, direction: "asc" }] });
 
 			state = addQueryToState(state, query);
-
-			break;
-
-		case "RECEIVE_RESULTS":
-			if (state.last.sortParameters.length === 0 && action.response.sortableFields) {
-				query = _extends({}, state.last, {
-					sortParameters: action.response.sortableFields.map(function (fieldname) {
-						return { fieldname: fieldname, direction: "asc" };
-					})
-				});
-				state = addQueryToState(state, query);
-			}
 
 			break;
 
@@ -6446,7 +6376,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{"../defaults":57}],61:[function(_dereq_,module,exports){
+},{"../defaults":56}],60:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6575,5 +6505,5 @@ exports["default"] = function (state, action) {
 	return state;
 };
 
-},{}]},{},[58])(58)
+},{}]},{},[57])(57)
 });

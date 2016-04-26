@@ -34,50 +34,18 @@ describe('queries reducer', () => {
 			all: [],
 			last: {
 				sortParameters: [
-					{fieldname: "zzOnBottom"},
-					{fieldname: "inTheMiddle"},
-					{fieldname: "onTop"}
+					{fieldname: "fieldname"}
 				]
 			}
 		};
 
 		expect(reducer(state, {
 			type: "SET_RESULTS_SORT",
-			field: "onTop"
+			field: "otherField"
 		})).toEqual({
-			all: [{ sortParameters: [ { fieldname: "onTop" }, { fieldname: "inTheMiddle" }, { fieldname: "zzOnBottom" } ] } ],
-			last: { sortParameters: [ { fieldname: "onTop" }, { fieldname: "inTheMiddle" }, { fieldname: "zzOnBottom" } ] } }
+			all: [{ sortParameters: [ { fieldname: "otherField", direction: "asc" } ] } ],
+			last: { sortParameters: [ { fieldname: "otherField", direction: "asc" } ] } }
 		);
-	});
-
-
-	it("should handle initialize the sortparameters with RECEIVE_RESULTS", () => {
-//		if(state.last.sortParameters.length === 0)
-		let state = {
-			all: [],
-			last: {sortParameters: []}
-		};
-
-		expect(reducer(state, {
-			type: "RECEIVE_RESULTS",
-			response: {sortableFields: ["foo", "bar", "baz"]}
-		})).toEqual({
-			all: [{sortParameters: [{fieldname: "foo", direction: "asc"}, {fieldname: "bar", direction: "asc"}, {fieldname: "baz", direction: "asc"}]}],
-			last: {sortParameters: [{fieldname: "foo", direction: "asc"}, {fieldname: "bar", direction: "asc"}, {fieldname: "baz", direction: "asc"}]}
-		});
-
-//		else
-		let state1 = {
-			all: [{sortParameters: ["foo"]}],
-			last: {sortParameters: ["foo"]}
-		};
-
-		expect(reducer(state1, {
-			type: "RECEIVE_RESULTS"
-		})).toEqual({
-			all: [{sortParameters: ["foo"]}],
-			last: {sortParameters: ["foo"]}
-		});
 	});
 
 	it("should REMOVE_FACET_VALUE but keep other facet values in the same facet name", () => {

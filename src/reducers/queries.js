@@ -95,28 +95,9 @@ export default function(state=initialState, action) {
 			break;
 
 		case "SET_RESULTS_SORT":
-			let sortParameters = state.last.sortParameters.sort((valA, valB) => {
-				if (valA.fieldname === action.field) { return -1; }
-				if (valB.fieldname === action.field) { return 1; }
-				if (valA.fieldname < valB.fieldname) { return -1; }
-				if (valA.fieldname > valB.fieldname) { return 1; }
-
-				return 0;
-			});
-
-			query = {...state.last, ...{sortParameters: sortParameters}};
+			query = {...state.last, ...{sortParameters: [{fieldname: action.field, direction: "asc"}]}};
 
 			state = addQueryToState(state, query);
-
-			break;
-
-		case "RECEIVE_RESULTS":
-			if(state.last.sortParameters.length === 0 && action.response.sortableFields) {
-				query = {...state.last, ...{
-					sortParameters: action.response.sortableFields.map((fieldname) => ({ fieldname: fieldname, direction: "asc"}))
-				}};
-				state = addQueryToState(state, query);
-			}
 
 			break;
 
