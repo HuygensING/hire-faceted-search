@@ -1,3 +1,19 @@
+### v6.0.0	(2016/5/10 12:56)
+* Merge dev into master
+* New build
+* New build
+* New build
+* Link to major versions of hire-* deps (react 15)
+* New build
+* Remove .orig files
+* New build
+* fixes skin-deep dep for react 0.14; devdepend on hire-current-query#react-0.14
+* branch for react 0.14
+* fixes skin-deep dep for react 0.14; devdepend on hire-current-query#react-0.14
+* branch for react 0.14
+* fixes skin-deep dep for react 0.14; devdepend on hire-current-query#react-0.14
+* branch for react 0.14
+
 ### v5.2.7	(2016/4/26 8:12)
 * [TIM-756 TIM-760] Only sets one sortParameter only when selected by user.
 
