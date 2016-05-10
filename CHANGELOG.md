@@ -1,3 +1,6 @@
+### v6.0.1	(2016/5/10 13:1)
+* New build
+
 ### v6.0.0	(2016/5/10 12:56)
 * Merge dev into master
 * New build
