@@ -21,7 +21,8 @@
   },
   "homepage": "https://github.com/HuygensING/hire-faceted-search",
   "peerDependencies": {
-    "react": "^0.13.3"
+    "react": "^0.14.7",
+    "react-dom": "^0.14.7"
   },
   "devDependencies": {
     "babel": "^5.8.12",
@@ -38,18 +39,21 @@
     "hi-bump": "^1.1.1",
     "mocha": "^2.2.5",
     "nodemon": "^1.4.0",
+    "react": "^0.14.7",
+    "react-addons-test-utils": "^0.14.7",
+    "react-dom": "^0.14.7",
     "should": "^7.0.2",
     "sinon": "~1.16.1",
-    "skin-deep": "^0.8.1",
+    "skin-deep": "^0.14.0",
     "watchify": "^3.3.0"
   },
   "dependencies": {
     "babel-polyfill": "^6.7.4",
     "classnames": "^2.1.3",
     "flux": "^2.0.3",
-    "hire-current-query": "^1.2.1",
-    "hire-forms-input": "^1.2.0",
-    "hire-range-slider": "^1.1.2",
+    "hire-current-query": "v2.0.0",
+    "hire-forms-input": "v2.0.0",
+    "hire-range-slider": "v2.0.0",
     "immutable": "^3.7.4",
     "insert-css": "^0.2.0",
     "lodash.debounce": "^3.1.1",
