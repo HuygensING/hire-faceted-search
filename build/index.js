@@ -2487,7 +2487,8 @@ var hasOwnProperty = objectProto.hasOwnProperty;
 var objectCtorString = funcToString.call(Object);
 
 /**
- * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
  * of values.
  */
 var objectToString = objectProto.toString;
@@ -2590,7 +2591,7 @@ module.exports = function (headers) {
 
   return result
 }
-},{"for-each":1,"trim":31}],23:[function(_dereq_,module,exports){
+},{"for-each":1,"trim":33}],23:[function(_dereq_,module,exports){
 'use strict';
 
 function thunkMiddleware(_ref) {
@@ -2608,9 +2609,10 @@ module.exports = thunkMiddleware;
 },{}],24:[function(_dereq_,module,exports){
 'use strict';
 
+exports.__esModule = true;
+
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-exports.__esModule = true;
 exports["default"] = applyMiddleware;
 
 var _compose = _dereq_('./compose');
@@ -2737,7 +2739,7 @@ function getUndefinedStateErrorMessage(key, action) {
   var actionType = action && action.type;
   var actionName = actionType && '"' + actionType.toString() + '"' || 'an action';
 
-  return 'Reducer "' + key + '" returned undefined handling ' + actionName + '. ' + 'To ignore an action, you must explicitly return the previous state.';
+  return 'Given action ' + actionName + ', reducer "' + key + '" returned undefined. ' + 'To ignore an action, you must explicitly return the previous state.';
 }
 
 function getUnexpectedStateShapeWarningMessage(inputState, reducers, action) {
@@ -2849,29 +2851,40 @@ function combineReducers(reducers) {
 exports.__esModule = true;
 exports["default"] = compose;
 /**
- * Composes single-argument functions from right to left.
+ * Composes single-argument functions from right to left. The rightmost
+ * function can take multiple arguments as it provides the signature for
+ * the resulting composite function.
  *
  * @param {...Function} funcs The functions to compose.
- * @returns {Function} A function obtained by composing functions from right to
- * left. For example, compose(f, g, h) is identical to arg => f(g(h(arg))).
+ * @returns {Function} A function obtained by composing the argument functions
+ * from right to left. For example, compose(f, g, h) is identical to doing
+ * (...args) => f(g(h(...args))).
  */
+
 function compose() {
   for (var _len = arguments.length, funcs = Array(_len), _key = 0; _key < _len; _key++) {
     funcs[_key] = arguments[_key];
   }
 
-  return function () {
-    if (funcs.length === 0) {
-      return arguments.length <= 0 ? undefined : arguments[0];
-    }
+  if (funcs.length === 0) {
+    return function (arg) {
+      return arg;
+    };
+  } else {
+    var _ret = function () {
+      var last = funcs[funcs.length - 1];
+      var rest = funcs.slice(0, -1);
+      return {
+        v: function v() {
+          return rest.reduceRight(function (composed, f) {
+            return f(composed);
+          }, last.apply(undefined, arguments));
+        }
+      };
+    }();
 
-    var last = funcs[funcs.length - 1];
-    var rest = funcs.slice(0, -1);
-
-    return rest.reduceRight(function (composed, f) {
-      return f(composed);
-    }, last.apply(undefined, arguments));
-  };
+    if (typeof _ret === "object") return _ret.v;
+  }
 }
 },{}],28:[function(_dereq_,module,exports){
 'use strict';
@@ -2883,6 +2896,10 @@ exports["default"] = createStore;
 var _isPlainObject = _dereq_('lodash/isPlainObject');
 
 var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
+
+var _symbolObservable = _dereq_('symbol-observable');
+
+var _symbolObservable2 = _interopRequireDefault(_symbolObservable);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -2922,6 +2939,8 @@ var ActionTypes = exports.ActionTypes = {
  * and subscribe to changes.
  */
 function createStore(reducer, initialState, enhancer) {
+  var _ref2;
+
   if (typeof initialState === 'function' && typeof enhancer === 'undefined') {
     enhancer = initialState;
     initialState = undefined;
@@ -2974,7 +2993,7 @@ function createStore(reducer, initialState, enhancer) {
    * However, the next `dispatch()` call, whether nested or not, will use a more
    * recent snapshot of the subscription list.
    *
-   * 2. The listener should not expect to see all states changes, as the state
+   * 2. The listener should not expect to see all state changes, as the state
    * might have been updated multiple times during a nested `dispatch()` before
    * the listener is called. It is, however, guaranteed that all subscribers
    * registered before the `dispatch()` started will be called with the latest
@@ -3078,19 +3097,59 @@ function createStore(reducer, initialState, enhancer) {
     dispatch({ type: ActionTypes.INIT });
   }
 
+  /**
+   * Interoperability point for observable/reactive libraries.
+   * @returns {observable} A minimal observable of state changes.
+   * For more information, see the observable proposal:
+   * https://github.com/zenparsing/es-observable
+   */
+  function observable() {
+    var _ref;
+
+    var outerSubscribe = subscribe;
+    return _ref = {
+      /**
+       * The minimal observable subscription method.
+       * @param {Object} observer Any object that can be used as an observer.
+       * The observer object should have a `next` method.
+       * @returns {subscription} An object with an `unsubscribe` method that can
+       * be used to unsubscribe the observable from the store, and prevent further
+       * emission of values from the observable.
+       */
+
+      subscribe: function subscribe(observer) {
+        if (typeof observer !== 'object') {
+          throw new TypeError('Expected the observer to be an object.');
+        }
+
+        function observeState() {
+          if (observer.next) {
+            observer.next(getState());
+          }
+        }
+
+        observeState();
+        var unsubscribe = outerSubscribe(observeState);
+        return { unsubscribe: unsubscribe };
+      }
+    }, _ref[_symbolObservable2["default"]] = function () {
+      return this;
+    }, _ref;
+  }
+
   // When a store is created, an "INIT" action is dispatched so that every
   // reducer returns their initial state. This effectively populates
   // the initial state tree.
   dispatch({ type: ActionTypes.INIT });
 
-  return {
+  return _ref2 = {
     dispatch: dispatch,
     subscribe: subscribe,
     getState: getState,
     replaceReducer: replaceReducer
-  };
+  }, _ref2[_symbolObservable2["default"]] = observable, _ref2;
 }
-},{"lodash/isPlainObject":20}],29:[function(_dereq_,module,exports){
+},{"lodash/isPlainObject":20,"symbol-observable":31}],29:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -3155,14 +3214,42 @@ function warning(message) {
   }
   /* eslint-enable no-console */
   try {
-    // This error was thrown as a convenience so that you can use this stack
-    // to find the callsite that caused this warning to fire.
+    // This error was thrown as a convenience so that if you enable
+    // "break on all exceptions" in your console,
+    // it would pause the execution at this line.
     throw new Error(message);
     /* eslint-disable no-empty */
   } catch (e) {}
   /* eslint-enable no-empty */
 }
 },{}],31:[function(_dereq_,module,exports){
+/* global window */
+'use strict';
+
+module.exports = _dereq_('./ponyfill')(global || window || this);
+
+},{"./ponyfill":32}],32:[function(_dereq_,module,exports){
+'use strict';
+
+module.exports = function symbolObservablePonyfill(root) {
+	var result;
+	var Symbol = root.Symbol;
+
+	if (typeof Symbol === 'function') {
+		if (Symbol.observable) {
+			result = Symbol.observable;
+		} else {
+			result = Symbol('observable');
+			Symbol.observable = result;
+		}
+	} else {
+		result = '@@observable';
+	}
+
+	return result;
+};
+
+},{}],33:[function(_dereq_,module,exports){
 
 exports = module.exports = trim;
 
@@ -3178,7 +3265,7 @@ exports.right = function(str){
   return str.replace(/\s*$/, '');
 };
 
-},{}],32:[function(_dereq_,module,exports){
+},{}],34:[function(_dereq_,module,exports){
 "use strict";
 var window = _dereq_("global/window")
 var once = _dereq_("once")
@@ -3399,7 +3486,7 @@ function _createXHR(options) {
 
 function noop() {}
 
-},{"global/window":2,"is-function":7,"once":21,"parse-headers":22,"xtend":33}],33:[function(_dereq_,module,exports){
+},{"global/window":2,"is-function":7,"once":21,"parse-headers":22,"xtend":35}],35:[function(_dereq_,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -3420,7 +3507,7 @@ function extend() {
     return target
 }
 
-},{}],34:[function(_dereq_,module,exports){
+},{}],36:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3512,7 +3599,7 @@ function setSort(field) {
 	});
 }
 
-},{"./results":35}],35:[function(_dereq_,module,exports){
+},{"./results":37}],37:[function(_dereq_,module,exports){
 // TODO Fix caching
 
 "use strict";
@@ -3650,7 +3737,7 @@ function fetchNextResults(url) {
 	};
 }
 
-},{"xhr":32}],36:[function(_dereq_,module,exports){
+},{"xhr":34}],38:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3699,7 +3786,7 @@ exports["default"] = {
 };
 module.exports = exports["default"];
 
-},{"./list-facet":48,"./range-facet":51,"react":"react"}],37:[function(_dereq_,module,exports){
+},{"./list-facet":50,"./range-facet":53,"react":"react"}],39:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3809,7 +3896,7 @@ FilterMenu.propTypes = {
 exports["default"] = FilterMenu;
 module.exports = exports["default"];
 
-},{"../icons/filter":40,"classnames":"classnames","hire-forms-input":4,"insert-css":6,"react":"react"}],38:[function(_dereq_,module,exports){
+},{"../icons/filter":42,"classnames":"classnames","hire-forms-input":4,"insert-css":6,"react":"react"}],40:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3940,7 +4027,7 @@ Filters.propTypes = {
 exports["default"] = Filters;
 module.exports = exports["default"];
 
-},{"./facet-map":36,"./text-search":56,"react":"react"}],39:[function(_dereq_,module,exports){
+},{"./facet-map":38,"./text-search":58,"react":"react"}],41:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4001,7 +4088,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],40:[function(_dereq_,module,exports){
+},{"react":"react"}],42:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4061,7 +4148,7 @@ FilterIcon.propTypes = {
 exports["default"] = FilterIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],41:[function(_dereq_,module,exports){
+},{"react":"react"}],43:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4232,7 +4319,7 @@ LoaderThreeDots.propTypes = {
 exports["default"] = LoaderThreeDots;
 module.exports = exports["default"];
 
-},{"react":"react","react-dom":"react-dom"}],42:[function(_dereq_,module,exports){
+},{"react":"react","react-dom":"react-dom"}],44:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4292,7 +4379,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],43:[function(_dereq_,module,exports){
+},{"react":"react"}],45:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4363,7 +4450,7 @@ SortAlphabeticallyAscending.propTypes = {
 exports["default"] = SortAlphabeticallyAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],44:[function(_dereq_,module,exports){
+},{"react":"react"}],46:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4434,7 +4521,7 @@ SortAlphabeticallyDescending.propTypes = {
 exports["default"] = SortAlphabeticallyDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],45:[function(_dereq_,module,exports){
+},{"react":"react"}],47:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4503,7 +4590,7 @@ SortCountAscending.propTypes = {
 exports["default"] = SortCountAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],46:[function(_dereq_,module,exports){
+},{"react":"react"}],48:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4572,7 +4659,7 @@ SortCountDescending.propTypes = {
 exports["default"] = SortCountDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],47:[function(_dereq_,module,exports){
+},{"react":"react"}],49:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4631,7 +4718,7 @@ UncheckedIcon.propTypes = {
 exports["default"] = UncheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],48:[function(_dereq_,module,exports){
+},{"react":"react"}],50:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4851,7 +4938,7 @@ ListFacet.propTypes = {
 exports["default"] = ListFacet;
 module.exports = exports["default"];
 
-},{"../filter-menu":37,"../sort-menu":55,"./list-item":49,"./sort-function":50,"classnames":"classnames","insert-css":6,"react":"react"}],49:[function(_dereq_,module,exports){
+},{"../filter-menu":39,"../sort-menu":57,"./list-item":51,"./sort-function":52,"classnames":"classnames","insert-css":6,"react":"react"}],51:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4961,7 +5048,7 @@ ListFacetListItem.propTypes = {
 exports["default"] = ListFacetListItem;
 module.exports = exports["default"];
 
-},{"../icons/checked":39,"../icons/unchecked":47,"react":"react"}],50:[function(_dereq_,module,exports){
+},{"../icons/checked":41,"../icons/unchecked":49,"react":"react"}],52:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5025,7 +5112,7 @@ function sortFunction(type, direction) {
 
 module.exports = exports["default"];
 
-},{}],51:[function(_dereq_,module,exports){
+},{}],53:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5172,7 +5259,7 @@ RangeFacet.propTypes = {
 exports["default"] = RangeFacet;
 module.exports = exports["default"];
 
-},{"hire-range-slider":5,"insert-css":6,"react":"react"}],52:[function(_dereq_,module,exports){
+},{"hire-range-slider":5,"insert-css":6,"react":"react"}],54:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5353,7 +5440,7 @@ Results.propTypes = {
 exports["default"] = Results;
 module.exports = exports["default"];
 
-},{"../icons/loader-three-dots":41,"./result":53,"./sort-menu":54,"classnames":"classnames","hire-current-query":3,"insert-css":6,"lodash.debounce":11,"react":"react","react-dom":"react-dom"}],53:[function(_dereq_,module,exports){
+},{"../icons/loader-three-dots":43,"./result":55,"./sort-menu":56,"classnames":"classnames","hire-current-query":3,"insert-css":6,"lodash.debounce":11,"react":"react","react-dom":"react-dom"}],55:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5453,7 +5540,7 @@ Result.propTypes = {
 exports["default"] = Result;
 module.exports = exports["default"];
 
-},{"react":"react"}],54:[function(_dereq_,module,exports){
+},{"react":"react"}],56:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5586,7 +5673,7 @@ ResultsSortMenu.propTypes = {
 exports["default"] = ResultsSortMenu;
 module.exports = exports["default"];
 
-},{"classnames":"classnames","insert-css":6,"react":"react"}],55:[function(_dereq_,module,exports){
+},{"classnames":"classnames","insert-css":6,"react":"react"}],57:[function(_dereq_,module,exports){
 /* TODO Remove sort menu and move sort options (count/alpha) to facet schema.
 	A schema is needed, because different facets, should be able to have different
 	options set. */
@@ -5722,7 +5809,7 @@ SortMenu.propTypes = {
 exports["default"] = SortMenu;
 module.exports = exports["default"];
 
-},{"../icons/sort-alphabetically-ascending":43,"../icons/sort-alphabetically-descending":44,"../icons/sort-count-ascending":45,"../icons/sort-count-descending":46,"classnames":"classnames","insert-css":6,"react":"react"}],56:[function(_dereq_,module,exports){
+},{"../icons/sort-alphabetically-ascending":45,"../icons/sort-alphabetically-descending":46,"../icons/sort-count-ascending":47,"../icons/sort-count-descending":48,"classnames":"classnames","insert-css":6,"react":"react"}],58:[function(_dereq_,module,exports){
 // TODO add searching class to .search-icon when async query is busy
 
 "use strict";
@@ -5863,7 +5950,7 @@ TextSearch.propTypes = {
 exports["default"] = TextSearch;
 module.exports = exports["default"];
 
-},{"../icons/search":42,"classnames":"classnames","insert-css":6,"react":"react"}],57:[function(_dereq_,module,exports){
+},{"../icons/search":44,"classnames":"classnames","insert-css":6,"react":"react"}],59:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5891,7 +5978,7 @@ exports.configDefaults = configDefaults;
 exports.labelsDefaults = labelsDefaults;
 exports.queryDefaults = queryDefaults;
 
-},{}],58:[function(_dereq_,module,exports){
+},{}],60:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6182,7 +6269,7 @@ FacetedSearch.propTypes = {
 exports.facetMap = _componentsFacetMap2["default"];
 exports["default"] = FacetedSearch;
 
-},{"./actions/queries":34,"./actions/results":35,"./components/facet-map":36,"./components/filters":38,"./components/icons/loader-three-dots":41,"./components/results":52,"./defaults":57,"./reducers":59,"./reducers/results":61,"classnames":"classnames","insert-css":6,"lodash.isequal":14,"react":"react","redux":29,"redux-thunk":23}],59:[function(_dereq_,module,exports){
+},{"./actions/queries":36,"./actions/results":37,"./components/facet-map":38,"./components/filters":40,"./components/icons/loader-three-dots":43,"./components/results":54,"./defaults":59,"./reducers":61,"./reducers/results":63,"classnames":"classnames","insert-css":6,"lodash.isequal":14,"react":"react","redux":29,"redux-thunk":23}],61:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6215,7 +6302,7 @@ exports["default"] = (0, _redux.combineReducers)({
 });
 module.exports = exports["default"];
 
-},{"./queries":60,"./results":61,"redux":29}],60:[function(_dereq_,module,exports){
+},{"./queries":62,"./results":63,"redux":29}],62:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6437,7 +6524,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{"../defaults":57}],61:[function(_dereq_,module,exports){
+},{"../defaults":59}],63:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6566,5 +6653,5 @@ exports["default"] = function (state, action) {
 	return state;
 };
 
-},{}]},{},[58])(58)
+},{}]},{},[60])(60)
 });
