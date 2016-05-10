@@ -5444,11 +5444,7 @@ Results.propTypes = {
 exports["default"] = Results;
 module.exports = exports["default"];
 
-<<<<<<< HEAD
-},{"../icons/loader-three-dots":43,"./result":55,"./sort-menu":56,"classnames":"classnames","hire-current-query":3,"insert-css":6,"lodash.debounce":11,"react":"react"}],55:[function(_dereq_,module,exports){
-=======
 },{"../icons/loader-three-dots":43,"./result":55,"./sort-menu":56,"classnames":"classnames","hire-current-query":3,"insert-css":6,"lodash.debounce":11,"react":"react","react-dom":"react-dom"}],55:[function(_dereq_,module,exports){
->>>>>>> development
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
