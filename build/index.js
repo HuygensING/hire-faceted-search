@@ -5152,6 +5152,8 @@ if (typeof window != 'undefined' && window.document) {
 var MOUSE_DOWN = 0;
 var MOUSE_UP = 1;
 
+_react2["default"].initializeTouchEvents(true);
+
 var RangeFacet = (function (_React$Component) {
 	_inherits(RangeFacet, _React$Component);
 
@@ -5280,10 +5282,6 @@ var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactDom = _dereq_("react-dom");
-
-var _reactDom2 = _interopRequireDefault(_reactDom);
-
 var _classnames = _dereq_("classnames");
 
 var _classnames2 = _interopRequireDefault(_classnames);
@@ -5349,7 +5347,7 @@ var Results = (function (_React$Component) {
 		key: "onScroll",
 		value: function onScroll() {
 			var nth = this.props.results.last.refs.length - parseInt(Math.floor(this.props.config.rows / 2)) + 1;
-			var listItem = _reactDom2["default"].findDOMNode(this).querySelector(".hire-faceted-search-result-list > li:nth-child(" + nth + ")");
+			var listItem = _react2["default"].findDOMNode(this).querySelector(".hire-faceted-search-result-list > li:nth-child(" + nth + ")");
 			if (this.props.results.last.hasOwnProperty("_next") && listItem && inViewport(listItem)) {
 				var url = this.props.results.last._next;
 				this.props.onFetchNextResults(url);
@@ -5376,8 +5374,12 @@ var Results = (function (_React$Component) {
 		value: function render() {
 			var loader = this.props.results.requesting ? _react2["default"].createElement(_iconsLoaderThreeDots2["default"], { className: "loader" }) : null;
 
-			var sortValues = this.props.queries.last.sortParameters.length > 0 ? this.props.queries.last.sortParameters : this.props.results.last.sortableFields.map(function (f) {
+			var currentSortParameter = this.props.queries.last.sortParameters.length ? this.props.queries.last.sortParameters[0].fieldname : null;
+
+			var sortValues = this.props.results.last.sortableFields.map(function (f) {
 				return { fieldname: f };
+			}).sort(function (a, b) {
+				return a.fieldname === currentSortParameter ? -1 : b.fieldname === currentSortParameter ? 1 : 0;
 			});
 
 			var CurrentQueryComponent = this.props.customComponents.currentQuery != null ? this.props.customComponents.currentQuery : _hireCurrentQuery2["default"];
@@ -5440,7 +5442,7 @@ Results.propTypes = {
 exports["default"] = Results;
 module.exports = exports["default"];
 
-},{"../icons/loader-three-dots":43,"./result":55,"./sort-menu":56,"classnames":"classnames","hire-current-query":3,"insert-css":6,"lodash.debounce":11,"react":"react","react-dom":"react-dom"}],55:[function(_dereq_,module,exports){
+},{"../icons/loader-three-dots":43,"./result":55,"./sort-menu":56,"classnames":"classnames","hire-current-query":3,"insert-css":6,"lodash.debounce":11,"react":"react"}],55:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
