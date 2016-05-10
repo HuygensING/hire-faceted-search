@@ -321,13 +321,13 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var _react = _dereq_("react");
 
@@ -338,6 +338,8 @@ var _classnames = _dereq_("classnames");
 var _classnames2 = _interopRequireDefault(_classnames);
 
 var Input = (function (_React$Component) {
+	_inherits(Input, _React$Component);
+
 	function Input(props) {
 		_classCallCheck(this, Input);
 
@@ -348,8 +350,6 @@ var Input = (function (_React$Component) {
 			invalidMessage: null
 		};
 	}
-
-	_inherits(Input, _React$Component);
 
 	_createClass(Input, [{
 		key: "componentWillReceiveProps",
@@ -443,7 +443,6 @@ module.exports = exports["default"];
 
 },{"classnames":"classnames","react":"react"}]},{},[1])(1)
 });
-
 },{}],5:[function(_dereq_,module,exports){
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.RangeSlider = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 var inserted = {};
@@ -492,6 +491,10 @@ var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
 
+var _reactDom = _dereq_("react-dom");
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
 var _insertCss = _dereq_("insert-css");
 
 var _insertCss2 = _interopRequireDefault(_insertCss);
@@ -504,8 +507,6 @@ if (typeof window != 'undefined' && window.document) {
 
 var MOUSE_DOWN = 0;
 var MOUSE_UP = 1;
-
-_react2["default"].initializeTouchEvents(true);
 
 var RangeSlider = (function (_React$Component) {
 	_inherits(RangeSlider, _React$Component);
@@ -557,7 +558,7 @@ var RangeSlider = (function (_React$Component) {
 	}, {
 		key: "getPositionForLimit",
 		value: function getPositionForLimit(pageX) {
-			var rect = _react2["default"].findDOMNode(this).getBoundingClientRect();
+			var rect = _reactDom2["default"].findDOMNode(this).getBoundingClientRect();
 			if (rect.width > 0) {
 				var percentage = (pageX - rect.left) / rect.width;
 				if (percentage > 1) {
@@ -687,7 +688,7 @@ RangeSlider.propTypes = {
 exports["default"] = RangeSlider;
 module.exports = exports["default"];
 
-},{"insert-css":1,"react":"react"}]},{},[2])(2)
+},{"insert-css":1,"react":"react","react-dom":"react-dom"}]},{},[2])(2)
 });
 },{}],6:[function(_dereq_,module,exports){
 var inserted = {};
@@ -2009,12 +2010,12 @@ module.exports = isEqual;
 
 },{"lodash._baseisequal":8,"lodash._bindcallback":9}],15:[function(_dereq_,module,exports){
 /**
- * lodash 3.0.5 (Custom Build) <https://lodash.com/>
+ * lodash 3.0.6 (Custom Build) <https://lodash.com/>
  * Build: `lodash modularize exports="npm" -o ./`
- * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
+ * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+ * Released under MIT license <https://lodash.com/license>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
- * Copyright 2009-2016 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
- * Available under MIT license <https://lodash.com/license>
+ * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
  */
 
 /** Used as references for various `Number` constants. */
@@ -2036,6 +2037,7 @@ var argsTag = '[object Arguments]',
     weakMapTag = '[object WeakMap]';
 
 var arrayBufferTag = '[object ArrayBuffer]',
+    dataViewTag = '[object DataView]',
     float32Tag = '[object Float32Array]',
     float64Tag = '[object Float64Array]',
     int8Tag = '[object Int8Array]',
@@ -2055,11 +2057,12 @@ typedArrayTags[uint8ClampedTag] = typedArrayTags[uint16Tag] =
 typedArrayTags[uint32Tag] = true;
 typedArrayTags[argsTag] = typedArrayTags[arrayTag] =
 typedArrayTags[arrayBufferTag] = typedArrayTags[boolTag] =
-typedArrayTags[dateTag] = typedArrayTags[errorTag] =
-typedArrayTags[funcTag] = typedArrayTags[mapTag] =
-typedArrayTags[numberTag] = typedArrayTags[objectTag] =
-typedArrayTags[regexpTag] = typedArrayTags[setTag] =
-typedArrayTags[stringTag] = typedArrayTags[weakMapTag] = false;
+typedArrayTags[dataViewTag] = typedArrayTags[dateTag] =
+typedArrayTags[errorTag] = typedArrayTags[funcTag] =
+typedArrayTags[mapTag] = typedArrayTags[numberTag] =
+typedArrayTags[objectTag] = typedArrayTags[regexpTag] =
+typedArrayTags[setTag] = typedArrayTags[stringTag] =
+typedArrayTags[weakMapTag] = false;
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -2073,13 +2076,16 @@ var objectToString = objectProto.toString;
 /**
  * Checks if `value` is a valid array-like length.
  *
- * **Note:** This function is loosely based on [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
+ * **Note:** This function is loosely based on
+ * [`ToLength`](http://ecma-international.org/ecma-262/6.0/#sec-tolength).
  *
  * @static
  * @memberOf _
+ * @since 4.0.0
  * @category Lang
  * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+ * @returns {boolean} Returns `true` if `value` is a valid length,
+ *  else `false`.
  * @example
  *
  * _.isLength(3);
@@ -2105,6 +2111,7 @@ function isLength(value) {
  *
  * @static
  * @memberOf _
+ * @since 4.0.0
  * @category Lang
  * @param {*} value The value to check.
  * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
@@ -2131,9 +2138,11 @@ function isObjectLike(value) {
  *
  * @static
  * @memberOf _
+ * @since 3.0.0
  * @category Lang
  * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+ * @returns {boolean} Returns `true` if `value` is correctly classified,
+ *  else `false`.
  * @example
  *
  * _.isTypedArray(new Uint8Array);
@@ -2388,6 +2397,23 @@ function keysIn(object) {
 module.exports = keys;
 
 },{"lodash._getnative":10,"lodash.isarguments":12,"lodash.isarray":13}],17:[function(_dereq_,module,exports){
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeGetPrototype = Object.getPrototypeOf;
+
+/**
+ * Gets the `[[Prototype]]` of `value`.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @returns {null|Object} Returns the `[[Prototype]]`.
+ */
+function getPrototype(value) {
+  return nativeGetPrototype(Object(value));
+}
+
+module.exports = getPrototype;
+
+},{}],18:[function(_dereq_,module,exports){
 /**
  * Checks if `value` is a host object in IE < 9.
  *
@@ -2409,13 +2435,14 @@ function isHostObject(value) {
 
 module.exports = isHostObject;
 
-},{}],18:[function(_dereq_,module,exports){
+},{}],19:[function(_dereq_,module,exports){
 /**
  * Checks if `value` is object-like. A value is object-like if it's not `null`
  * and has a `typeof` result of "object".
  *
  * @static
  * @memberOf _
+ * @since 4.0.0
  * @category Lang
  * @param {*} value The value to check.
  * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
@@ -2439,8 +2466,9 @@ function isObjectLike(value) {
 
 module.exports = isObjectLike;
 
-},{}],19:[function(_dereq_,module,exports){
-var isHostObject = _dereq_('./_isHostObject'),
+},{}],20:[function(_dereq_,module,exports){
+var getPrototype = _dereq_('./_getPrototype'),
+    isHostObject = _dereq_('./_isHostObject'),
     isObjectLike = _dereq_('./isObjectLike');
 
 /** `Object#toString` result references. */
@@ -2452,17 +2480,18 @@ var objectProto = Object.prototype;
 /** Used to resolve the decompiled source of functions. */
 var funcToString = Function.prototype.toString;
 
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
 /** Used to infer the `Object` constructor. */
 var objectCtorString = funcToString.call(Object);
 
 /**
- * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
  * of values.
  */
 var objectToString = objectProto.toString;
-
-/** Built-in value references. */
-var getPrototypeOf = Object.getPrototypeOf;
 
 /**
  * Checks if `value` is a plain object, that is, an object created by the
@@ -2470,9 +2499,11 @@ var getPrototypeOf = Object.getPrototypeOf;
  *
  * @static
  * @memberOf _
+ * @since 0.8.0
  * @category Lang
  * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a plain object, else `false`.
+ * @returns {boolean} Returns `true` if `value` is a plain object,
+ *  else `false`.
  * @example
  *
  * function Foo() {
@@ -2496,18 +2527,18 @@ function isPlainObject(value) {
       objectToString.call(value) != objectTag || isHostObject(value)) {
     return false;
   }
-  var proto = getPrototypeOf(value);
+  var proto = getPrototype(value);
   if (proto === null) {
     return true;
   }
-  var Ctor = proto.constructor;
+  var Ctor = hasOwnProperty.call(proto, 'constructor') && proto.constructor;
   return (typeof Ctor == 'function' &&
     Ctor instanceof Ctor && funcToString.call(Ctor) == objectCtorString);
 }
 
 module.exports = isPlainObject;
 
-},{"./_isHostObject":17,"./isObjectLike":18}],20:[function(_dereq_,module,exports){
+},{"./_getPrototype":17,"./_isHostObject":18,"./isObjectLike":19}],21:[function(_dereq_,module,exports){
 module.exports = once
 
 once.proto = once(function () {
@@ -2528,7 +2559,7 @@ function once (fn) {
   }
 }
 
-},{}],21:[function(_dereq_,module,exports){
+},{}],22:[function(_dereq_,module,exports){
 var trim = _dereq_('trim')
   , forEach = _dereq_('for-each')
   , isArray = function(arg) {
@@ -2560,7 +2591,7 @@ module.exports = function (headers) {
 
   return result
 }
-},{"for-each":1,"trim":30}],22:[function(_dereq_,module,exports){
+},{"for-each":1,"trim":33}],23:[function(_dereq_,module,exports){
 'use strict';
 
 function thunkMiddleware(_ref) {
@@ -2575,12 +2606,13 @@ function thunkMiddleware(_ref) {
 }
 
 module.exports = thunkMiddleware;
-},{}],23:[function(_dereq_,module,exports){
+},{}],24:[function(_dereq_,module,exports){
 'use strict';
+
+exports.__esModule = true;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-exports.__esModule = true;
 exports["default"] = applyMiddleware;
 
 var _compose = _dereq_('./compose');
@@ -2633,7 +2665,7 @@ function applyMiddleware() {
     };
   };
 }
-},{"./compose":26}],24:[function(_dereq_,module,exports){
+},{"./compose":27}],25:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2685,7 +2717,7 @@ function bindActionCreators(actionCreators, dispatch) {
   }
   return boundActionCreators;
 }
-},{}],25:[function(_dereq_,module,exports){
+},{}],26:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2707,7 +2739,7 @@ function getUndefinedStateErrorMessage(key, action) {
   var actionType = action && action.type;
   var actionName = actionType && '"' + actionType.toString() + '"' || 'an action';
 
-  return 'Reducer "' + key + '" returned undefined handling ' + actionName + '. ' + 'To ignore an action, you must explicitly return the previous state.';
+  return 'Given action ' + actionName + ', reducer "' + key + '" returned undefined. ' + 'To ignore an action, you must explicitly return the previous state.';
 }
 
 function getUnexpectedStateShapeWarningMessage(inputState, reducers, action) {
@@ -2813,37 +2845,48 @@ function combineReducers(reducers) {
     return hasChanged ? nextState : state;
   };
 }
-},{"./createStore":27,"./utils/warning":29,"lodash/isPlainObject":19}],26:[function(_dereq_,module,exports){
+},{"./createStore":28,"./utils/warning":30,"lodash/isPlainObject":20}],27:[function(_dereq_,module,exports){
 "use strict";
 
 exports.__esModule = true;
 exports["default"] = compose;
 /**
- * Composes single-argument functions from right to left.
+ * Composes single-argument functions from right to left. The rightmost
+ * function can take multiple arguments as it provides the signature for
+ * the resulting composite function.
  *
  * @param {...Function} funcs The functions to compose.
- * @returns {Function} A function obtained by composing functions from right to
- * left. For example, compose(f, g, h) is identical to arg => f(g(h(arg))).
+ * @returns {Function} A function obtained by composing the argument functions
+ * from right to left. For example, compose(f, g, h) is identical to doing
+ * (...args) => f(g(h(...args))).
  */
+
 function compose() {
   for (var _len = arguments.length, funcs = Array(_len), _key = 0; _key < _len; _key++) {
     funcs[_key] = arguments[_key];
   }
 
-  return function () {
-    if (funcs.length === 0) {
-      return arguments.length <= 0 ? undefined : arguments[0];
-    }
+  if (funcs.length === 0) {
+    return function (arg) {
+      return arg;
+    };
+  } else {
+    var _ret = function () {
+      var last = funcs[funcs.length - 1];
+      var rest = funcs.slice(0, -1);
+      return {
+        v: function v() {
+          return rest.reduceRight(function (composed, f) {
+            return f(composed);
+          }, last.apply(undefined, arguments));
+        }
+      };
+    }();
 
-    var last = funcs[funcs.length - 1];
-    var rest = funcs.slice(0, -1);
-
-    return rest.reduceRight(function (composed, f) {
-      return f(composed);
-    }, last.apply(undefined, arguments));
-  };
+    if (typeof _ret === "object") return _ret.v;
+  }
 }
-},{}],27:[function(_dereq_,module,exports){
+},{}],28:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2853,6 +2896,10 @@ exports["default"] = createStore;
 var _isPlainObject = _dereq_('lodash/isPlainObject');
 
 var _isPlainObject2 = _interopRequireDefault(_isPlainObject);
+
+var _symbolObservable = _dereq_('symbol-observable');
+
+var _symbolObservable2 = _interopRequireDefault(_symbolObservable);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -2892,6 +2939,8 @@ var ActionTypes = exports.ActionTypes = {
  * and subscribe to changes.
  */
 function createStore(reducer, initialState, enhancer) {
+  var _ref2;
+
   if (typeof initialState === 'function' && typeof enhancer === 'undefined') {
     enhancer = initialState;
     initialState = undefined;
@@ -2944,7 +2993,7 @@ function createStore(reducer, initialState, enhancer) {
    * However, the next `dispatch()` call, whether nested or not, will use a more
    * recent snapshot of the subscription list.
    *
-   * 2. The listener should not expect to see all states changes, as the state
+   * 2. The listener should not expect to see all state changes, as the state
    * might have been updated multiple times during a nested `dispatch()` before
    * the listener is called. It is, however, guaranteed that all subscribers
    * registered before the `dispatch()` started will be called with the latest
@@ -3048,19 +3097,59 @@ function createStore(reducer, initialState, enhancer) {
     dispatch({ type: ActionTypes.INIT });
   }
 
+  /**
+   * Interoperability point for observable/reactive libraries.
+   * @returns {observable} A minimal observable of state changes.
+   * For more information, see the observable proposal:
+   * https://github.com/zenparsing/es-observable
+   */
+  function observable() {
+    var _ref;
+
+    var outerSubscribe = subscribe;
+    return _ref = {
+      /**
+       * The minimal observable subscription method.
+       * @param {Object} observer Any object that can be used as an observer.
+       * The observer object should have a `next` method.
+       * @returns {subscription} An object with an `unsubscribe` method that can
+       * be used to unsubscribe the observable from the store, and prevent further
+       * emission of values from the observable.
+       */
+
+      subscribe: function subscribe(observer) {
+        if (typeof observer !== 'object') {
+          throw new TypeError('Expected the observer to be an object.');
+        }
+
+        function observeState() {
+          if (observer.next) {
+            observer.next(getState());
+          }
+        }
+
+        observeState();
+        var unsubscribe = outerSubscribe(observeState);
+        return { unsubscribe: unsubscribe };
+      }
+    }, _ref[_symbolObservable2["default"]] = function () {
+      return this;
+    }, _ref;
+  }
+
   // When a store is created, an "INIT" action is dispatched so that every
   // reducer returns their initial state. This effectively populates
   // the initial state tree.
   dispatch({ type: ActionTypes.INIT });
 
-  return {
+  return _ref2 = {
     dispatch: dispatch,
     subscribe: subscribe,
     getState: getState,
     replaceReducer: replaceReducer
-  };
+  }, _ref2[_symbolObservable2["default"]] = observable, _ref2;
 }
-},{"lodash/isPlainObject":19}],28:[function(_dereq_,module,exports){
+},{"lodash/isPlainObject":20,"symbol-observable":31}],29:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -3107,7 +3196,7 @@ exports.combineReducers = _combineReducers2["default"];
 exports.bindActionCreators = _bindActionCreators2["default"];
 exports.applyMiddleware = _applyMiddleware2["default"];
 exports.compose = _compose2["default"];
-},{"./applyMiddleware":23,"./bindActionCreators":24,"./combineReducers":25,"./compose":26,"./createStore":27,"./utils/warning":29}],29:[function(_dereq_,module,exports){
+},{"./applyMiddleware":24,"./bindActionCreators":25,"./combineReducers":26,"./compose":27,"./createStore":28,"./utils/warning":30}],30:[function(_dereq_,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -3125,14 +3214,42 @@ function warning(message) {
   }
   /* eslint-enable no-console */
   try {
-    // This error was thrown as a convenience so that you can use this stack
-    // to find the callsite that caused this warning to fire.
+    // This error was thrown as a convenience so that if you enable
+    // "break on all exceptions" in your console,
+    // it would pause the execution at this line.
     throw new Error(message);
     /* eslint-disable no-empty */
   } catch (e) {}
   /* eslint-enable no-empty */
 }
-},{}],30:[function(_dereq_,module,exports){
+},{}],31:[function(_dereq_,module,exports){
+/* global window */
+'use strict';
+
+module.exports = _dereq_('./ponyfill')(global || window || this);
+
+},{"./ponyfill":32}],32:[function(_dereq_,module,exports){
+'use strict';
+
+module.exports = function symbolObservablePonyfill(root) {
+	var result;
+	var Symbol = root.Symbol;
+
+	if (typeof Symbol === 'function') {
+		if (Symbol.observable) {
+			result = Symbol.observable;
+		} else {
+			result = Symbol('observable');
+			Symbol.observable = result;
+		}
+	} else {
+		result = '@@observable';
+	}
+
+	return result;
+};
+
+},{}],33:[function(_dereq_,module,exports){
 
 exports = module.exports = trim;
 
@@ -3148,7 +3265,7 @@ exports.right = function(str){
   return str.replace(/\s*$/, '');
 };
 
-},{}],31:[function(_dereq_,module,exports){
+},{}],34:[function(_dereq_,module,exports){
 "use strict";
 var window = _dereq_("global/window")
 var once = _dereq_("once")
@@ -3369,7 +3486,7 @@ function _createXHR(options) {
 
 function noop() {}
 
-},{"global/window":2,"is-function":7,"once":20,"parse-headers":21,"xtend":32}],32:[function(_dereq_,module,exports){
+},{"global/window":2,"is-function":7,"once":21,"parse-headers":22,"xtend":35}],35:[function(_dereq_,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -3390,7 +3507,7 @@ function extend() {
     return target
 }
 
-},{}],33:[function(_dereq_,module,exports){
+},{}],36:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3482,7 +3599,7 @@ function setSort(field) {
 	});
 }
 
-},{"./results":34}],34:[function(_dereq_,module,exports){
+},{"./results":37}],37:[function(_dereq_,module,exports){
 // TODO Fix caching
 
 "use strict";
@@ -3620,7 +3737,7 @@ function fetchNextResults(url) {
 	};
 }
 
-},{"xhr":31}],35:[function(_dereq_,module,exports){
+},{"xhr":34}],38:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3669,7 +3786,7 @@ exports["default"] = {
 };
 module.exports = exports["default"];
 
-},{"./list-facet":47,"./range-facet":50,"react":"react"}],36:[function(_dereq_,module,exports){
+},{"./list-facet":50,"./range-facet":53,"react":"react"}],39:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3779,7 +3896,7 @@ FilterMenu.propTypes = {
 exports["default"] = FilterMenu;
 module.exports = exports["default"];
 
-},{"../icons/filter":39,"classnames":"classnames","hire-forms-input":4,"insert-css":6,"react":"react"}],37:[function(_dereq_,module,exports){
+},{"../icons/filter":42,"classnames":"classnames","hire-forms-input":4,"insert-css":6,"react":"react"}],40:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3910,7 +4027,7 @@ Filters.propTypes = {
 exports["default"] = Filters;
 module.exports = exports["default"];
 
-},{"./facet-map":35,"./text-search":55,"react":"react"}],38:[function(_dereq_,module,exports){
+},{"./facet-map":38,"./text-search":58,"react":"react"}],41:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3971,7 +4088,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],39:[function(_dereq_,module,exports){
+},{"react":"react"}],42:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4031,7 +4148,7 @@ FilterIcon.propTypes = {
 exports["default"] = FilterIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],40:[function(_dereq_,module,exports){
+},{"react":"react"}],43:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4053,6 +4170,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var _react = _dereq_("react");
 
 var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = _dereq_("react-dom");
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
 
 var getNextState = function getNextState(prevState, progress) {
 	var state = Object.keys(prevState).reduce(function (obj, currentProp) {
@@ -4149,7 +4270,7 @@ var LoaderThreeDots = (function (_React$Component) {
 			}
 
 			var progress = timestamp - this.start;
-			if (_react2["default"].findDOMNode(this).getBoundingClientRect().width) {
+			if (_reactDom2["default"].findDOMNode(this).getBoundingClientRect().width) {
 				this.setState({
 					circle1: getNextState(this.state.circle1, progress),
 					circle2: getNextState(this.state.circle2, progress),
@@ -4198,7 +4319,7 @@ LoaderThreeDots.propTypes = {
 exports["default"] = LoaderThreeDots;
 module.exports = exports["default"];
 
-},{"react":"react"}],41:[function(_dereq_,module,exports){
+},{"react":"react","react-dom":"react-dom"}],44:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4258,7 +4379,7 @@ CheckedIcon.propTypes = {
 exports["default"] = CheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],42:[function(_dereq_,module,exports){
+},{"react":"react"}],45:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4329,7 +4450,7 @@ SortAlphabeticallyAscending.propTypes = {
 exports["default"] = SortAlphabeticallyAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],43:[function(_dereq_,module,exports){
+},{"react":"react"}],46:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4400,7 +4521,7 @@ SortAlphabeticallyDescending.propTypes = {
 exports["default"] = SortAlphabeticallyDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],44:[function(_dereq_,module,exports){
+},{"react":"react"}],47:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4469,7 +4590,7 @@ SortCountAscending.propTypes = {
 exports["default"] = SortCountAscending;
 module.exports = exports["default"];
 
-},{"react":"react"}],45:[function(_dereq_,module,exports){
+},{"react":"react"}],48:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4538,7 +4659,7 @@ SortCountDescending.propTypes = {
 exports["default"] = SortCountDescending;
 module.exports = exports["default"];
 
-},{"react":"react"}],46:[function(_dereq_,module,exports){
+},{"react":"react"}],49:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4597,7 +4718,7 @@ UncheckedIcon.propTypes = {
 exports["default"] = UncheckedIcon;
 module.exports = exports["default"];
 
-},{"react":"react"}],47:[function(_dereq_,module,exports){
+},{"react":"react"}],50:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4817,7 +4938,7 @@ ListFacet.propTypes = {
 exports["default"] = ListFacet;
 module.exports = exports["default"];
 
-},{"../filter-menu":36,"../sort-menu":54,"./list-item":48,"./sort-function":49,"classnames":"classnames","insert-css":6,"react":"react"}],48:[function(_dereq_,module,exports){
+},{"../filter-menu":39,"../sort-menu":57,"./list-item":51,"./sort-function":52,"classnames":"classnames","insert-css":6,"react":"react"}],51:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4927,7 +5048,7 @@ ListFacetListItem.propTypes = {
 exports["default"] = ListFacetListItem;
 module.exports = exports["default"];
 
-},{"../icons/checked":38,"../icons/unchecked":46,"react":"react"}],49:[function(_dereq_,module,exports){
+},{"../icons/checked":41,"../icons/unchecked":49,"react":"react"}],52:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4991,7 +5112,7 @@ function sortFunction(type, direction) {
 
 module.exports = exports["default"];
 
-},{}],50:[function(_dereq_,module,exports){
+},{}],53:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5140,7 +5261,7 @@ RangeFacet.propTypes = {
 exports["default"] = RangeFacet;
 module.exports = exports["default"];
 
-},{"hire-range-slider":5,"insert-css":6,"react":"react"}],51:[function(_dereq_,module,exports){
+},{"hire-range-slider":5,"insert-css":6,"react":"react"}],54:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5321,7 +5442,7 @@ Results.propTypes = {
 exports["default"] = Results;
 module.exports = exports["default"];
 
-},{"../icons/loader-three-dots":40,"./result":52,"./sort-menu":53,"classnames":"classnames","hire-current-query":3,"insert-css":6,"lodash.debounce":11,"react":"react"}],52:[function(_dereq_,module,exports){
+},{"../icons/loader-three-dots":43,"./result":55,"./sort-menu":56,"classnames":"classnames","hire-current-query":3,"insert-css":6,"lodash.debounce":11,"react":"react"}],55:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5421,7 +5542,7 @@ Result.propTypes = {
 exports["default"] = Result;
 module.exports = exports["default"];
 
-},{"react":"react"}],53:[function(_dereq_,module,exports){
+},{"react":"react"}],56:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5554,7 +5675,7 @@ ResultsSortMenu.propTypes = {
 exports["default"] = ResultsSortMenu;
 module.exports = exports["default"];
 
-},{"classnames":"classnames","insert-css":6,"react":"react"}],54:[function(_dereq_,module,exports){
+},{"classnames":"classnames","insert-css":6,"react":"react"}],57:[function(_dereq_,module,exports){
 /* TODO Remove sort menu and move sort options (count/alpha) to facet schema.
 	A schema is needed, because different facets, should be able to have different
 	options set. */
@@ -5690,7 +5811,7 @@ SortMenu.propTypes = {
 exports["default"] = SortMenu;
 module.exports = exports["default"];
 
-},{"../icons/sort-alphabetically-ascending":42,"../icons/sort-alphabetically-descending":43,"../icons/sort-count-ascending":44,"../icons/sort-count-descending":45,"classnames":"classnames","insert-css":6,"react":"react"}],55:[function(_dereq_,module,exports){
+},{"../icons/sort-alphabetically-ascending":45,"../icons/sort-alphabetically-descending":46,"../icons/sort-count-ascending":47,"../icons/sort-count-descending":48,"classnames":"classnames","insert-css":6,"react":"react"}],58:[function(_dereq_,module,exports){
 // TODO add searching class to .search-icon when async query is busy
 
 "use strict";
@@ -5831,7 +5952,7 @@ TextSearch.propTypes = {
 exports["default"] = TextSearch;
 module.exports = exports["default"];
 
-},{"../icons/search":41,"classnames":"classnames","insert-css":6,"react":"react"}],56:[function(_dereq_,module,exports){
+},{"../icons/search":44,"classnames":"classnames","insert-css":6,"react":"react"}],59:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5859,7 +5980,7 @@ exports.configDefaults = configDefaults;
 exports.labelsDefaults = labelsDefaults;
 exports.queryDefaults = queryDefaults;
 
-},{}],57:[function(_dereq_,module,exports){
+},{}],60:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6150,7 +6271,7 @@ FacetedSearch.propTypes = {
 exports.facetMap = _componentsFacetMap2["default"];
 exports["default"] = FacetedSearch;
 
-},{"./actions/queries":33,"./actions/results":34,"./components/facet-map":35,"./components/filters":37,"./components/icons/loader-three-dots":40,"./components/results":51,"./defaults":56,"./reducers":58,"./reducers/results":60,"classnames":"classnames","insert-css":6,"lodash.isequal":14,"react":"react","redux":28,"redux-thunk":22}],58:[function(_dereq_,module,exports){
+},{"./actions/queries":36,"./actions/results":37,"./components/facet-map":38,"./components/filters":40,"./components/icons/loader-three-dots":43,"./components/results":54,"./defaults":59,"./reducers":61,"./reducers/results":63,"classnames":"classnames","insert-css":6,"lodash.isequal":14,"react":"react","redux":29,"redux-thunk":23}],61:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6183,7 +6304,7 @@ exports["default"] = (0, _redux.combineReducers)({
 });
 module.exports = exports["default"];
 
-},{"./queries":59,"./results":60,"redux":28}],59:[function(_dereq_,module,exports){
+},{"./queries":62,"./results":63,"redux":29}],62:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6376,7 +6497,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{"../defaults":56}],60:[function(_dereq_,module,exports){
+},{"../defaults":59}],63:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6505,5 +6626,5 @@ exports["default"] = function (state, action) {
 	return state;
 };
 
-},{}]},{},[57])(57)
+},{}]},{},[60])(60)
 });
