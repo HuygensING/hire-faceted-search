@@ -1,3 +1,12 @@
+.hire-range-facet > div > label > input {
+	max-width: 40px;
+}
+
+.hire-range-facet > div > label {
+	cursor: pointer;
+}
+
 .hire-range-facet > div > label:nth-of-type(2) {
 	float: right;
+	text-align: right;
 }

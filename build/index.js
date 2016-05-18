@@ -4133,7 +4133,7 @@ Filters.propTypes = {
 exports["default"] = Filters;
 module.exports = exports["default"];
 
-},{"./facet-map":36,"./text-search":56,"react":"react"}],39:[function(_dereq_,module,exports){
+},{"./facet-map":36,"./text-search":57,"react":"react"}],39:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5040,7 +5040,7 @@ ListFacet.propTypes = {
 exports["default"] = ListFacet;
 module.exports = exports["default"];
 
-},{"../filter-menu":37,"../sort-menu":55,"./list-item":49,"./sort-function":50,"classnames":"classnames","insert-css":7,"react":"react"}],49:[function(_dereq_,module,exports){
+},{"../filter-menu":37,"../sort-menu":56,"./list-item":49,"./sort-function":50,"classnames":"classnames","insert-css":7,"react":"react"}],49:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5245,8 +5245,12 @@ var _insertCss = _dereq_("insert-css");
 
 var _insertCss2 = _interopRequireDefault(_insertCss);
 
+var _labelInput = _dereq_("./label-input");
 
-var css = Buffer("LmhpcmUtcmFuZ2UtZmFjZXQgPiBkaXYgPiBsYWJlbDpudGgtb2YtdHlwZSgyKSB7CglmbG9hdDogcmlnaHQ7Cn0=","base64");
+var _labelInput2 = _interopRequireDefault(_labelInput);
+
+
+var css = Buffer("LmhpcmUtcmFuZ2UtZmFjZXQgPiBkaXYgPiBsYWJlbCA+IGlucHV0IHsKCW1heC13aWR0aDogNDBweDsKfQoKLmhpcmUtcmFuZ2UtZmFjZXQgPiBkaXYgPiBsYWJlbCB7CgljdXJzb3I6IHBvaW50ZXI7Cn0KCi5oaXJlLXJhbmdlLWZhY2V0ID4gZGl2ID4gbGFiZWw6bnRoLW9mLXR5cGUoMikgewoJZmxvYXQ6IHJpZ2h0OwoJdGV4dC1hbGlnbjogcmlnaHQ7Cn0=","base64");
 if (typeof window != 'undefined' && window.document) {
 	(0, _insertCss2["default"])(css, { prepend: true });
 }
@@ -5304,6 +5308,28 @@ var RangeFacet = (function (_React$Component) {
 			}
 		}
 	}, {
+		key: "onLowerLimitChange",
+		value: function onLowerLimitChange(inValue) {
+			var value = inValue < this.props.data.options[0].lowerLimit * 0.0001 ? this.props.data.options[0].lowerLimit : inValue > this.state.upperLimit * 0.0001 ? this.state.upperLimit : inValue + "0101";
+
+			var newState = {
+				lowerLimit: value,
+				upperLimit: this.state.upperLimit
+			};
+			this.props.onSelectFacetRange(this.props.data.name, newState);
+		}
+	}, {
+		key: "onUpperLimitChange",
+		value: function onUpperLimitChange(inValue) {
+			var value = inValue > this.props.data.options[0].upperLimit * 0.0001 ? this.props.data.options[0].upperLimit : inValue < this.state.lowerLimit * 0.0001 ? this.state.upperLimit : inValue + "1231";
+
+			var newState = {
+				lowerLimit: this.state.lowerLimit,
+				upperLimit: value
+			};
+			this.props.onSelectFacetRange(this.props.data.name, newState);
+		}
+	}, {
 		key: "getPercentage",
 		value: function getPercentage(key) {
 			var lowerBound = this.props.data.options[0].lowerLimit;
@@ -5335,16 +5361,8 @@ var RangeFacet = (function (_React$Component) {
 					"div",
 					null,
 					_react2["default"].createElement(_hireRangeSlider2["default"], { lowerLimit: this.getPercentage("lowerLimit"), onChange: this.onRangeChange.bind(this), upperLimit: this.getPercentage("upperLimit") }),
-					_react2["default"].createElement(
-						"label",
-						null,
-						Math.floor(this.state.lowerLimit * 0.0001)
-					),
-					_react2["default"].createElement(
-						"label",
-						null,
-						Math.floor(this.state.upperLimit * 0.0001)
-					)
+					_react2["default"].createElement(_labelInput2["default"], { onChange: this.onLowerLimitChange.bind(this), value: Math.floor(this.state.lowerLimit * 0.0001) }),
+					_react2["default"].createElement(_labelInput2["default"], { onChange: this.onUpperLimitChange.bind(this), value: Math.floor(this.state.upperLimit * 0.0001) })
 				)
 			);
 		}
@@ -5363,7 +5381,98 @@ RangeFacet.propTypes = {
 exports["default"] = RangeFacet;
 module.exports = exports["default"];
 
-},{"hire-range-slider":6,"insert-css":7,"react":"react"}],52:[function(_dereq_,module,exports){
+},{"./label-input":52,"hire-range-slider":6,"insert-css":7,"react":"react"}],52:[function(_dereq_,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _react = _dereq_("react");
+
+var _react2 = _interopRequireDefault(_react);
+
+var LabelInput = (function (_React$Component) {
+	_inherits(LabelInput, _React$Component);
+
+	function LabelInput(props) {
+		_classCallCheck(this, LabelInput);
+
+		_get(Object.getPrototypeOf(LabelInput.prototype), "constructor", this).call(this, props);
+
+		this.state = {
+			stateValue: null,
+			editing: false
+		};
+	}
+
+	_createClass(LabelInput, [{
+		key: "onLabelClick",
+		value: function onLabelClick() {
+			this.setState({ stateValue: this.props.value, editing: true });
+		}
+	}, {
+		key: "onInputChange",
+		value: function onInputChange(ev) {
+			this.setState({ stateValue: ev.target.value });
+		}
+	}, {
+		key: "onInputKeyPress",
+		value: function onInputKeyPress(ev) {
+			if (ev.key === "Enter") {
+				this.props.onChange(this.state.stateValue);
+				this.setState({ stateValue: null, editing: false });
+			}
+		}
+	}, {
+		key: "render",
+		value: function render() {
+			var value = this.props.value;
+			var _state = this.state;
+			var stateValue = _state.stateValue;
+			var editing = _state.editing;
+
+			var label = editing ? null : _react2["default"].createElement(
+				"label",
+				{ onClick: this.onLabelClick.bind(this) },
+				value
+			);
+			var input = editing ? _react2["default"].createElement(
+				"label",
+				null,
+				_react2["default"].createElement("input", {
+					onChange: this.onInputChange.bind(this),
+					onKeyPress: this.onInputKeyPress.bind(this),
+					type: "number",
+					value: stateValue
+				})
+			) : null;
+			return input || label;
+		}
+	}]);
+
+	return LabelInput;
+})(_react2["default"].Component);
+
+LabelInput.propTypes = {
+	onChange: _react2["default"].PropTypes.func,
+	value: _react2["default"].PropTypes.number
+};
+
+exports["default"] = LabelInput;
+module.exports = exports["default"];
+
+},{"react":"react"}],53:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5544,7 +5653,7 @@ Results.propTypes = {
 exports["default"] = Results;
 module.exports = exports["default"];
 
-},{"../icons/loader-three-dots":41,"./result":53,"./sort-menu":54,"classnames":"classnames","hire-current-query":4,"insert-css":7,"lodash.debounce":12,"react":"react"}],53:[function(_dereq_,module,exports){
+},{"../icons/loader-three-dots":41,"./result":54,"./sort-menu":55,"classnames":"classnames","hire-current-query":4,"insert-css":7,"lodash.debounce":12,"react":"react"}],54:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5644,7 +5753,7 @@ Result.propTypes = {
 exports["default"] = Result;
 module.exports = exports["default"];
 
-},{"react":"react"}],54:[function(_dereq_,module,exports){
+},{"react":"react"}],55:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5777,7 +5886,7 @@ ResultsSortMenu.propTypes = {
 exports["default"] = ResultsSortMenu;
 module.exports = exports["default"];
 
-},{"classnames":"classnames","insert-css":7,"react":"react"}],55:[function(_dereq_,module,exports){
+},{"classnames":"classnames","insert-css":7,"react":"react"}],56:[function(_dereq_,module,exports){
 /* TODO Remove sort menu and move sort options (count/alpha) to facet schema.
 	A schema is needed, because different facets, should be able to have different
 	options set. */
@@ -5913,7 +6022,7 @@ SortMenu.propTypes = {
 exports["default"] = SortMenu;
 module.exports = exports["default"];
 
-},{"../icons/sort-alphabetically-ascending":43,"../icons/sort-alphabetically-descending":44,"../icons/sort-count-ascending":45,"../icons/sort-count-descending":46,"classnames":"classnames","insert-css":7,"react":"react"}],56:[function(_dereq_,module,exports){
+},{"../icons/sort-alphabetically-ascending":43,"../icons/sort-alphabetically-descending":44,"../icons/sort-count-ascending":45,"../icons/sort-count-descending":46,"classnames":"classnames","insert-css":7,"react":"react"}],57:[function(_dereq_,module,exports){
 // TODO add searching class to .search-icon when async query is busy
 
 "use strict";
@@ -6054,7 +6163,7 @@ TextSearch.propTypes = {
 exports["default"] = TextSearch;
 module.exports = exports["default"];
 
-},{"../icons/search":42,"classnames":"classnames","insert-css":7,"react":"react"}],57:[function(_dereq_,module,exports){
+},{"../icons/search":42,"classnames":"classnames","insert-css":7,"react":"react"}],58:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6082,7 +6191,7 @@ exports.configDefaults = configDefaults;
 exports.labelsDefaults = labelsDefaults;
 exports.queryDefaults = queryDefaults;
 
-},{}],58:[function(_dereq_,module,exports){
+},{}],59:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6379,7 +6488,7 @@ FacetedSearch.propTypes = {
 exports.facetMap = _componentsFacetMap2["default"];
 exports["default"] = FacetedSearch;
 
-},{"./actions/queries":34,"./actions/results":35,"./components/facet-map":36,"./components/filters":38,"./components/icons/loader-three-dots":41,"./components/results":52,"./defaults":57,"./reducers":59,"./reducers/results":61,"classnames":"classnames","insert-css":7,"lodash.isequal":15,"react":"react","redux":29,"redux-thunk":23}],59:[function(_dereq_,module,exports){
+},{"./actions/queries":34,"./actions/results":35,"./components/facet-map":36,"./components/filters":38,"./components/icons/loader-three-dots":41,"./components/results":53,"./defaults":58,"./reducers":60,"./reducers/results":62,"classnames":"classnames","insert-css":7,"lodash.isequal":15,"react":"react","redux":29,"redux-thunk":23}],60:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6412,7 +6521,7 @@ exports["default"] = (0, _redux.combineReducers)({
 });
 module.exports = exports["default"];
 
-},{"./queries":60,"./results":61,"redux":29}],60:[function(_dereq_,module,exports){
+},{"./queries":61,"./results":62,"redux":29}],61:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6605,7 +6714,7 @@ exports["default"] = function (state, action) {
 
 module.exports = exports["default"];
 
-},{"../defaults":57}],61:[function(_dereq_,module,exports){
+},{"../defaults":58}],62:[function(_dereq_,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6734,5 +6843,5 @@ exports["default"] = function (state, action) {
 	return state;
 };
 
-},{}]},{},[58])(58)
+},{}]},{},[59])(59)
 });

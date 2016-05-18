@@ -1,6 +1,7 @@
 import React from "react";
 import RangeSlider from "hire-range-slider";
 import insertCss from "insert-css";
+import LabelInput from "./label-input";
 
 let fs = require("fs");
 let css = fs.readFileSync(__dirname + "/index.css");
@@ -52,6 +53,30 @@ class RangeFacet extends React.Component {
 		}
 	}
 
+	onLowerLimitChange(inValue) {
+		const value = inValue < this.props.data.options[0].lowerLimit * 0.0001 ?
+			this.props.data.options[0].lowerLimit : inValue > this.state.upperLimit * 0.0001 ?
+			this.state.upperLimit : `${inValue}0101`;
+
+		const newState = {
+			lowerLimit: value,
+			upperLimit: this.state.upperLimit
+		};
+		this.props.onSelectFacetRange(this.props.data.name, newState);
+	}
+
+	onUpperLimitChange(inValue) {
+		const value = inValue > this.props.data.options[0].upperLimit * 0.0001 ?
+			this.props.data.options[0].upperLimit : inValue < this.state.lowerLimit * 0.0001 ?
+			this.state.upperLimit : `${inValue}1231`;
+
+		const newState = {
+			lowerLimit: this.state.lowerLimit,
+			upperLimit: value
+		};
+		this.props.onSelectFacetRange(this.props.data.name, newState);
+	}
+
 	getPercentage(key) {
 		let lowerBound = this.props.data.options[0].lowerLimit;
 		let upperBound = this.props.data.options[0].upperLimit;
@@ -74,8 +99,8 @@ class RangeFacet extends React.Component {
 				</header>
 				<div>
 					<RangeSlider lowerLimit={this.getPercentage("lowerLimit")} onChange={this.onRangeChange.bind(this)} upperLimit={this.getPercentage("upperLimit")} />
-					<label>{Math.floor(this.state.lowerLimit * 0.0001)}</label>
-					<label>{Math.floor(this.state.upperLimit * 0.0001)}</label>
+					<LabelInput onChange={this.onLowerLimitChange.bind(this)} value={Math.floor(this.state.lowerLimit * 0.0001)} />
+					<LabelInput onChange={this.onUpperLimitChange.bind(this)} value={Math.floor(this.state.upperLimit * 0.0001)} />
 				</div>
 			</li>
 		);
