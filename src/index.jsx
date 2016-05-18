@@ -66,10 +66,12 @@ class FacetedSearch extends React.Component {
 		this.store = createStoreWithMiddleware(reducers, initialState);
 
 		if (this.props.query != null) {
-			this.store.dispatch({
-				type: "SET_INITIAL_QUERY",
-				initialQuery: this.props.query
-			});
+			this.store.dispatch(fetchResults())
+				.then(() => this.store.dispatch({
+					type: "SET_INITIAL_QUERY",
+					initialQuery: this.props.query
+				}))
+				.then(() => this.store.dispatch(fetchResults()));
 		}
 
 		this.state = this.store.getState();
