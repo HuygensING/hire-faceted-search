@@ -4,11 +4,12 @@
   "description": "",
   "main": "build/index.js",
   "scripts": {
+    "build": "npm run build-js && npm run build-css",
+    "build-css": "stylus --out build/index.css src/index.styl",
+    "build-js": "babel src -d build",
     "bump": "hi-bump",
-    "start": "scripts/watch.sh",
-    "test": "mocha --compilers js:babel/register --recursive test",
-    "test:watch": "nodemon -x \"mocha --compilers js:babel/register --recursive --watch test\" -w test -w build",
-    "update": "git pull && npm i"
+    "update": "git pull && npm i",
+    "watch-css": "stylus --watch --out build/index.css src/index.styl"
   },
   "repository": {
     "type": "git",
@@ -21,46 +22,22 @@
   },
   "homepage": "https://github.com/HuygensING/hire-faceted-search",
   "peerDependencies": {
-    "react": "^0.14.7",
-    "react-dom": "^0.14.7"
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2"
   },
   "devDependencies": {
-    "babel": "^5.8.12",
-    "babel-core": "^5.8.12",
-    "babel-eslint": "^4.0.10",
-    "babel-plugin-object-assign": "^1.2.1",
-    "babelify": "^6.1.3",
-    "brfs": "^1.4.0",
-    "classlist-polyfill": "^1.0.2",
-    "derequire": "^2.0.0",
-    "eslint": "^0.23.0",
-    "eslint-plugin-react": "^2.4.0",
-    "expect": "~1.9.0",
-    "hi-bump": "^1.1.1",
-    "mocha": "^2.2.5",
-    "nodemon": "^1.4.0",
-    "react": "^0.14.7",
-    "react-addons-test-utils": "^0.14.7",
-    "react-dom": "^0.14.7",
-    "should": "^7.0.2",
-    "sinon": "~1.16.1",
-    "skin-deep": "^0.14.0",
-    "watchify": "^3.3.0"
+    "babel-cli": "^6.22.2",
+    "babel-preset-es2015": "^6.22.0",
+    "babel-preset-react": "^6.22.0",
+    "babel-preset-stage-1": "^6.22.0",
+    "stylus": "^0.54.5"
   },
   "dependencies": {
-    "babel-polyfill": "^6.7.4",
-    "classnames": "^2.1.3",
-    "flux": "^2.0.3",
-    "hire-current-query": "v2.0.0",
-    "hire-forms-input": "v2.0.0",
-    "hire-range-slider": "v2.0.0",
-    "immutable": "^3.7.4",
-    "insert-css": "^0.2.0",
-    "lodash.debounce": "^3.1.1",
-    "lodash.isequal": "^3.0.4",
-    "redux": "^3.0.4",
-    "redux-devtools": "^2.1.5",
-    "redux-thunk": "^1.0.0",
-    "xhr": "^2.0.3"
+    "classnames": "^2.2.5",
+    "lodash.debounce": "^4.0.8",
+    "lodash.isequal": "^4.5.0",
+    "redux": "^3.6.0",
+    "redux-thunk": "^2.2.0",
+    "xhr": "^2.3.3"
   }
 }

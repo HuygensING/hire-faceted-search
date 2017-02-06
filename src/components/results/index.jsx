@@ -2,20 +2,12 @@ import React from "react";
 import ReactDOM from "react-dom";
 import cx from "classnames";
 import debounce from "lodash.debounce";
-import insertCss from "insert-css";
 
 import Result from "./result";
 import ResultsSortMenu from "./sort-menu";
 import CurrentQuery from "hire-current-query";
 
 import Loader from "../icons/loader-three-dots";
-
-let fs = require("fs");
-let css = fs.readFileSync(__dirname + "/index.css");
-
-if (typeof window != 'undefined' && window.document) {
-	insertCss(css, {prepend: true});
-}
 
 let inViewport = function(el) {
 	let rect = el.getBoundingClientRect();

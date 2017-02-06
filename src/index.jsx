@@ -1,7 +1,6 @@
 import React from "react";
 import cx from "classnames";
 import isEqual from "lodash.isequal";
-import insertCss from "insert-css";
 
 import Filters from "./components/filters";
 import Results from "./components/results";
@@ -42,13 +41,6 @@ import {createFirstResultsState} from "./reducers/results";
 //};
 
 let createStoreWithMiddleware = applyMiddleware(thunkMiddleware)(createStore);
-
-let fs = require("fs");
-// With path.resolve, brfs doesn't work!
-let css = fs.readFileSync(__dirname + "/index.css");
-if (typeof window !== "undefined" && window.document) {
-	insertCss(css, {prepend: true});
-}
 
 class FacetedSearch extends React.Component {
 	constructor(props) {

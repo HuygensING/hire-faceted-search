@@ -1,6 +1,6 @@
-import React from "react";
+import React, { Component } from "react";
 
-class CheckedIcon extends React.Component {
+class CheckedIcon extends Component {
 	render() {
 		let title = this.props.title != null ?
 			<title>{this.props.title}</title>:

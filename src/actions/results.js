@@ -49,7 +49,8 @@ let postResults = function(query, headers, url, rows, done) {
 	let cb = function(err, resp, body) {
 		if (err) { handleError(err, resp, body); }
 
-		let cbUrl = `${resp.headers.location}?rows=${rows}`;
+		// let cbUrl = `${resp.headers.location}?rows=${rows}`;
+		let cbUrl = resp.headers.location;
 
 		getResults(cbUrl, headers, done);
 	};

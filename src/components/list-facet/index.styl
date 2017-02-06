@@ -1,0 +1,87 @@
+li.hire-list-facet
+	background-color white
+	margin-top 20px
+	padding 20px 20px 20px 20px
+
+	& > header
+		& > h3,
+		& > .hire-faceted-search-filter-menu
+			display inline-block
+			vertical-align top
+			box-sizing border-box
+
+
+		& > h3
+			margin 0 0 12px 0
+			padding 0
+			width 60%
+
+		& > .hire-faceted-search-filter-menu
+			width 40%
+
+	& > ul
+		list-style none
+		max-height 264px
+
+		& > li.hire-list-facet-list-item
+			cursor pointer
+			position relative
+
+			& > svg,
+			& > label,
+			& > span.count
+				box-sizing border-box
+				display inline-block
+				vertical-align top
+
+			& svg.unchecked,
+			& svg.checked
+				height 12px
+				fill #AAA
+				margin-top 5px
+				width 12px
+
+			& label
+				cursor pointer
+				overflow-x hidden
+				padding 0 4px
+				text-overflow ellipsis
+				white-space nowrap
+				width calc(100% - 44px)
+
+			& > span.count
+				text-align right
+				width 32px
+
+		& > li.no-options-found
+			color #AAA
+			font-size 0.8em
+			font-style italic
+			margin 20px 0
+
+
+
+	&.show-all
+		padding 20px 0 0 20px
+
+		& > header
+			padding-right 20px
+
+		& > ul
+			/*height auto*/
+			max-height 316px /* 264px (ul.height) + 16px (button.lineHeight) + 16px (button.paddingTop + 20px (.hire-list-facet.paddingBottom) */
+			overflow-y scroll
+
+	& > button
+		background none
+		border none
+		color #AAA
+		cursor pointer
+		font-size 0.8em
+		font-style italic
+		line-height 16px
+		margin 0
+		outline none
+		padding 16px 0 0 0
+
+

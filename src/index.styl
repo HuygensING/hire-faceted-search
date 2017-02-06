@@ -1,0 +1,41 @@
+.hire-faceted-search
+	box-sizing border-box
+	height 100%
+	width 100%
+
+	input
+		-moz-appearance none
+		-webkit-appearance none
+
+	ul
+		list-style none
+		margin 0
+		padding 0
+
+	& > .hire-faceted-search-filters,
+	& > .hire-faceted-search-results
+		box-sizing border-box
+		display inline-block
+		height 100%
+		overflow-y auto
+		padding-bottom 10%
+		vertical-align top
+
+	& > .hire-faceted-search-filters
+		padding-right 2.5%
+		width 35%
+
+		& > button
+			background white
+			border none
+			cursor pointer
+			height 40px
+			margin-bottom 20px
+			outline none
+			padding 0 20px
+
+	& > .hire-faceted-search-results
+		padding-left 2.5%
+		width 60%
+
+@import './components/**/*.styl'
