@@ -1,6 +1,6 @@
 {
   "name": "hire-faceted-search",
-  "version": "6.0.1",
+  "version": "7.0.0",
   "description": "",
   "main": "build/index.js",
   "scripts": {
@@ -30,6 +30,7 @@
     "babel-preset-es2015": "^6.22.0",
     "babel-preset-react": "^6.22.0",
     "babel-preset-stage-1": "^6.22.0",
+    "hi-bump": "^1.1.1",
     "stylus": "^0.54.5"
   },
   "dependencies": {
